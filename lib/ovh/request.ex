@@ -9,21 +9,28 @@ defmodule ExOvh.Ovh.Request do
   ############################
 
 
-  @spec request(method :: atom, uri :: String.t, params :: map, signed :: boolean) :: map
-  def request(method, uri, params, signed) when signed === :true, do: request(ExOvh, method, uri, params, :true)
-  def request(method, uri, params, signed) when signed === :false, do: request(ExOvh, method, uri, params, :false)
+  @spec request(query :: ExOvh.Client.raw_query_t)
+               :: {:ok, map} | {:error, map}
+  def request({method, uri, params} = query), do: request(ExOvh, {method, uri, params} = query)
 
 
-  @spec request(client :: atom, method :: atom, uri :: String.t, params :: map, signed :: boolean) :: map
-  def request(client, method, uri, params, signed) do
+  @spec request(client :: atom, query :: ExOvh.Client.query_t)
+               :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
+  def request(client, {method, uri, params} = query) do
     config = config(client)
-    {method, uri, options} = Auth.prep_request(client, method, uri, params, signed)
+    {method, uri, options} = Auth.prep_request(client, query)
     resp = HTTPotion.request(method, uri, options)
+    resp =
     %{
       body: resp.body |> Poison.decode!(),
-      headers: resp.headers |> Enum.into(%{}),
+      headers: resp.headers,
       status_code: resp.status_code
     }
+    if resp.status_code >= 100 and resp.status_code < 300 do
+     {:ok, resp}
+    else
+     {:error, resp}
+    end
   end
 
 

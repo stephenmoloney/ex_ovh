@@ -2,7 +2,8 @@ defmodule ExOvh.Hubic.Request do
   alias Poison
   alias HTTPotion
   alias ExOvh.Hubic.Auth
-  alias ExOvh.Hubic.TokenCache
+  alias ExOvh.Hubic.Cache, as: TokenCache
+  alias ExOvh.Hubic.Openstack.Cache
   alias ExOvh.Hubic.Defaults
 
 
@@ -12,44 +13,43 @@ defmodule ExOvh.Hubic.Request do
 
 
   @doc "Api for requests to the hubic custom api"
-  @spec request(method :: atom, uri :: String.t, params :: map, retries :: integer) :: map
-  def request(method, uri, params \\ :nil), do: request(ExOvh, method, uri, params, 0)
+  @spec request(query :: ExOvh.Client.raw_query_t)
+                :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
+  def request({method, uri, params} = query), do: request(ExOvh, query, 0)
 
-
-  def request(client, method, uri, params, retries \\ 0) do
-    {method, uri, options} = Auth.prep_request(client, method, uri, params)
+  @spec request(client :: atom, query :: ExOvh.Client.raw_query_t, retries :: integer)
+                :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
+  def request(client, {method, uri, params} = query, retries \\ 0) do
+    {method, uri, options} = Auth.prep_request(client, query)
     resp = HTTPotion.request(method, uri, options)
     resp =
     %{
       body: resp.body |> Poison.decode!(),
-      headers: resp.headers |> Enum.into(%{}),
+      headers: resp.headers,
       status_code: resp.status_code
     }
-    |> LoggingUtils.log_return(:debug)
-    body = resp |> Map.get(:body)
-    if Map.has_key?(body, "error") do
-      error = Map.get(body, "error") <> " :: " <> Map.get(body, "error_description")
-      if body["error"] === "invalid_token" do
-        # Restart the gen_server to recuperate state
-        GenServer.call(TokenCache, :stop)
-        # Try request one more time
-        unless retries >= 1 do
-          request(method, uri, body, 1)
+
+    if resp.status_code >= 100 and resp.status_code < 300 do
+     {:ok, resp}
+    else
+      if Map.has_key?(resp.body, "error") do
+        #error = Map.get(body, "error") <> " :: " <> Map.get(body, "error_description")
+        if resp.body["error"] === "invalid_token" do
+          GenServer.call(TokenCache, :stop) # Restart the gen_server to recuperate state
+          unless retries >= 1, do: request(query, 1) # Try request one more time
+        else
+          {:error, resp}
         end
       else
-        error
+        {:error, resp}
       end
-    else
-      body
     end
+
   end
-
-
 
   ###################
   # Private
   ###################
-
 
 
 end

@@ -1,4 +1,4 @@
-defmodule ExOvh.Hubic.TokenCache do
+defmodule ExOvh.Hubic.Cache do
   @moduledoc ~s"""
   Caches the access_token and provides a simple get_token() api to other modules through one function get_token()
   Caches the hubic config map.
@@ -73,9 +73,7 @@ defmodule ExOvh.Hubic.TokenCache do
         LoggingUtils.log_return(error, :error)
         raise error
       refresh_token -> # TRY TO GET REFRESH TOKEN FROM THE CONFIG
-        LoggingUtils.log_return("init with refresh_token from config", :debug)
         tokens = get_latest_tokens(%{"refresh_token" => refresh_token}, config) |> Map.put(:lock, :false)
-        |> LoggingUtils.log_return(:debug)
         :ets.insert(ets_tablename(client), {:tokens, tokens})
         Task.start_link(fn -> monitor_expiry(client, tokens["expires_in"]) end)
         {:ok, {client, config, tokens}}
@@ -170,7 +168,6 @@ defmodule ExOvh.Hubic.TokenCache do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
     interval = (expires_in - 30) * 1000
     :timer.sleep(interval)
-    LoggingUtils.log_return("monitor_expiry task is fetching a new access token #{ets_tablename(client)}")
     {:reply, :ok, _state} = GenServer.call(gen_server_name(client), :add_lock)
     {:reply, :ok, _state} = GenServer.call(gen_server_name(client), :update_tokens)
     {:reply, :ok, state} = GenServer.call(gen_server_name(client), :remove_lock)

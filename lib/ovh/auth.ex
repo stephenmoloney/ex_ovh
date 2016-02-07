@@ -3,7 +3,7 @@ defmodule ExOvh.Ovh.Auth do
   alias ExOvh.Ovh.Defaults
   alias ExOvh.Ovh.Cache
 
-  @default_headers ["Content-Type": "application/json; charset=utf-8"]
+  @default_headers %{ "Content-Type": "application/json; charset=utf-8" }
   @methods [:get, :post, :put, :delete]
   @timeout 10_000
 
@@ -13,43 +13,31 @@ defmodule ExOvh.Ovh.Auth do
   ############################
 
 
-  @spec prep_request(method :: atom, uri :: String.t, params :: map, signed :: boolean) :: tuple
-  def prep_request(method, uri, params, signed \\ :true), do: prep_request(ExOvh, method, uri, params, signed)
+  @spec prep_request(query :: ExOvh.Client.raw_query_t)
+                     :: ExOvh.Client.query_t
+  def prep_request({method, uri, params} = query), do: prep_request(ExOvh, query)
 
-  @spec prep_request(client :: atom, method :: atom, uri :: String.t, params :: map, signed :: boolean) :: tuple
-  def prep_request(client, method, uri, params, signed)
+  @spec prep_request(client :: atom, query :: ExOvh.Client.raw_query_t)
+                     :: ExOvh.Client.query_t
+  def prep_request(client, query)
 
-  def prep_request(client, method, uri, params, :false) when method in [:get, :delete] do
-    uri = uri(config, uri)
-    if params !== :nil and params !== "", do: uri = uri <> URI.encode_query(params)
-    options = [ headers: headers([]), timeout: @timeout ]
-    {method, uri, options}
-  end
-
-  def prep_request(client, method, uri, params, :false) when method in [:post, :put] do
-    uri = uri(config, uri)
-    if params !== "" and params !== :nil, do: params = Poison.encode!(params)
-    options = [ body: params, headers: headers([]), timeout: @timeout ]
-    {method, uri, options}
-  end
-
-  def prep_request(client, method, uri, params, :true) when method in [:get, :delete] do
+  def prep_request(client, {method, uri, params} = query) when method in [:get, :delete] do
     uri = uri(config, uri)
     config = config(client)
     if params !== :nil and params !== "", do: uri = uri <> URI.encode_query(params)
     consumer_key = get_consumer_key(config)
     opts = [app_secret(config), app_key(config), consumer_key, Atom.to_string(method), uri, ""]
-    options = [ headers: headers(opts, client), timeout: @timeout ]
+    options = %{ headers: headers(opts, client), timeout: @timeout }
     {method, uri, options}
   end
 
-  def prep_request(client, method, uri, params, :true) when method in [:post, :put] do
+  def prep_request(client, {method, uri, params} = query) when method in [:post, :put] do
     uri = uri(config, uri)
     config = config(client)
     consumer_key = get_consumer_key(config)
     if params !== "" and params !== :nil and method in [:post, :put], do: params = Poison.encode!(params)
     opts = [app_secret(config), consumer_key, Atom.to_string(method), uri, params]
-    options = [ body: params, headers: headers(opts, client), timeout: @timeout ]
+    options = %{ body: params, headers: headers(opts, client), timeout: @timeout }
     {method, uri, options}
   end
 
@@ -60,16 +48,15 @@ defmodule ExOvh.Ovh.Auth do
   ############################
 
 
-  defp headers(opts) when opts === [], do: @default_headers
   defp headers([app_secret, app_key, consumer_key, method, uri, body] = opts, client) do
     time = :os.system_time(:seconds) + Cache.get_time_diff(client)
-    @default_headers ++
-    [
+    Map.merge(@default_headers,
+    %{
     "X-Ovh-Application": app_key,
     "X-Ovh-Consumer":    consumer_key,
     "X-Ovh-Timestamp":   time,
     "X-Ovh-Signature":   sign_request([app_secret, consumer_key, String.upcase(method), uri, body, time])
-    ]
+    })
   end
 
 

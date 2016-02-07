@@ -2,6 +2,17 @@ defmodule ExOvh.Client do
   alias LoggingUtils
   alias ExOvh.Defaults
 
+  # <<TODO>> Reconsider is here the best place to declare the types
+  @type method_t :: atom()
+  @type path_t :: String.t
+  @type params_t :: map() | :nil
+  @type options_t :: map() | :nil
+
+  @type raw_query_t :: { method_t, path_t, params_t }
+  @type query_t :: { method_t, path_t, options_t }
+
+  @type response_t :: %{ body: map(), headers: map(), status_code: integer() }
+
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
       @otp_app opts[:otp_app] || :ex_ovh
@@ -15,20 +26,22 @@ defmodule ExOvh.Client do
 
 
       def start_link(opts \\ []) do
-        LoggingUtils.log_mod_func_line(__ENV__, :debug)
         ExOvh.Supervisor.start_link(__MODULE__, config(), opts)
       end
 
 
-      def ovh_request(method, uri, params, signed \\ :true) do
-        LoggingUtils.log_mod_func_line(__ENV__, :debug)
-        ExOvh.Ovh.Request.request(__MODULE__, method, uri, params, signed)
+      def ovh_request({method, uri, params} = query) do
+        ExOvh.Ovh.Request.request(__MODULE__, query)
       end
 
 
-      def ovh_prep_request(method, uri, params, signed \\ :true) do
-        LoggingUtils.log_mod_func_line(__ENV__, :debug)
-        ExOvh.Ovh.Auth.prep_request(__MODULE__, method, uri, params, signed)
+      def ovh_request({method, uri, params} = query) do
+        ExOvh.Ovh.Request.request(__MODULE__, query)
+      end
+
+
+      def ovh_prep_request({method, uri, params} = query) do
+        ExOvh.Ovh.Auth.prep_request(__MODULE__, query)
       end
 
 
@@ -46,14 +59,16 @@ defmodule ExOvh.Client do
   Makes a request to the ovh api.
   Returns a map `%{ body: <body>, headers: [<headers>], status_code: <code>}`
   """
-  @callback ovh_request(method :: atom, uri :: string, params :: map, signed :: boolean) :: map
+  @callback ovh_request(query :: raw_query_t)
+                        :: {:ok, response_t} | {:error, response_t}
 
 
   @doc ~s"""
   Prepares all elements necessary prior to making a request to the ovh api.
   Returns a tuple `{method, uri, options}`
   """
-  @callback ovh_prep_request(method :: atom, uri :: String.t, params :: map, signed :: boolean) :: tuple
+  @callback ovh_prep_request(query :: raw_query_t)
+                             :: query_t
 
 
 end

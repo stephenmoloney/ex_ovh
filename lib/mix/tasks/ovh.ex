@@ -4,6 +4,7 @@ defmodule Mix.Tasks.Ovh do
   alias ExOvh.Ovh.Auth
 
   @shortdoc "Create a new app and new credentials for accessing ovh api"
+  @default_headers ["Content-Type": "application/json; charset=utf-8"]
   @timeout 10_000
 
   defp endpoint(config), do: Defaults.endpoints()[config[:endpoint]]
@@ -39,7 +40,7 @@ defmodule Mix.Tasks.Ovh do
         endpoint: \"#{options.endpoint}\",
         api_version: \"#{options.api_version}\"
        }
-        "
+       "
        Mix.Shell.IO.info(message)
     end
   end
@@ -153,7 +154,7 @@ defmodule Mix.Tasks.Ovh do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
     options = [ timeout: @timeout ]
     default_create_app_uri(opts_map)
-    %HTTPotion.Response{body: resp_body, headers: headers, status_code: status} =
+    %HTTPotion.Response{body: resp_body, headers: headers, status_code: status_code} =
       HTTPotion.request(:get, default_create_app_uri(opts_map), options)
     resp_body
   end
@@ -163,11 +164,8 @@ defmodule Mix.Tasks.Ovh do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
     inputs = Floki.find(resp_body, "form input")
     |> List.flatten()
-    if Enum.any?(inputs, fn(input) -> input === [] end) do
-      raise "Inputs should not be empty"
-    else
-      inputs
-    end
+    if Enum.any?(inputs, fn(input) -> input === [] end), do: raise "Empty input found"
+    inputs
   end
 
 
@@ -243,12 +241,10 @@ defmodule Mix.Tasks.Ovh do
 
   defp get_consumer_key(%{access_rules: access_rules, redirect_uri: redirect_uri} = opts_map) do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
-    body = %{
-      accessRules: access_rules,
-      redirection: redirect_uri
-    }
-    {method, uri, options} = Auth.prep_request(opts_map, :post, consumer_key_uri(opts_map), body, :false)
-    options = Keyword.put(options, :headers, Keyword.get(options, :headers) ++ ["X-Ovh-Application": app_key(opts_map)])
+    body = %{ accessRules: access_rules, redirection: redirect_uri }
+    query = {:post, consumer_key_uri(opts_map), body}
+    {method, uri, options} = Auth.ovh_prep_request(opts_map, query)
+    options = Map.put(options, :headers, Map.merge(@default_headers, %{ "X-Ovh-Application": app_key(opts_map)}))
     body = HTTPotion.request(method, consumer_key_uri(opts_map), options) |> Map.get(:body) |> Poison.decode!()
     {Map.get(body, "consumerKey"), Map.get(body, "validationUrl")}
   end
@@ -269,11 +265,8 @@ defmodule Mix.Tasks.Ovh do
     |> Enum.filter(fn({type, input, options}) ->
       :proplists.get_value("name", input) !== "identifiant"
     end)
-    if Enum.any?(inputs, fn(input) -> input === [] end) do
-      raise "Inputs should not be empty"
-    else
-      inputs
-    end
+    if Enum.any?(inputs, fn(input) -> input === [] end), do: raise "Inputs should not be empty"
+    inputs
   end
 
 
@@ -342,26 +335,6 @@ defmodule Mix.Tasks.Ovh do
     ck = get_consumer_key(opts_map) |> bind_consumer_key_to_app(opts_map)
     Map.merge(opts_map, %{consumer_key: ck,})
     |> Map.delete(:login) |> Map.delete(:password)
-  end
-
-
-  defp shell_info_access_rules(access_rules) do
-    max = Enum.count(access_rules) - 1
-    Enum.with_index(access_rules)
-    |> Enum.map(fn({rule, int}) ->
-      if int < max do
-        "           %{
-                       method: \"#{rule.method}\",
-                       path: \"#{rule.path}\"
-                      },
-        "
-      else
-        "           %{
-                       method: \"#{rule.method}\",
-                       path: \"#{rule.path}\"
-                      }"
-      end
-    end)
   end
 
 

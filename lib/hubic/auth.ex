@@ -1,7 +1,8 @@
 defmodule ExOvh.Hubic.Auth do
   @moduledoc "Gets the access and refresh token for access the hubic api"
+
   alias ExOvh.Hubic.Defaults
-  alias ExOvh.Hubic.TokenCache, as: Cache
+  alias ExOvh.Hubic.Cache
   @timeout 20_000
 
 
@@ -9,46 +10,30 @@ defmodule ExOvh.Hubic.Auth do
   # Public
   ###################
   
-  @spec prep_request(method :: atom, uri :: String.t, params :: map) :: tuple
-  def prep_request(method, uri, params), do: prep_request(ExOvh, method, uri, params)
+  @spec prep_request(query :: ExOvh.Client.raw_query_t)
+                     :: ExOvh.Client.query_t
+  def prep_request({method, uri, params} = query), do: prep_request(ExOvh, query)
 
 
-  @spec prep_request(client :: atom, method :: atom, uri :: String.t, params :: map) :: tuple
-  def prep_request(client, method, uri, params)
-  def prep_request(client, method, uri, params) when method in [:get, :delete] do
+  @spec prep_request(client :: atom, query :: ExOvh.Client.raw_query_t)
+                    :: ExOvh.Client.query_t
+  def prep_request(client, query)
+
+  def prep_request(client, {method, uri, params} = query) when method in [:get, :delete] do
     config = config(client)
-    |> LoggingUtils.log_return(:debug)
     uri = uri(config, uri)
-    |> LoggingUtils.log_return(:debug)
     if params !== :nil and params !== "", do: uri = uri <> URI.encode_query(params)
-    options = [ headers: headers(method), timeout: @timeout ]
+    options = %{ headers: headers(method), timeout: @timeout }
     {method, uri, options}
   end
 
-  def prep_request(client, method, uri, params) when method in [:post, :put] do
+  def prep_request(client, {method, uri, params} = query) when method in [:post, :put] do
     config = config(client)
     uri = uri(config, uri)
     if params !== "" and params !== :nil, do: params = Poison.encode!(params)
-    options = [ body: params, headers: headers(method), timeout: @timeout ]
+    options = %{ body: params, headers: headers(method), timeout: @timeout }
     {method, uri, options}
   end
-
-  def prep_request(client, method, uri, params) when method in [:get, :delete] do
-    config = config(client)
-    uri = uri(config, uri)
-    if params !== :nil and params !== "", do: uri = uri <> URI.encode_query(params)
-    options = [ headers: headers(method), timeout: @timeout ]
-    {method, uri, options}
-  end
-
-  def prep_request(client, method, uri, params) when method in [:post, :put] do
-    config = config(client)
-    uri = uri(config, uri)
-    if params !== "" and params !== :nil and method in [:post, :put], do: params = Poison.encode!(params)
-    options = [ body: params, headers: headers(method), timeout: @timeout ]
-    {method, uri, options}
-  end
-
 
 
   @doc """
@@ -68,23 +53,18 @@ defmodule ExOvh.Hubic.Auth do
     auth_credentials_base64 = Base.encode64(auth_credentials)
     req_body = "refresh_token=" <> refresh_token <>
                 "&grant_type=refresh_token"
-    headers = [
+    headers = %{
                "Content-Type": "application/x-www-form-urlencoded",
                "Authorization": "Basic " <> auth_credentials_base64
-              ]
-    req_options = [
-                  body: req_body,
-                  headers: headers,
-                  timeout: @timeout
-                  ]
-    resp = HTTPotion.request(:post, hubic_token_uri(config), req_options)
+              }
+    options = %{ body: req_body, headers: headers, timeout: @timeout }
+    resp = HTTPotion.request(:post, hubic_token_uri(config), options)
     resp =
     %{
       body: resp.body |> Poison.decode!(),
-      headers: resp.headers |> Enum.into(%{}),
+      headers: resp.headers,
       status_code: resp.status_code
     }
-    |> LoggingUtils.log_return(:debug)
     if Map.has_key?(resp, "error") do
       error = Map.get(resp, "error") <> " :: " <> Map.get(resp, "error_description")
       raise error
@@ -97,12 +77,9 @@ defmodule ExOvh.Hubic.Auth do
   # Private
   ###################
 
-  defp default_headers(), do: ["Authorization": "Bearer " <> Cache.get_token()]
+  defp default_headers(), do: %{ "Authorization": "Bearer " <> Cache.get_token() }
   defp headers(method) when method in [:post, :put] do
-    default_headers() ++
-    [
-      "Content-Type": "application/x-www-form-urlencoded"
-    ]
+    Map.merge(default_headers(), %{ "Content-Type": "application/x-www-form-urlencoded" })
   end
   defp headers(method) when method in [:get, :delete], do: default_headers()
 

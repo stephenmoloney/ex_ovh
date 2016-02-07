@@ -32,7 +32,6 @@ defmodule ExOvh.Ovh.Cache do
 
   def init({client, config, opts}) do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
-    LoggingUtils.log_return({client, config, opts}, :warn)
     diff = calculate_diff(config)
     {:ok, {config, diff}}
   end
@@ -71,7 +70,7 @@ defmodule ExOvh.Ovh.Cache do
 
   defp api_time_request(config) do
     time_uri = endpoint(config) <> api_version(config) <> "/auth/time"
-    options = [ headers: ["Content-Type": "application/json; charset=utf-8"], timeout: 10_000 ]
+    options = %{ headers: %{ "Content-Type": "application/json; charset=utf-8" }, timeout: 10_000 }
     api_time = HTTPotion.request(:get, time_uri, options) |> Map.get(:body) |> Poison.decode!()
   end
 

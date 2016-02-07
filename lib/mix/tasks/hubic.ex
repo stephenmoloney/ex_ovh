@@ -103,10 +103,16 @@ defmodule Mix.Tasks.Hubic do
                    "&scope=" <> "usage.r,account.r,getAllLinks.r,credentials.r,sponsorCode.r,activate.w,sponsored.r,links.drw" <>
                    "&response_type=" <> "code" <>
                    "&state=" <> SecureRandom.urlsafe_base64(10)
-    options = [ timeout: @timeout ]
+    options = %{ timeout: @timeout }
     uri = @hubic_auth_uri <> query_string
-    %HTTPotion.Response{body: resp_body, headers: headers, status_code: status} = HTTPotion.request(:get, uri, options)
-    inputs = get_validated_inputs(resp_body)
+    resp = HTTPotion.request(:get, uri, options)
+    resp =
+    %{
+      body: resp.body,
+      headers: resp.headers,
+      status_code: resp.status_code
+     }
+    inputs = get_validated_inputs(resp.body)
     {req_body, _, _} = Enum.reduce(inputs, {"", 1, Enum.count(inputs)}, fn({"input", input, _}, acc) ->
       name = :proplists.get_value("name", input)
       value = ""
@@ -131,12 +137,13 @@ defmodule Mix.Tasks.Hubic do
       end
       {acc, index + 1, max}
     end)
-    resp = HTTPotion.request(:post, @hubic_auth_uri, [body: req_body, headers: ["Content-Type": "application/x-www-form-urlencoded"]])
+    options = %{ body: req_body, headers: %{ "Content-Type": "application/x-www-form-urlencoded" } }
+    resp = HTTPotion.request(:post, @hubic_auth_uri, options)
     if resp.status_code !== 302, do: raise "Error getting hubic authorisation code with hubic config settings \n #{resp}"
     resp =
     %{
       body: resp.body,
-      headers: resp.headers |> Enum.into(%{}),
+      headers: resp.headers,
       status_code: resp.status_code
     }
     code = resp.headers
@@ -153,11 +160,8 @@ defmodule Mix.Tasks.Hubic do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
     inputs = Floki.find(resp_body, "form input[type=text], form input[type=password], form input[type=checkbox], form input[type=hidden]")
     |> List.flatten()
-    if Enum.any?(inputs, fn(input) -> input === [] end) do
-      raise "Inputs should not be empty"
-    else
-      inputs
-    end
+    if Enum.any?(inputs, fn(input) -> input === [] end), do: raise "Empty input found"
+    inputs
   end
 
   #- Adds the refresh_token to the opts_map
@@ -169,32 +173,25 @@ defmodule Mix.Tasks.Hubic do
     req_body = "code=" <> opts_map.auth_code <>
                "&redirect_uri=" <> URI.encode(opts_map.redirect_uri) <>
                "&grant_type=authorization_code"
-    headers = [
+    headers = %{
                "Content-Type": "application/x-www-form-urlencoded",
                "Authorization": "Basic " <> auth_credentials_base64
-              ]
-    req_options = [
-                  body: req_body,
-                  headers: headers,
-                  timeout: @timeout
-                  ]
-    resp = HTTPotion.request(:post, @hubic_token_uri, req_options)
+              }
+    options = %{ body: req_body, headers: headers, timeout: @timeout }
+    resp = HTTPotion.request(:post, @hubic_token_uri, options)
     now_milli_seconds = :os.system_time(:milli_seconds)
     body =
     %{
       body: resp.body |> Poison.decode!(),
-      headers: resp.headers |> Enum.into(%{}),
+      headers: resp.headers,
       status_code: resp.status_code
     }
-    |> LoggingUtils.log_return(:debug)
     |> Map.get(:body)
     if Map.has_key?(body, "error") do
       error = Map.get(resp, "error") <> " :: " <> Map.get(resp, "error_description")
       raise error
     end
     refresh_token = Map.get(body, "refresh_token")
-    refresh_token_expiry = now_milli_seconds + Map.get(body, "expires_in")
-    #Map.merge(opts_map, %{ refresh_token: refresh_token, refresh_token_expiry: refresh_token_expiry })
     Map.merge(opts_map, %{ refresh_token: refresh_token })
   end
 

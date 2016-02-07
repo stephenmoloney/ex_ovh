@@ -4,8 +4,8 @@ defmodule ExOvh.Hubic.Supervisor do
   """
   use Supervisor
   alias LoggingUtils
-  alias ExOvh.Hubic.TokenCache
-  alias ExOvh.Hubic.OpenstackCache
+  alias ExOvh.Hubic.Cache, as: TokenCache
+  alias ExOvh.Hubic.Openstack.Cache, as: OpenstackCache
 
   #####################
   # Public
