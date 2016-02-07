@@ -1,4 +1,4 @@
-defmodule ExOvh.Hubic.Cache do
+defmodule ExOvh.Hubic.HubicApi.Cache do
   @moduledoc ~s"""
   Caches the access_token and provides a simple get_token() api to other modules through one function get_token()
   Caches the hubic config map.
@@ -25,7 +25,7 @@ defmodule ExOvh.Hubic.Cache do
     }`
   """
   use GenServer
-  alias ExOvh.Hubic.Auth
+  alias ExOvh.Hubic.HubicApi.Auth
   @get_token_retries 20
   @get_token_sleep_interval 300
 

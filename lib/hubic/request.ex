@@ -1,51 +1,26 @@
 defmodule ExOvh.Hubic.Request do
-  alias Poison
-  alias HTTPotion
-  alias ExOvh.Hubic.Auth
-  alias ExOvh.Hubic.Cache, as: TokenCache
-  alias ExOvh.Hubic.Openstack.Cache
-  alias ExOvh.Hubic.Defaults
+  @moduledoc ~s"""
+    Delegates the request to the correct module and functions
+    according to what the opts map specifies.
+    `%{ openstack: :true }` ==> delegates the query to the OpenstackApi Module
+    `%{ }` ==> delegates the query to the HubicApi Module
+  """
+  alias ExOvh.Hubic.HubicApi.Request, as: Hub
+  alias ExOvh.Hubic.OpenstackApi.Request, as: Open
 
 
   ###################
   # Public
   ###################
 
-
-  @doc "Api for requests to the hubic custom api"
-  @spec request(query :: ExOvh.Client.raw_query_t)
+  @spec request(query :: ExOvh.Client.raw_query_t, opts :: map)
                 :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
-  def request({method, uri, params} = query), do: request(ExOvh, query, 0)
+  def request({method, uri, params} = query, opts), do: request(ExOvh, query, opts)
 
-  @spec request(client :: atom, query :: ExOvh.Client.raw_query_t, retries :: integer)
+  @spec request(client :: atom, query :: ExOvh.Client.raw_query_t, opts :: map)
                 :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
-  def request(client, {method, uri, params} = query, retries \\ 0) do
-    {method, uri, options} = Auth.prep_request(client, query)
-    resp = HTTPotion.request(method, uri, options)
-    resp =
-    %{
-      body: resp.body |> Poison.decode!(),
-      headers: resp.headers,
-      status_code: resp.status_code
-    }
-
-    if resp.status_code >= 100 and resp.status_code < 300 do
-     {:ok, resp}
-    else
-      if Map.has_key?(resp.body, "error") do
-        #error = Map.get(body, "error") <> " :: " <> Map.get(body, "error_description")
-        if resp.body["error"] === "invalid_token" do
-          GenServer.call(TokenCache, :stop) # Restart the gen_server to recuperate state
-          unless retries >= 1, do: request(query, 1) # Try request one more time
-        else
-          {:error, resp}
-        end
-      else
-        {:error, resp}
-      end
-    end
-
-  end
+  def request(client, {method, uri, params} = query, %{ openstack: :true } = opts), do: Open.request(client, query)
+  def request(client, {method, uri, params} = query, opts), do: Hub.request(client, query)
 
   ###################
   # Private

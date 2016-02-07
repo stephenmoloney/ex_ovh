@@ -1,10 +1,10 @@
-defmodule ExOvh.Hubic.Openstack.Cache do
+defmodule ExOvh.Hubic.OpenstackApi.Cache do
   @moduledoc """
   Caches the openstack credentials for access to the openstack api
   Hubic does not use the standard Openstack Identity (Keystone) api for auth.
   """
   use GenServer
-  alias ExOvh.Hubic.Cache
+  alias ExOvh.Hubic.HubicApi.Cache
   alias ExOvh.Hubic.Request
   @get_credentials_retries 10
   @get_credentials_sleep_interval 150
@@ -64,7 +64,8 @@ defmodule ExOvh.Hubic.Openstack.Cache do
     token = Cache.get_token(client)
     :timer.sleep(10_000) # give some time for TokenCache Genserver to initialize
     create_ets_table(client)
-    {:ok, resp} = Request.request(client, {:get, "/account/credentials", ""})
+    {:ok, resp} = Request.request(client, {:get, "/account/credentials", ""}, %{})
+    |> LoggingUtils.log_return(:debug)
     credentials = Map.put(resp.body, :lock, :false)
     :ets.insert(ets_tablename(client), {:credentials, credentials})
     expires = to_seconds(credentials["expires"])
@@ -87,7 +88,7 @@ defmodule ExOvh.Hubic.Openstack.Cache do
   end
   def handle_call(:update_credentials, _from, {client, config, credentials}) do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
-    {:ok, resp} = Request.request(client, {:get, "/account/credentials", ""})
+    {:ok, resp} = Request.request(client, {:get, "/account/credentials", ""}, %{})
     new_credentials = resp.body
     |> Map.put(credentials, :lock, :false)
     :ets.insert(ets_tablename(client), {:credentials, new_credentials})
