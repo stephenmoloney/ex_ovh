@@ -16,7 +16,7 @@ defmodule ExOvh.Hubic.OpenstackApi.Request do
   @spec request(client :: atom, query :: ExOvh.Client.raw_query_t)
                 :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
   def request(client, {method, uri, params} = query) do
-    {method, uri, options} = Auth.prep_request(client, query)
+    {method, uri, options} = Auth.prepare_request(client, query)
     resp = HTTPotion.request(method, uri, options)
     resp =
     %{

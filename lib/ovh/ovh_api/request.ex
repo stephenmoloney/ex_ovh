@@ -1,8 +1,7 @@
 defmodule ExOvh.Ovh.OvhApi.Request do
-  alias ExOvh.Ovh.Auth
-  alias LoggingUtils
+  alias ExOvh.Ovh.OvhApi.Auth
+  alias ExOvh.Ovh.OvhApi.Cache
   alias ExOvh.Ovh.Defaults
-  alias ExOvh.Ovh.Cache
 
   ############################
   # Public
@@ -18,7 +17,7 @@ defmodule ExOvh.Ovh.OvhApi.Request do
                :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
   def request(client, {method, uri, params} = query) do
     config = config(client)
-    {method, uri, options} = Auth.prep_request(client, query)
+    {method, uri, options} = Auth.prepare_request(client, query)
     resp = HTTPotion.request(method, uri, options)
     resp =
     %{

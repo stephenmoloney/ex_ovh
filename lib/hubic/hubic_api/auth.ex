@@ -10,16 +10,16 @@ defmodule ExOvh.Hubic.HubicApi.Auth do
   # Public
   ###################
   
-  @spec prep_request(query :: ExOvh.Client.raw_query_t)
+  @spec prepare_request(query :: ExOvh.Client.raw_query_t)
                      :: ExOvh.Client.query_t
-  def prep_request({method, uri, params} = query), do: prep_request(ExOvh, query)
+  def prepare_request({method, uri, params} = query), do: prepare_request(ExOvh, query)
 
 
-  @spec prep_request(client :: atom, query :: ExOvh.Client.raw_query_t)
+  @spec prepare_request(client :: atom, query :: ExOvh.Client.raw_query_t)
                     :: ExOvh.Client.query_t
-  def prep_request(client, query)
+  def prepare_request(client, query)
 
-  def prep_request(client, {method, uri, params} = query) when method in [:get, :delete] do
+  def prepare_request(client, {method, uri, params} = query) when method in [:get, :delete] do
     config = config(client)
     uri = uri(config, uri)
     if params !== :nil and params !== "", do: uri = uri <> URI.encode_query(params)
@@ -27,7 +27,7 @@ defmodule ExOvh.Hubic.HubicApi.Auth do
     {method, uri, options}
   end
 
-  def prep_request(client, {method, uri, params} = query) when method in [:post, :put] do
+  def prepare_request(client, {method, uri, params} = query) when method in [:post, :put] do
     config = config(client)
     uri = uri(config, uri)
     if params !== "" and params !== :nil, do: params = Poison.encode!(params)

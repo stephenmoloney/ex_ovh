@@ -16,7 +16,7 @@ defmodule ExOvh.Hubic.HubicApi.Request do
   @spec request(client :: atom, query :: ExOvh.Client.raw_query_t, retries :: integer)
                 :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
   def request(client, {method, uri, params} = query, retries \\ 0) do
-    {method, uri, options} = Auth.prep_request(client, query)
+    {method, uri, options} = Auth.prepare_request(client, query)
     resp = HTTPotion.request(method, uri, options)
     resp =
     %{

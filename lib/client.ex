@@ -35,8 +35,8 @@ defmodule ExOvh.Client do
       end
 
 
-      def ovh_prep_request({method, uri, params} = query, opts \\ %{}) do
-        ExOvh.Ovh.Auth.prep_request(__MODULE__, query, opts)
+      def ovh_prepare_request({method, uri, params} = query, opts \\ %{}) do
+        ExOvh.Ovh.Auth.prepare_request(__MODULE__, query, opts)
       end
 
 
@@ -45,8 +45,8 @@ defmodule ExOvh.Client do
       end
 
 
-      def hubic_prep_request({method, uri, params} = query, opts \\ %{}) do
-        ExOvh.Hubic.Auth.prep_request(__MODULE__, query, opts)
+      def hubic_prepare_request({method, uri, params} = query, opts \\ %{}) do
+        ExOvh.Hubic.Auth.prepare_request(__MODULE__, query, opts)
       end
 
 
@@ -72,7 +72,7 @@ defmodule ExOvh.Client do
   Prepares all elements necessary prior to making a request to the ovh api.
   Returns a tuple `{method, uri, options}`
   """
-  @callback ovh_prep_request(query :: raw_query_t)
+  @callback ovh_prepare_request(query :: raw_query_t)
                              :: query_t
 
 
@@ -88,7 +88,7 @@ defmodule ExOvh.Client do
   Prepares all elements necessary prior to making a request to the hubic api.
   Returns a tuple `{method, uri, options}`
   """
-  @callback hubic_prep_request(query :: raw_query_t)
+  @callback hubic_prepare_request(query :: raw_query_t)
                                :: query_t
 
 

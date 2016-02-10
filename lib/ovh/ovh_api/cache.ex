@@ -1,4 +1,4 @@
-defmodule ExOvh.Ovh.Cache do
+defmodule ExOvh.Ovh.OvhApi.Cache do
   @moduledoc ~s"""
     Caches the ovh api time diff
   """

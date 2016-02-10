@@ -3,7 +3,7 @@ defmodule ExOvh.Ovh.Supervisor do
   Supervisor for the Ovh Configuration
   """
   use Supervisor
-  alias ExOvh.Ovh.Cache
+  alias ExOvh.Ovh.OvhApi.Cache
 
   #####################
   #  Public

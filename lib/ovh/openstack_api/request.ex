@@ -1,8 +1,7 @@
 defmodule ExOvh.Ovh.Openstack.Request do
-  alias ExOvh.Ovh.Auth
-  alias LoggingUtils
+  alias ExOvh.Ovh.Openstack.Auth
+  alias ExOvh.Ovh.OvhApi.Cache, as: ClientCache
   alias ExOvh.Ovh.Defaults
-  alias ExOvh.Ovh.Cache
 
   ############################
   # Public
@@ -18,7 +17,7 @@ defmodule ExOvh.Ovh.Openstack.Request do
                :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
   def request(client, {method, uri, params} = query) do
     config = config(client)
-    {method, uri, options} = Auth.prep_request(client, query)
+    {method, uri, options} = Auth.prepare_request(client, query)
     resp = HTTPotion.request(method, uri, options)
     resp =
     %{
@@ -39,8 +38,8 @@ defmodule ExOvh.Ovh.Openstack.Request do
   ############################
 
 
-  defp config(), do: Cache.get_config(ExOvh)
-  defp config(client), do: Cache.get_config(client)
+  defp config(), do: ClientCache.get_config(ExOvh)
+  defp config(client), do: ClientCache.get_config(client)
   defp endpoint(config), do: Defaults.endpoints()[config[:endpoint]]
   defp api_version(config), do: config[:api_version]
 

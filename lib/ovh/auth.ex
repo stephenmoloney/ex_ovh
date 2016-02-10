@@ -1,6 +1,6 @@
 defmodule ExOvh.Ovh.Auth do
   @moduledoc ~s"""
-    Delegates the prep_request to the appropriate module and function
+    Delegates the prepare_request to the appropriate module and function
     depending on the opts specified.
     `%{ openstack: :true }` ==> delegates the query to the OpenstackApi.Auth Module
     `%{ }` ==> delegates the query to the HubicApi.Auth Module
@@ -13,17 +13,17 @@ defmodule ExOvh.Ovh.Auth do
   ############################
 
 
-  @spec prep_request(query :: ExOvh.Client.raw_query_t, opts :: map())
+  @spec prepare_request(query :: ExOvh.Client.raw_query_t, opts :: map())
                      :: ExOvh.Client.query_t
-  def prep_request({method, uri, params} = query, opts), do: prep_request(ExOvh, query, opts)
+  def prepare_request({method, uri, params} = query, opts), do: prepare_request(ExOvh, query, opts)
 
-  @spec prep_request(client :: atom, query :: ExOvh.Client.raw_query_t, opts :: map())
+  @spec prepare_request(client :: atom, query :: ExOvh.Client.raw_query_t, opts :: map())
                      :: ExOvh.Client.query_t
-  def prep_request(client, {method, uri, params} = query, %{openstack: :true} = opts) do
-    OpenstackAuth.prep_request(client, query)
+  def prepare_request(client, {method, uri, params} = query, %{openstack: :true} = opts) do
+    OpenstackAuth.prepare_request(client, query)
   end
-  def prep_request(client, {method, uri, params} = query, opts) do
-    OvhAuth.prep_request(client, query)
+  def prepare_request(client, {method, uri, params} = query, opts) do
+    OvhAuth.prepare_request(client, query)
   end
 
 

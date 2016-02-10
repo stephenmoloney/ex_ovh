@@ -243,7 +243,7 @@ defmodule Mix.Tasks.Ovh do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
     body = %{ accessRules: access_rules, redirection: redirect_uri }
     query = {:post, consumer_key_uri(opts_map), body}
-    {method, uri, options} = Auth.ovh_prep_request(opts_map, query)
+    {method, uri, options} = Auth.ovh_prepare_request(opts_map, query)
     options = Map.put(options, :headers, Map.merge(@default_headers, %{ "X-Ovh-Application": app_key(opts_map)}))
     body = HTTPotion.request(method, consumer_key_uri(opts_map), options) |> Map.get(:body) |> Poison.decode!()
     {Map.get(body, "consumerKey"), Map.get(body, "validationUrl")}

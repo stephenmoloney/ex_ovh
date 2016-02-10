@@ -10,22 +10,22 @@ defmodule ExOvh.Hubic.OpenstackApi.Auth do
   ############################
 
 
-  @spec prep_request(query :: ExOvh.Client.raw_query_t)
+  @spec prepare_request(query :: ExOvh.Client.raw_query_t)
                      :: ExOvh.Client.query_t
-  def prep_request({method, uri, params} = query), do: prep_request(ExOvh, query)
+  def prepare_request({method, uri, params} = query), do: prepare_request(ExOvh, query)
 
-  @spec prep_request(client :: atom, query :: ExOvh.Client.raw_query_t)
+  @spec prepare_request(client :: atom, query :: ExOvh.Client.raw_query_t)
                      :: ExOvh.Client.query_t
-  def prep_request(client, query)
+  def prepare_request(client, query)
 
-  def prep_request(client, {method, uri, params} = query) when method in [:get, :delete] do
+  def prepare_request(client, {method, uri, params} = query) when method in [:get, :delete] do
     uri =  Cache.get_endpoint(client) <> uri
     if params !== :nil and params !== "", do: uri = uri <> URI.encode_query(params)
     options = %{ headers: headers(client), timeout: @timeout }
     {method, uri, options}
   end
 
-  def prep_request(client, {method, uri, params} = query) when method in [:post, :put] do
+  def prepare_request(client, {method, uri, params} = query) when method in [:post, :put] do
     uri =  Cache.get_endpoint(client) <> uri
     if params !== "" and params !== :nil and method in [:post, :put], do: params = Poison.encode!(params)
     options = %{ body: params, headers: headers(client), timeout: @timeout }
