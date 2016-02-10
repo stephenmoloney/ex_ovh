@@ -99,7 +99,7 @@ defmodule Mix.Tasks.Hubic do
   defp get_auth_code(opts_map) do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
     query_string = "?client_id=" <> opts_map.client_id <>
-                   "&redirect_uri=" <> URI.encode(opts_map.redirect_uri) <>
+                   "&redirect_uri=" <> URI.encode_www_form(opts_map.redirect_uri) <>
                    "&scope=" <> "usage.r,account.r,getAllLinks.r,credentials.r,sponsorCode.r,activate.w,sponsored.r,links.drw" <>
                    "&response_type=" <> "code" <>
                    "&state=" <> SecureRandom.urlsafe_base64(10)
@@ -137,15 +137,20 @@ defmodule Mix.Tasks.Hubic do
       end
       {acc, index + 1, max}
     end)
+
+    req_body = req_body <> "&links=d" # bug fix: *delete links needed - unknown why not in inputs already*
     options = %{ body: req_body, headers: %{ "Content-Type": "application/x-www-form-urlencoded" } }
     resp = HTTPotion.request(:post, @hubic_auth_uri, options)
-    if resp.status_code !== 302, do: raise "Error getting hubic authorisation code with hubic config settings \n #{resp}"
+
+    if resp.status_code !== 302, do: raise Floki.find(resp.body, "h4.text-error") |> Floki.text
+
     resp =
     %{
       body: resp.body,
-      headers: resp.headers,
+      headers: resp.headers  |> Enum.into(%{}),
       status_code: resp.status_code
     }
+
     code = resp.headers
     |> Map.get(:Location)
     |> URI.parse
@@ -171,7 +176,7 @@ defmodule Mix.Tasks.Hubic do
     auth_credentials = opts_map.client_id <> ":" <> opts_map.client_secret
     auth_credentials_base64 = Base.encode64(auth_credentials)
     req_body = "code=" <> opts_map.auth_code <>
-               "&redirect_uri=" <> URI.encode(opts_map.redirect_uri) <>
+               "&redirect_uri=" <> URI.encode_www_form(opts_map.redirect_uri) <>
                "&grant_type=authorization_code"
     headers = %{
                "Content-Type": "application/x-www-form-urlencoded",
