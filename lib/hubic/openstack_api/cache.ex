@@ -124,7 +124,7 @@ defmodule ExOvh.Hubic.OpenstackApi.Cache do
           raise "Problem retrieving the openstack credentials from ets table"
         else
           :timer.sleep(@get_credentials_sleep_interval)
-          get_credentials(index + 1)
+          get_credentials(client, index + 1)
         end
       else
         credentials
@@ -134,7 +134,7 @@ defmodule ExOvh.Hubic.OpenstackApi.Cache do
         raise "Problem retrieving the openstack credentials from ets table"
       else
         :timer.sleep(@get_credentials_sleep_interval)
-        get_credentials(index + 1)
+        get_credentials(client, index + 1)
       end
     end
   end

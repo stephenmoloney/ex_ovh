@@ -136,7 +136,7 @@ defmodule ExOvh.Hubic.HubicApi.Cache do
           raise "Problem retrieving the access token from ets table"
         else
           :timer.sleep(@get_token_sleep_interval)
-          get_token(index + 1)
+          get_token(client, index + 1)
         end
       else
         tokens["access_token"]
@@ -146,7 +146,7 @@ defmodule ExOvh.Hubic.HubicApi.Cache do
         raise "Problem retrieving the access token from ets table"
       else
         :timer.sleep(@get_token_sleep_interval)
-        get_token(index + 1)
+        get_token(client, index + 1)
       end
     end
   end

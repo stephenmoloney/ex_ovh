@@ -24,7 +24,7 @@ defmodule ExOvh.Hubic.HubicApi.Auth do
     uri = uri(config, uri)
     if params !== :nil and params !== "" and is_map(params), do: uri = uri <> "?" <> URI.encode_query(params)
     if params !== :nil and params !== "" and is_map(params) === :false, do: uri = uri <> URI.encode_www_form(params)
-    options = %{ headers: headers(method), timeout: @timeout }
+    options = %{ headers: headers(client, method), timeout: @timeout }
     {method, uri, options}
   end
 
@@ -32,7 +32,7 @@ defmodule ExOvh.Hubic.HubicApi.Auth do
     config = config(client)
     uri = uri(config, uri)
     if params !== "" and params !== :nil and is_map(params), do: params = Poison.encode!(params)
-    options = %{ body: params, headers: headers(method), timeout: @timeout }
+    options = %{ body: params, headers: headers(client, method), timeout: @timeout }
     {method, uri, options}
   end
 
@@ -78,12 +78,11 @@ defmodule ExOvh.Hubic.HubicApi.Auth do
   # Private
   ###################
 
-  defp default_headers(), do: %{ "Authorization": "Bearer " <> Cache.get_token() }
-  defp headers(method) when method in [:post, :put] do
-    Map.merge(default_headers(), %{ "Content-Type": "application/json;charset=utf-8" })
+  defp default_headers(client), do: %{ "Authorization": "Bearer " <> Cache.get_token(client) }
+  defp headers(client, method) when method in [:post, :put] do
+    Map.merge(default_headers(client), %{ "Content-Type": "application/json;charset=utf-8" })
   end
-  defp headers(method) when method in [:get, :delete], do: default_headers()
-
+  defp headers(client, method) when method in [:get, :delete], do: default_headers(client)
 
   defp config(), do: Cache.get_config(ExOvh)
   defp config(client), do: Cache.get_config(client)
