@@ -26,10 +26,8 @@ defmodule ExOvh.Mixfile do
       {:secure_random, "~> 0.2"},
       {:floki, "~> 0.7.1"},
       {:calendar, "~> 0.12.1"},
-      {:loggingutils, git: gitp <> "elixir/loggingutils.git", only: :dev}
+      {:loggingutils, github: "stephenmoloney/loggingutils", only: :dev}
     ]
   end
-
-  defp gitp, do: "https://git.codinghere.com/"
 
 end
