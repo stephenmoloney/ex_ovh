@@ -8,6 +8,7 @@ defmodule ExOvh.Hubic.OpenstackApi.Cache do
   alias ExOvh.Hubic.Request
   @get_credentials_retries 10
   @get_credentials_sleep_interval 150
+  @init_delay 6_000
 
 
   #####################
@@ -62,7 +63,7 @@ defmodule ExOvh.Hubic.OpenstackApi.Cache do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
     :erlang.process_flag(:trap_exit, :true)
     token = Cache.get_token(client)
-    :timer.sleep(10_000) # give some time for TokenCache Genserver to initialize
+    :timer.sleep(@init_delay) # give some time for TokenCache Genserver to initialize
     create_ets_table(client)
     {:ok, resp} = Request.request(client, {:get, "/account/credentials", ""}, %{})
     |> LoggingUtils.log_return(:debug)

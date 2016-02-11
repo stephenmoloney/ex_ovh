@@ -19,14 +19,14 @@ defmodule ExOvh.Ovh.OvhApi.Request do
     config = config(client)
     {method, uri, options} = Auth.prepare_request(client, query)
     resp = HTTPotion.request(method, uri, options)
-    resp =
-    %{
-      body: resp.body |> Poison.decode!(),
-      headers: resp.headers,
-      status_code: resp.status_code
-    }
+    |> LoggingUtils.log_return(:debug)
     if resp.status_code >= 100 and resp.status_code < 300 do
-     {:ok, resp}
+      {:ok, %{
+             body: resp.body |> Poison.decode!(),
+             headers: resp.headers,
+             status_code: resp.status_code
+            }
+      }
     else
      {:error, resp}
     end

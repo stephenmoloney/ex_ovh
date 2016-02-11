@@ -24,7 +24,7 @@ defmodule ExOvh.Ovh.OvhApi.Auth do
   def prepare_request(client, {method, uri, params} = query) when method in [:get, :delete] do
     uri = uri(config, uri)
     config = config(client)
-    if params !== :nil and params !== "", do: uri = uri <> URI.encode_query(params)
+    if params !== :nil and params !== "", do: uri = uri <> "?" <> URI.encode_query(params)
     consumer_key = get_consumer_key(config)
     opts = [app_secret(config), app_key(config), consumer_key, Atom.to_string(method), uri, ""]
     options = %{ headers: headers(opts, client), timeout: @timeout }
@@ -35,7 +35,7 @@ defmodule ExOvh.Ovh.OvhApi.Auth do
     uri = uri(config, uri)
     config = config(client)
     consumer_key = get_consumer_key(config)
-    if params !== "" and params !== :nil and method in [:post, :put], do: params = Poison.encode!(params)
+    if params !== "" and params !== :nil and is_map(params), do: params = Poison.encode!(params)
     opts = [app_secret(config), consumer_key, Atom.to_string(method), uri, params]
     options = %{ body: params, headers: headers(opts, client), timeout: @timeout }
     {method, uri, options}

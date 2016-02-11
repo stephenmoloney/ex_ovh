@@ -17,16 +17,26 @@ defmodule ExOvh.Hubic.HubicApi.Request do
                 :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
   def request(client, {method, uri, params} = query, retries \\ 0) do
     {method, uri, options} = Auth.prepare_request(client, query)
+    LoggingUtils.log_return({method, uri, options}, :debug)
     resp = HTTPotion.request(method, uri, options)
-    resp =
-    %{
-      body: resp.body |> Poison.decode!(),
-      headers: resp.headers,
-      status_code: resp.status_code
-    }
-
+    |> LoggingUtils.log_return(:debug)
     if resp.status_code >= 100 and resp.status_code < 300 do
-     {:ok, resp}
+      try do
+        {:ok, %{
+               body: resp.body |> Poison.decode!(),
+               headers: resp.headers,
+               status_code: resp.status_code
+              }
+        }
+      rescue
+        _ ->
+        {:ok, %{
+               body: resp.body,
+               headers: resp.headers,
+               status_code: resp.status_code
+              }
+        }
+      end
     else
       if Map.has_key?(resp.body, "error") do
         #error = Map.get(body, "error") <> " :: " <> Map.get(body, "error_description")

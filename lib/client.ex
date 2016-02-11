@@ -11,7 +11,7 @@ defmodule ExOvh.Client do
   @type raw_query_t :: { method_t, path_t, params_t }
   @type query_t :: { method_t, path_t, options_t }
 
-  @type response_t :: %{ body: map(), headers: map(), status_code: integer() }
+  @type response_t :: %{ body: map() | String.t, headers: map(), status_code: integer() }
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
