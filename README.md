@@ -14,7 +14,7 @@ This is an unofficial client to the OVH api and is not maintained by OVH.
 - [ ] *Needed* generate release and publish to hex packages
 - [ ] *Needed* add proper readme file
 - [ ] *Needed* *Tests* add basic tests for most api calls.
-- [ ] *Needed* *Tests* verify naming of the genservers works right.
+- [ ] *Needed* *Tests* verify the supervisor chain, genservers and genserver naming is working ok.
 
  
 - [ ] *Maybe* add sensitive keys, secrets, etc to system env and allow the config.exs to get variables from `System`.
