@@ -7,12 +7,6 @@ defmodule ExOvh.Hubic.HubicApi.Request do
   # Public
   ###################
 
-
-  @doc "Api for requests to the hubic custom api"
-  @spec request(query :: ExOvh.Client.raw_query_t)
-                :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
-  def request({method, uri, params} = query), do: request(ExOvh, query, 0)
-
   @spec request(client :: atom, query :: ExOvh.Client.raw_query_t, retries :: integer)
                 :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
   def request(client, {method, uri, params} = query, retries \\ 0) do
