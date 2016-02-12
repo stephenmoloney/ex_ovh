@@ -2,6 +2,7 @@ defmodule Mix.Tasks.Ovh do
   use Mix.Task
   alias ExOvh.Ovh.Defaults
   alias ExOvh.Ovh.Auth
+  import ExOvh.Query.Ovh.Webstorage, only: [get_all_webstorage: 0]
 
   @shortdoc "Create a new app and new credentials for accessing ovh api"
   @default_headers ["Content-Type": "application/json; charset=utf-8"]
@@ -102,7 +103,7 @@ defmodule Mix.Tasks.Ovh do
     if redirect_uri === :nil do
       redirect_uri = ""
     end
-    {opts, Map.merge(acc, %{ redirecturi: redirect_uri }) }
+    {opts, Map.merge(acc, %{ redirect_uri: redirect_uri }) }
   end
   defp parsers_app_name({opts, acc}) do
     application_name = Keyword.get(opts, :appname, :nil)
@@ -333,7 +334,7 @@ defmodule Mix.Tasks.Ovh do
       application_description: get_application_description(create_app_body)
     })
     ck = get_consumer_key(opts_map) |> bind_consumer_key_to_app(opts_map)
-    Map.merge(opts_map, %{consumer_key: ck,})
+    Map.merge(opts_map, %{ consumer_key: ck })
     |> Map.delete(:login) |> Map.delete(:password)
   end
 
