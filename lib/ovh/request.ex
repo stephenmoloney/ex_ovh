@@ -20,7 +20,7 @@ defmodule ExOvh.Ovh.Request do
 
   @spec request(client :: atom, query :: ExOvh.Client.raw_query_t, opts :: map)
                 :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
-  def request(client, {method, uri, params} = query, %{ openstack: :true } = opts), do: Open.request(client, query)
+  def request(client, {method, uri, params} = query, %{ openstack: :true } = opts), do: Open.request(client, query, opts)
   def request(client, {method, uri, params} = query, opts), do: Ovh.request(client, query)
 
   ###################

@@ -1,7 +1,6 @@
-defmodule ExOvh.Ovh.Openstack.Webstorage.Auth do
-  alias ExOvh.Ovh.OvhApi.Cache, as: ClientCache
-  alias ExOvh.Ovh.Openstack.Webstorage.Cache, as: OpenCache
-  import ExOvh.Query.Ovh.Webstorage
+defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Auth do
+  alias ExOvh.Ovh.OpenstackApi.Webstorage.Cache, as: WebStorageCache
+  # import ExOvh.Query.Ovh.Webstorage, only: []
 
   @methods [:get, :post, :put, :delete]
   @timeout 10_000
@@ -12,22 +11,24 @@ defmodule ExOvh.Ovh.Openstack.Webstorage.Auth do
   ############################
 
 
-  @spec prepare_request(client :: atom, query :: ExOvh.Client.raw_query_t)
+  @spec prepare_request(client :: atom, query :: ExOvh.Client.raw_query_t, service :: String.t)
                      :: ExOvh.Client.query_t
   def prepare_request(client, query)
 
-  def prepare_request(client, {method, uri, params} = query) when method in [:get, :delete] do
-    uri =  OpenCache.get_endpoint(client) <> uri
+  def prepare_request(client, {method, uri, params} = query, service) when method in [:get, :delete] do
+    uri =  WebStorageCache.get_swift_endpoint(client, service) <> uri
     if params !== :nil and params !== "", do: uri = uri <> "?" <> URI.encode_query(params)
-    options = %{ headers: headers(client), timeout: @timeout }
+    options = %{ headers: headers(client, service), timeout: @timeout }
     {method, uri, options}
+    |> LoggingUtils.log_return(:debug)
   end
 
-  def prepare_request(client, {method, uri, params} = query) when method in [:post, :put] do
-    uri =  OpenCache.get_endpoint(client) <> uri
+  def prepare_request(client, {method, uri, params} = query, service) when method in [:post, :put] do
+    uri =  WebStorageCache.get_swift_endpoint(client, service) <> uri
     if params !== "" and params !== :nil and is_map(params), do: params = Poison.encode!(params)
-    options = %{ body: params, headers: headers(client), timeout: @timeout }
+    options = %{ body: params, headers: headers(client, service), timeout: @timeout }
     {method, uri, options}
+    |> LoggingUtils.log_return(:debug)
   end
 
 
@@ -36,10 +37,12 @@ defmodule ExOvh.Ovh.Openstack.Webstorage.Auth do
   ############################
 
 
-  defp headers(client), do: %{ "X-Auth-Token": Cache.get_credentials_token(client) }
-
-  defp config(), do: ClientCache.get_config(ExOvh)
-  defp config(client), do: ClientCache.get_config(client)
+  defp headers(client, service) do
+    %{
+      "Content-Type": "application/json; charset=utf-8",
+      "X-Auth-Token": WebStorageCache.get_credentials_token(client, service)
+     }
+  end
 
 
 end

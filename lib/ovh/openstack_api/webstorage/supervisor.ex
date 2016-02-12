@@ -1,4 +1,4 @@
-defmodule ExOvh.Ovh.OpenstackApi.Supervisor do
+defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Supervisor do
   @moduledoc ~s"""
   Supervisor for the Ovh Openstack Configurations.
 
@@ -19,11 +19,7 @@ defmodule ExOvh.Ovh.OpenstackApi.Supervisor do
   """
   def start_link({client, config, opts}) do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
-
-    LoggingUtils.log_return("starting dynamic supervisor", :warn)
-
-    {:ok, sup_pid} = Supervisor.start_link(__MODULE__, {client, config, opts}, [name: __MODULE__])
-    |> LoggingUtils.log_return(:warn)
+    Supervisor.start_link(__MODULE__, {client, config, opts}, [name: __MODULE__])
   end
 
 

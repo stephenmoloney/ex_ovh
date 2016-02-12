@@ -4,6 +4,7 @@ defmodule ExOvh.Ovh.Supervisor do
   """
   use Supervisor
   alias ExOvh.Ovh.OvhApi.Cache
+  alias ExOvh.Ovh.OpenstackApi.Webstorage.Supervisor, as: Webstorage
 
   #####################
   #  Public
@@ -24,10 +25,11 @@ defmodule ExOvh.Ovh.Supervisor do
 
   def init({client, config, opts}) do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
-    workers = [
-               {Cache, {Cache, :start_link, [{client, config, opts}]}, :permanent, 10_000, :worker, [Cache]}
-              ]
-    supervise(workers, strategy: :one_for_one, max_restarts: 20)
+    tree = [
+            {Cache, {Cache, :start_link, [{client, config, opts}]}, :permanent, 10_000, :worker, [Cache]},
+            {Webstorage, {Webstorage, :start_link, [{client, config, opts}]}, :permanent, 10_000, :supervisor, [Webstorage]}
+           ]
+    supervise(tree, strategy: :one_for_one, max_restarts: 20)
   end
 
   defp supervisor_name(client), do: String.to_atom(Atom.to_string(client) <> Atom.to_string(__MODULE__))

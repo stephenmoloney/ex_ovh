@@ -29,7 +29,8 @@ defmodule ExOvh.Query.Openstack.Swift do
       import ExOvh.Query.Openstack.Swift
       alias ExOvh.Hubic.OpenstackApi.Cache, as: OpenCache
       client = ExOvh
-      ExOvh.hubic_request(account_info(OpenCache.get_account(client)), %{ openstack: :true })
+      account = OpenCache.get_account(client)
+      ExOvh.hubic_request(account_info(account), %{ openstack: :true })
       ```
   """
   @spec account_info(account :: String.t) :: [map]
@@ -45,7 +46,8 @@ defmodule ExOvh.Query.Openstack.Swift do
       import ExOvh.Query.Openstack.Swift
       alias ExOvh.Hubic.OpenstackApi.Cache, as: OpenCache
       client = ExOvh
-      ExOvh.hubic_request(create_container(OpenCache.get_account(client), "new_container"), %{ openstack: :true })
+      account = OpenCache.get_account(client)
+      ExOvh.hubic_request(create_container(account, "new_container"), %{ openstack: :true })
       ```
   """
   @spec create_container(account :: String.t, container :: String.t)
@@ -62,7 +64,8 @@ defmodule ExOvh.Query.Openstack.Swift do
       import ExOvh.Query.Openstack.Swift
       alias ExOvh.Hubic.OpenstackApi.Cache, as: OpenCache
       client = ExOvh
-      ExOvh.hubic_request(delete_container(OpenCache.get_account(client), "new_container"), %{ openstack: :true })
+      account = OpenCache.get_account(client)
+      ExOvh.hubic_request(delete_container(account, "new_container"), %{ openstack: :true })
       ```
   """
   @spec delete_container(account :: String.t, container :: String.t)
@@ -84,7 +87,8 @@ defmodule ExOvh.Query.Openstack.Swift do
       import ExOvh.Query.Openstack.Swift
       alias ExOvh.Hubic.OpenstackApi.Cache, as: OpenCache
       client = ExOvh
-      ExOvh.hubic_request(get_objects(OpenCache.get_account(client), "default"), %{ openstack: :true })
+      account = OpenCache.get_account(client)
+      ExOvh.hubic_request(get_objects(account, "default"), %{ openstack: :true })
       ```
   """
   @spec get_objects(account :: String.t, container :: String.t)
@@ -104,7 +108,8 @@ defmodule ExOvh.Query.Openstack.Swift do
       client = ExOvh
       file = "server_file.txt"
       container = "new_container"
-      ExOvh.hubic_request(get_object(OpenCache.get_account(client), container, file), %{ openstack: :true })
+      account = OpenCache.get_account(client)
+      ExOvh.hubic_request(get_object(account, container, file), %{ openstack: :true })
       ```
   """
   @spec get_object(account :: String.t, container :: String.t, object :: String.t)

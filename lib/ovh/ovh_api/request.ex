@@ -8,14 +8,10 @@ defmodule ExOvh.Ovh.OvhApi.Request do
   ############################
 
 
-  @spec request(query :: ExOvh.Client.raw_query_t)
-               :: {:ok, map} | {:error, map}
-  def request({method, uri, params} = query), do: request(ExOvh, {method, uri, params} = query)
-
-
   @spec request(client :: atom, query :: ExOvh.Client.query_t)
                :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
   def request(client, {method, uri, params} = query) do
+    LoggingUtils.log_mod_func_line(__ENV__, :debug)
     config = config(client)
 
     {method, uri, options} = Auth.prepare_request(client, query)
