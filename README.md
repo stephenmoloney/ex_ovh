@@ -7,6 +7,11 @@ and the [Hubic](https://api.hubic.com/) api.
 
 This is an unofficial client to the OVH api and is not maintained by OVH.
 
+
+## Note
+
+This repository is a work in progress.
+
 ## <<TODO>> Add Proper Readme
 
 

@@ -17,9 +17,11 @@ defmodule ExOvh.Ovh.OvhApi.Request do
                :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
   def request(client, {method, uri, params} = query) do
     config = config(client)
+
     {method, uri, options} = Auth.prepare_request(client, query)
-    resp = HTTPotion.request(method, uri, options)
     |> LoggingUtils.log_return(:debug)
+
+    resp = HTTPotion.request(method, uri, options)
     if resp.status_code >= 100 and resp.status_code < 300 do
       {:ok, %{
              body: resp.body |> Poison.decode!(),

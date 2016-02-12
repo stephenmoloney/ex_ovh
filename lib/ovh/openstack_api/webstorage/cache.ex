@@ -1,14 +1,15 @@
-defmodule ExOvh.Hubic.OpenstackApi.Cache do
+defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
   @moduledoc """
-  Caches the openstack credentials for access to the openstack api
-  Hubic does not use the standard Openstack Identity (Keystone) api for auth.
+  Caches the openstack credentials for access to the openstack api associated with the webstorage cdn.
+
+  Uses the standard Openstack Identity (Keystone) api for auth.
   """
   use GenServer
   alias ExOvh.Hubic.HubicApi.Cache
   alias ExOvh.Hubic.Request
+  import ExOvh.Query.Ovh.Webstorage
   @get_credentials_retries 10
   @get_credentials_sleep_interval 150
-  @init_delay 3_000
 
 
   #####################
@@ -42,16 +43,6 @@ defmodule ExOvh.Hubic.OpenstackApi.Cache do
   end
 
 
-  def get_account(), do: get_account(ExOvh)
-  def get_account(client) do
-    credentials = get_credentials(client)
-    path = URI.parse(credentials["endpoint"])
-    |> Map.get(:path)
-    {version, account} = String.split_at(path, 4)
-    account
-  end
-
-
   #####################
   # Genserver Callbacks
   #####################
@@ -62,11 +53,12 @@ defmodule ExOvh.Hubic.OpenstackApi.Cache do
   def init({client, config, opts}) do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
     :erlang.process_flag(:trap_exit, :true)
-    token = Cache.get_token(client)
-    :timer.sleep(@init_delay) # give some time for TokenCache Genserver to initialize
     create_ets_table(client)
+
     {:ok, resp} = Request.request(client, {:get, "/account/credentials", ""}, %{})
     |> LoggingUtils.log_return(:debug)
+
+
     credentials = Map.put(resp.body, :lock, :false)
     :ets.insert(ets_tablename(client), {:credentials, credentials})
     expires = to_seconds(credentials["expires"])
@@ -113,6 +105,47 @@ defmodule ExOvh.Hubic.OpenstackApi.Cache do
 
   defp gen_server_name(client), do: String.to_atom(Atom.to_string(client) <> Atom.to_string(__MODULE__))
   defp ets_tablename(client), do: String.to_atom("Ets" <> Atom.to_string(gen_server_name(client)))
+
+
+  #@spec identity(service_name :: String.t, username :: String.t, password :: String.t)
+  #               :: {:ok, map()} | {:error, map()}
+  defp identity(service_name, username, password) do
+    resp = ExOvh.ovh_request(get_webstorage_credentials(service_name), %{})
+    %{
+      "endpoint" => endpoint,
+      "login" => login,
+      "password" => password,
+      "tenant" => tenant
+    } = resp.body
+    params = %{"auth" => %{"passwordCredentials" => %{"username" => login, "password" => password}}}
+    options = %{
+                body: params |> Poison.encode!,
+                headers: %{ "Content-Type": "application/json; charset=utf-8" },
+                timeout: 10_000
+               }
+    resp = HTTPotion.request(:post, endpoint <> "/tokens", options)
+
+    if resp.status_code >= 200 and resp.status_code <= 203 do
+      %{
+         "access" => %{
+                      "metadata" => _metadata,
+                      "serviceCatalog" => _service_catalog,
+                      "token" => %{
+                                  "audit_ids" => _audit_ids,
+                                  "expires" => expires_on, # "2016-02-12T22:12:25Z",
+                                  "id" => token,
+                                  "issued_at" => created_on, # "2016-02-11T22:12:25.214186"
+                                  },
+                      "user" => _user
+                     }
+      }
+      = resp.body
+      {:ok, %{ "token" => token, "expires_on" => expires_on, "created_on" => created_on, "endpoint" => endpoint } }
+    else
+      {:error, resp.body}
+    end
+
+  end
 
 
   defp get_credentials(client, index) do

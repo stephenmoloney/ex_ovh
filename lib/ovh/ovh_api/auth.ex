@@ -24,7 +24,8 @@ defmodule ExOvh.Ovh.OvhApi.Auth do
   def prepare_request(client, {method, uri, params} = query) when method in [:get, :delete] do
     uri = uri(config, uri)
     config = config(client)
-    if params !== :nil and params !== "", do: uri = uri <> "?" <> URI.encode_query(params)
+    if params !== :nil and params !== "" and is_map(params), do: uri = uri <> "?" <> URI.encode_query(params)
+    if params !== :nil and params !== "" and is_map(params) === :false, do: uri = uri <> URI.encode_www_form(params)
     consumer_key = get_consumer_key(config)
     opts = [app_secret(config), app_key(config), consumer_key, Atom.to_string(method), uri, ""]
     options = %{ headers: headers(opts, client), timeout: @timeout }
