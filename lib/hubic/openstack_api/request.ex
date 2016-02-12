@@ -7,15 +7,10 @@ defmodule ExOvh.Hubic.OpenstackApi.Request do
   ###################
 
 
-  @doc "For requests to the hubic openstack compliant api"
-  @spec request(query :: ExOvh.Client.raw_query_t)
-                :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
-  def request({method, uri, params} = query), do: request(ExOvh, query)
-
-
   @spec request(client :: atom, query :: ExOvh.Client.raw_query_t)
                 :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
   def request(client, {method, uri, params} = query) do
+    LoggingUtils.log_mod_func_line(__ENV__, :debug)
     {method, uri, options} = Auth.prepare_request(client, query)
     |> LoggingUtils.log_return(:debug)
     resp = HTTPotion.request(method, uri, options)
