@@ -17,23 +17,50 @@ defmodule ExOvh.Query.Hubic do
   # General Hubic Requests
   #########################
 
-  @doc "GET /scope/scope, Get the possible scopes for hubiC API"
+  @doc ~s"""
+  GET /scope/scope, Get the possible scopes for hubiC API
+
+    ### Example:
+      ```elixir
+      import ExOvh.Query.Hubic
+      ExOvh.hubic_request(scope())
+  """
   @spec scope() :: ExOvh.Client.raw_query_t
   def scope(), do: {:get, "/scope/scope", :nil}
 
 
-  @doc "GET /account, Get the account object properties"
+  @doc ~s"""
+  GET /account, Get the account object properties
+
+    ### Example:
+      ```elixir
+      import ExOvh.Query.Hubic
+      ExOvh.hubic_request(account())
+  """
   @spec account() :: ExOvh.Client.raw_query_t
   def account(), do: {:get, "/account", :nil}
 
 
-  @doc "GET /account/credentials
-  Returns openstack credentials for connecting to the file API"
+  @doc ~s"""
+  GET /account/credentials, Returns openstack credentials for connecting to the file API
+
+      ### Example:
+      ```elixir
+      import ExOvh.Query.Hubic
+      ExOvh.hubic_request(openstack_credentials())
+  """
   @spec openstack_credentials() :: ExOvh.Client.raw_query_t
   def openstack_credentials(), do: {:get, "/account/credentials", :nil}
 
 
-  @doc "GET /account/usage, Returns used space & quota of your account"
+  @doc ~s"""
+  GET /account/usage, Returns used space & quota of your account
+
+      ### Example:
+      ```elixir
+      import ExOvh.Query.Hubic
+      ExOvh.hubic_request(account_usage())
+  """
   @spec account_usage() :: ExOvh.Client.raw_query_t
   def account_usage(), do: {:get, "/account/usage", :nil}
 
