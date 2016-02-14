@@ -1,5 +1,5 @@
 defmodule ExOvh.Ovh.OvhApi.Auth do
-  alias LoggingUtils
+  @moduledoc :false
   alias ExOvh.Ovh.Defaults
   alias ExOvh.Ovh.OvhApi.Cache
 
@@ -61,7 +61,7 @@ defmodule ExOvh.Ovh.OvhApi.Auth do
 
 
   defp sign_request([app_secret, consumer_key, method, uri, body, time] = opts) do
-    pre_hash = Enum.join(opts, "+") |> LoggingUtils.log_return(:debug)
+    pre_hash = Enum.join(opts, "+")
     post_hash = :crypto.hash(:sha, pre_hash) |> Base.encode16(case: :lower)
     "$1$" <> post_hash
   end
