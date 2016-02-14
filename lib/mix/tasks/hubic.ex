@@ -1,8 +1,53 @@
 defmodule Mix.Tasks.Hubic do
   @moduledoc ~S"""
-  Gets the access and refresh token for access the hubic api
-  and returns them as a map to assist setting up the
-  configuration file `secret.prod.exs`
+  Generates the hubic application refresh token on the user's behalf.
+
+  ## Steps
+
+  - The user needs to go to https://hubic.com/ and set up an account and retrieve a username and password.
+  - Then the user is prompted to do some activations.
+  - Upon completion of activations, the user needs to create an application in the hubic website.
+  - With the username, password, client_id, client_secret and redirect url from the recently created application,
+  a mixtask can be run which will apply the scope of the user and get the refresh_token on the user's behalf.
+
+  The mix task can be run as follows in a linux terminal:
+
+  ```shell
+  mix hubic
+  --login=<login>
+  --password=<password>
+  --clientid=<client_id>
+  --clientsecret=<client_secret>
+  --redirecturi=<uri>
+  ```
+
+  - A map is printed to the shell as follows:
+
+  ```elixir
+  %{
+  client_id: "<client_id>",
+  client_secret: "<client_secret>",
+  refresh_token: "<refresh_token>",
+  redirect_uri: "<uri>"
+  }
+  ```
+
+  ## Shell Output
+
+  This map can then be manually added by the user to the `config/prod.secret.exs` file
+
+  ```
+  config :test_os, TestOs.ExOvh,
+    ovh: :nil
+    hubic:   %{
+              client_id: "<client_id>",
+              client_secret: "<client_secret>",
+              refresh_token: "<refresh_token>",
+              redirect_uri: "<uri>"
+             }
+  ```
+
+  - Then the hubic configuration is complete. Start up the app and the hubic wrapper is ready.
   """
   use Mix.Task
   alias ExOvh.Hubic.Defaults

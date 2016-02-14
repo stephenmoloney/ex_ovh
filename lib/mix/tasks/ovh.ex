@@ -1,11 +1,121 @@
 defmodule Mix.Tasks.Ovh do
+  @moduledoc ~S"""
+    Generates the hubic application refresh token on the user's behalf.
+
+  ## Steps
+
+  - The user needs to set up an ovh account at https://www.ovh.co.uk/ and retrieve a username (nic-handle) and password.
+
+  - Then the user is prompted to do some activations.
+
+  - Upon completion of activations, the user needs to create an application in the ovh website.
+
+  - Then the user can create an application at `https://eu.api.ovh.com/createApp/` or
+    alternatively the user can use this mix task to generate the application:
+
+  ## Example
+
+  Create an app with access to all apis:
+
+
+  ```shell
+  mix ovh
+  --login=<username>
+  --password=<password>
+  ```
+
+  Uses defaults:
+  ```
+  app name - ex_ovh,
+  app description - ex_ovh,
+  redirect_uri - "",
+  api_version - "1.0",
+  endpoint - "ovh-eu"
+  ```
+
+
+  ## Example
+
+  Create an app with access to all apis with specific app name and description:
+
+
+  ```shell
+  mix ovh
+  --login=<username>
+  --password=<password>
+  --appname='My app'
+  --appdesc='my app for api'
+  ```
+
+  Uses defaults:
+  ```
+  redirect_uri - "",
+  api_version - "1.0",
+  endpoint - "ovh-eu"
+  ```
+
+  ## Example
+
+  Create an app with access to all apis with specific everything:
+
+
+  ```shell
+  mix ovh
+  --login=<username>
+  --password=<password>
+  --appname='My app'
+  --appdesc='my app for api'
+  --endpoint=ovh-eu
+  --apiversion=1.0
+  --redirect_uri='http://localhost:4000/',
+  --accessrules='get-[/*]::put-[/me,/cdn]::post-[/me,/cdn]::delete-[]'
+  ```
+
+
+  A note on access rules:
+
+  The default for access rules will give your ovh application access to *all* of the api calls.
+  More than likely this is not a good idea. To limit the number of api endpoints available, generate access
+  rules using the commandline arguments as seen in the example above.
+
+
+  ## Shell Output
+
+  A map is printed to the shell as follows:
+
+  ```elixir
+  %{
+  application_key: "<app_key>",
+  application_secret: "<app_secret>",
+  consumer_key: "<consumer_secret>",
+  endpoint: "ovh-eu",
+  api_version: "1.0"
+  }
+  ```
+
+  - This map can then be manually added by the user to the `config/prod.secret.exs` file
+
+  ```
+  config :test_os, TestOs.ExOvh,
+  ovh: %{
+        application_key: "<app_key>",
+        application_secret: "<app_secret>",
+        consumer_key: "<consumer_secret>",
+        endpoint: "ovh-eu",
+        api_version: "1.0"
+       },
+  hubic: :nil
+  ```
+
+  - Then the ovh configuration is complete. Start up the app and the ovh wrapper is ready.
+  """
   use Mix.Task
   alias ExOvh.Ovh.Defaults
   alias ExOvh.Ovh.Auth
   import ExOvh.Query.Ovh.Webstorage, only: [get_all_webstorage: 0]
 
   @shortdoc "Create a new app and new credentials for accessing ovh api"
-  @default_headers ["Content-Type": "application/json; charset=utf-8"]
+  @default_headers %{ "Content-Type": "application/json; charset=utf-8" }
   @timeout 10_000
 
   defp endpoint(config), do: Defaults.endpoints()[config[:endpoint]]
@@ -243,10 +353,14 @@ defmodule Mix.Tasks.Ovh do
   defp get_consumer_key(%{access_rules: access_rules, redirect_uri: redirect_uri} = opts_map) do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
     body = %{ accessRules: access_rules, redirection: redirect_uri }
-    query = {:post, consumer_key_uri(opts_map), body}
-    {method, uri, options} = Auth.ovh_prepare_request(opts_map, query)
-    options = Map.put(options, :headers, Map.merge(@default_headers, %{ "X-Ovh-Application": app_key(opts_map)}))
-    body = HTTPotion.request(method, consumer_key_uri(opts_map), options) |> Map.get(:body) |> Poison.decode!()
+    # {method, uri, options} = Auth.ovh_prepare_request(ExOvh, query, %{})
+    options = %{ body: Poison.encode!(body), headers: Map.merge(@default_headers, %{ "X-Ovh-Application": app_key(opts_map) } ), timeout: @timeout }
+    |> LoggingUtils.log_return(:debug)
+
+    LoggingUtils.log_return(consumer_key_uri(opts_map), :debug)
+    LoggingUtils.log_return(options, :debug)
+
+    body = HTTPotion.request(:post, consumer_key_uri(opts_map), options) |> Map.get(:body) |> Poison.decode!()
     {Map.get(body, "consumerKey"), Map.get(body, "validationUrl")}
   end
 
