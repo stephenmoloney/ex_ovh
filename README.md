@@ -135,16 +135,38 @@ Add the supervisor to your supervision tree:
 ## Example Usage(s)
 
 
-### Example 1: Creating a new container in hubic
+### Example 1: 
 
+
+
+Get account details and containers for given account
   ```elixir
-  import ExOvh.Query.Openstack.Swift
+  alias ExOvh.Query.Openstack.Swift, as: Query
   alias ExOvh.Hubic.OpenstackApi.Cache, as: OpenCache
   client = ExOvh
+  
   account = OpenCache.get_account(client)
-  ExOvh.hubic_request(create_container(account, "new_container"), %{ openstack: :true })
+  query = Query.account_info(account)
+  {:ok, resp} = ExOvh.hubic_request(query, %{ openstack: :true })
+  container_count1 = resp.body |> Enum.count() 
   ```
 
+Creating a new container in hubic
+  ```elixir
+  random_container = SecureRandom.base64(8)
+  query = Query.create_container(account, random_container)
+  ExOvh.hubic_request(query, %{ openstack: :true })
+  ```
+
+Get the count of containers again
+  ```elixir
+  query = Query.account_info(account)
+  {:ok, resp} = ExOvh.hubic_request(query, %{ openstack: :true })
+  container_count2 = resp.body |> Enum.count()
+  container_count1 + 1 == container_count2
+  ```
+  
+  
 
 
 # TO BE CONTINUED..... LATER ....
