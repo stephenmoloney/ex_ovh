@@ -1,4 +1,41 @@
 defmodule ExOvh.Client do
+  @moduledoc ~S"""
+  Defines a client.
+
+  When used, it expects the :otp_app as an option. The :otp_app should be an
+  application with the configuration settings for ovh and/or hubic.
+
+  ## Example app using the `ExOvh.Client` behaviour
+
+      defmodule TestOs.ExOvh do
+        use ExOvh.Client, otp_app: :test_os
+      end
+
+  ## Example configuration
+
+      config :test_os, TestOs.ExOvh,
+        ovh:  %{
+                application_key: "<app_key>",
+                application_secret: "<app_secret>",
+                consumer_key: "<con_key>"
+        },
+        hubic: %{
+                client_id: "<client_id>",
+                client_secret: "<client_secret>",
+                refresh_token: "<refresh_token>",
+                redirect_uri: "<redirect_uri>"
+                }
+
+  Either ovh or hubic can be set to :nil but not both. Both hubic and ovh being absent
+  will result in the supervision tree crashing since there are no application data with
+  which to authenticate requests.
+  For example, if hubic is set to :nil, then the hubic side of the supervision tree
+  will not be started. Then the only functions available will be:
+      TestOs.ExOvh.ovh_request/3
+      TestOs.ExOvh.ovh_prepare_request/3
+
+
+  """
   alias ExOvh.Defaults
 
 
@@ -74,16 +111,18 @@ defmodule ExOvh.Client do
 
   Returns a tuple `{method, uri, options}` which is the `query_t` tuple.
   With the returned query_t, a request can easily be made with
-  the `ovh_request` function or [HTTPotion](http://hexdocs.pm/httpotion/HTTPotion.html).
+  [HTTPotion](http://hexdocs.pm/httpotion/HTTPotion.html).
 
   ## Example
 
-  Making a request to the custom ovh api:
-      query = ExOvh.ovh_prepare_request({:get, "/cdn/webstorage", :nil}, %{})
+  Building a request to the custom ovh api:
+      raw_query = {:get, "<account_name>", %{"format" => "json"}}
+      query = ExOvh.ovh_prepare_request(raw_query, %{})
 
 
-  Making a request to the openstack compliant ovh cdn webstorage service:
-      query = ExOvh.ovh_prepare_request({:get, "<account_name>", %{"format" => "json"}}, %{ openstack: :true, webstorage: "<ovh_service_name>" })
+  Building a request to the openstack compliant ovh cdn webstorage service:
+      raw_query = {:get, "<account_name>", %{"format" => "json"}}
+      query = ExOvh.ovh_prepare_request(raw_query, %{ openstack: :true, webstorage: "<ovh_service_name>" })
   """
   @callback ovh_prepare_request(query :: raw_query_t)
                              :: query_t
@@ -99,10 +138,12 @@ defmodule ExOvh.Client do
   ## Example
 
   Making a request to the custom ovh api:
-      ExOvh.ovh_request({:get, "/cdn/webstorage", :nil}, %{})
+      raw_query = {:get, "<account_name>", %{"format" => "json"}}
+      ExOvh.ovh_request(raw_query, %{})
 
   Making a request to the openstack compliant ovh cdn webstorage service:
-      ExOvh.ovh_request({:get, "<account_name>", %{"format" => "json"}}, %{ openstack: :true, webstorage: "<ovh_service_name>" })
+      raw_query = {:get, "<account_name>", %{"format" => "json"}}
+      ExOvh.ovh_request(raw_query, %{ openstack: :true, webstorage: "<ovh_service_name>" })
   """
   @callback ovh_request(query :: raw_query_t, opts :: map)
                         :: {:ok, response_t} | {:error, response_t}
@@ -114,15 +155,45 @@ defmodule ExOvh.Client do
   Makes a request to the hubic api.
 
   Returns a map `%{ body: <body>, headers: %{<headers>}, status_code: <code>}`
+
+  Making a request to the custom hubic api:
+      raw_query = {:get, "/scope/scope", :nil}
+      ExOvh.hubic_request(raw_query, %{})
+
+  Making a request to the openstack compliant hubic storage:
+      client = ExOvh
+      account = ExOvh.Hubic.OpenstackApi.Cache.get_account(client)
+      raw_query = {:get, account, %{"format" => "json"}}
+      ExOvh.hubic_request(raw_query, %{ openstack: :true })
   """
   @callback hubic_request(query :: raw_query_t, opts :: map)
                          :: {:ok, response_t} | {:error, response_t}
 
 
   @doc ~S"""
-  Prepares all elements necessary prior to making a request to the hubic api.
+  Prepares all elements necessary for making a request to the hubic api.
 
   Returns a tuple `{method, uri, options}`
+
+  Building a request to the custom hubic api:
+      raw_query = {:get, "/scope/scope", :nil}
+      ExOvh.hubic_prepare_request(raw_query, %{})
+
+  Building a request to the openstack compliant hubic storage
+  with the default client `ExOvh`:
+
+      account = ExOvh.Hubic.OpenstackApi.Cache.get_account()
+      raw_query = {:get, account, %{"format" => "json"}}
+      ExOvh.hubic_prepare_request(raw_query, %{ openstack: :true })
+
+
+  Building a request to the openstack compliant hubic storage with your own
+  client:
+
+      client = MyApp.ExOvh # <-- enter your client here.
+      account = ExOvh.Hubic.OpenstackApi.Cache.get_account(client)
+      raw_query = {:get, account, %{"format" => "json"}}
+      ExOvh.hubic_prepare_request(raw_query, %{ openstack: :true })
   """
   @callback hubic_prepare_request(query :: raw_query_t)
                                :: query_t
