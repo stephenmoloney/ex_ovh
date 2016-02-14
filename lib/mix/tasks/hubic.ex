@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Hubic do
   @moduledoc ~S"""
-  Generates the hubic application refresh token on the user's behalf.
+  A mix task that generates the hubic application refresh token on the user's behalf.
 
   ## Steps
 
