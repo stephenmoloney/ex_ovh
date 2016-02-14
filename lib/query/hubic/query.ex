@@ -1,21 +1,20 @@
 defmodule ExOvh.Query.Hubic do
   @moduledoc ~S"""
-    Helps to build queries for the hubic api.
+  Helper functions for building queries for the hubic api.
 
-    The raw query can be passed into a client request.
+  The raw query can be passed into a client request.
 
     ## Example
 
-      ```elixir
       import ExOvh.Query.Hubic, only: [scope: 0]
       scope = ExOvh.hubic_request(scope())
-      ```
   """
 
 
   #########################
   # General Hubic Requests
   #########################
+
 
   @doc ~S"""
   GET /scope/scope, Get the possible scopes for hubiC API

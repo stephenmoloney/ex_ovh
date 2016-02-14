@@ -1,13 +1,14 @@
 defmodule ExOvh.Query.Ovh.Webstorage do
   @moduledoc ~S"""
-  Helps to build queries for the openstack swift api.
+  Helper functions for to building queries to the `/cdn/webstorage` part of the custom ovh api.
+
   The raw query can be passed into a client request.
 
     ## Example
 
-      ```elixir
       import ExOvh.Query.Ovh.Webstorage
-      ```
+      query = get_all_webstorage()
+      ExOvh.ovh_request(query, %{})
   """
   alias ExOvh.Ovh.OvhApi.Cache, as: OvhApiCache
 
@@ -18,10 +19,8 @@ defmodule ExOvh.Query.Ovh.Webstorage do
 
   ### Example usage
 
-      ```elixir
       import ExOvh.Query.Ovh.Webstorage
       ExOvh.ovh_request(get_all_webstorage(), %{})
-      ```
   """
   @spec get_all_webstorage() :: ExOvh.Client.raw_query_t
   def get_all_webstorage(), do: {:get, "/cdn/webstorage", :nil}
@@ -33,7 +32,6 @@ defmodule ExOvh.Query.Ovh.Webstorage do
 
   ### Example usage
 
-      ```elixir
       import ExOvh.Query.Ovh.Webstorage
       service_name = "cdnwebstorage-????"
       resp = ExOvh.ovh_request(get_webstorage_service(service_name), %{})
@@ -42,7 +40,6 @@ defmodule ExOvh.Query.Ovh.Webstorage do
         "storageLimit => storage_limit,
         "server" => server
        } = resp.body
-      ```
   """
   @spec get_webstorage_service(service_name :: String.t)
                                :: ExOvh.Client.raw_query_t
@@ -55,11 +52,9 @@ defmodule ExOvh.Query.Ovh.Webstorage do
 
   ### Example usage
 
-      ```elixir
       import ExOvh.Query.Ovh.Webstorage
       service_name = "cdnwebstorage-????"
       resp = ExOvh.ovh_request(get_webstorage_service_info(service_name), %{})
-      ```
   """
   @spec get_webstorage_service_info(service_name :: String.t)
                                :: ExOvh.Client.raw_query_t
@@ -75,11 +70,9 @@ defmodule ExOvh.Query.Ovh.Webstorage do
 
   ### Example usage
 
-      ```elixir
       import ExOvh.Query.Ovh.Webstorage
       # service_name = "cdnwebstorage-????"
       resp = ExOvh.ovh_request(get_webstorage_service_stats(service_name, "month", "backend"), %{})
-      ```
   """
   @spec get_webstorage_service_stats(service_name :: String.t, period :: String.t, type :: String.t)
                                :: ExOvh.Client.raw_query_t
@@ -94,11 +87,9 @@ defmodule ExOvh.Query.Ovh.Webstorage do
 
   ### Example usage
 
-      ```elixir
       import ExOvh.Query.Ovh.Webstorage
       # service_name = "cdnwebstorage-????"
       resp = ExOvh.ovh_request(get_webstorage_credentials(service_name), %{})
-      ```
   """
   @spec get_webstorage_credentials(service_name :: String.t)
                                :: ExOvh.Client.raw_query_t

@@ -1,4 +1,7 @@
 defmodule ExOvh.Hubic.RequestHelpers do
+  @moduledoc ~S"""
+  Helper functions for making requests to the hubic custom api and hubic openstack api.
+  """
   import ExOvh.Query.Openstack.Swift
   alias ExOvh.Hubic.OpenstackApi.Cache, as: OpenCache
 
@@ -12,11 +15,9 @@ defmodule ExOvh.Hubic.RequestHelpers do
 
   ## Example
 
-      ```elixir
       alias ExOvh.Hubic.RequestHelpers
       client = ExOvh # Enter your client here
       RequestHelpers.containers(client)
-      ```
   """
   @spec containers(client :: atom)
                    :: {:ok, [String.t]} | {:error, ExOvh.Client.response_t}
@@ -42,13 +43,18 @@ defmodule ExOvh.Hubic.RequestHelpers do
 
   ## Example
 
-      ```elixir
       alias ExOvh.Hubic.RequestHelpers
       client = ExOvh
       container = "new_container"
       RequestHelpers.get_objects(client, container, :name)
+
+
+  ## Example
+
+      alias ExOvh.Hubic.RequestHelpers
+      client = ExOvh
+      container = "new_container"
       RequestHelpers.get_objects(client, container, :hash)
-      ```
   """
   @spec get_objects(client :: atom, container :: String.t, filter :: atom)
                    :: {:ok, [String.t]} | {:error, ExOvh.Client.response_t}

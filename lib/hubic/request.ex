@@ -30,7 +30,7 @@ defmodule ExOvh.Hubic.Request do
   2. Making the actual request with `HTTPotion`
   3. Returning the response as `{:ok, response_t}` or `{:error, response_t}`
   """
-  alias ExOvh.Hubic.HubicApi.Request, as: Hub
+  alias ExOvh.Hubic.HubicApi.Request, as: Hubic
   alias ExOvh.Hubic.OpenstackApi.Request, as: Open
 
 
@@ -58,7 +58,7 @@ defmodule ExOvh.Hubic.Request do
   end
 
   def request(client, {method, uri, params} = query, opts) do
-    Hub.request(client, query)
+    Hubic.request(client, query, opts)
   end
 
 

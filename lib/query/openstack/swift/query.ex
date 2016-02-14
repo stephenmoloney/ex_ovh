@@ -1,16 +1,15 @@
 defmodule ExOvh.Query.Openstack.Swift do
   @moduledoc ~S"""
-  Helps to build queries for the openstack swift api.
+  Helper functions for to building queries for the openstack compatible swift apis.
+
   The raw query can be passed into a client request.
 
     ## Example
 
-      ```elixir
       import ExOvh.Query.Openstack.Swift, only: [scope: 0]
       account = ExOvh.Hubic.OpenstackApi.Cache.get_account()
       client = ExOvh
       scope = ExOvh.hubic_request(account_info(client), %{ openstack: : true })
-      ```
   """
   alias ExOvh.Hubic.OpenstackApi.Cache, as: HubicOpenstackCache
 

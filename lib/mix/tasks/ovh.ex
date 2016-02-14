@@ -221,7 +221,7 @@ defmodule Mix.Tasks.Ovh do
   defp get_application_key(body), do: Map.get(extract(body), "key")
   defp get_application_name(body), do: Map.get(extract(body), "name")
   defp get_application_description(body), do: Map.get(extract(body), "description")
-  def extract(body) do
+  defp extract(body) do
     Floki.find(body, "pre")
     |> Enum.map(fn({"pre", [], [val]}) -> val end)
     |> Enum.map(fn(ext) ->

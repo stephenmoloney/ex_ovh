@@ -60,7 +60,7 @@ defmodule ExOvh.Ovh.Request do
   end
 
   def request(client, {method, uri, params} = query, opts) do
-    Ovh.request(client, query)
+    Ovh.request(client, query, opts)
   end
 
 

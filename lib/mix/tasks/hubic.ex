@@ -171,7 +171,7 @@ defmodule Mix.Tasks.Hubic do
 
   #- Adds the refresh_token to the opts_map
   @spec get_refresh_token(opts_map :: map) :: map
-  def get_refresh_token(opts_map) do
+  defp get_refresh_token(opts_map) do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
     auth_credentials = opts_map.client_id <> ":" <> opts_map.client_secret
     auth_credentials_base64 = Base.encode64(auth_credentials)
