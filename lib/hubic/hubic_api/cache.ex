@@ -1,29 +1,30 @@
 defmodule ExOvh.Hubic.HubicApi.Cache do
-  @moduledoc ~s"""
-  Caches the access_token and provides a simple get_token() api to other modules through one function get_token()
-  Caches the hubic config map.
+  #@moduledoc ~S"""
+  #Caches the access_token and provides a simple get_token() api to other modules through one function get_token()
+  #Caches the hubic config map.
 
-  Maintains the access token so that:
-  - State is maintained in gen_server state but gen_server could be a bottleneck so it is also copied to a public ets table.
-  - So state is also stored in an ets table and is quickly and globally retrievable.
-  - State in :ets and :gen_server should be synchronised.
-  - It is automatically refreshed in the background when it expires
-  - If the gen_server crashes, it will attempt to re-establish the access token
-  - The refresh token by attempting the following:
-    - 1. Firstly, try to recuperate the refresh_token from a dets entry.
-    - 2. Secondly, by checking for the refresh_token in the config secret file.
-  - If both of the above methods fail, then ultimately the gen_server will crash and the user
-    will have to retrieve another refresh_token using the `mix hubic` task
-
-  tokens is a map with the following structure:
-  - `%{
-       :lock => :true,
-       "access_token" => "access_token",
-       "expires_in" => 21600,
-       "refresh_token" => "refresh_token",
-       "token_type" => "Bearer"
-    }`
-  """
+  #Maintains the access token so that:
+  #- State is maintained in gen_server state but gen_server could be a bottleneck so it is also copied to a public ets table.
+  #- So state is also stored in an ets table and is quickly and globally retrievable.
+  #- State in :ets and :gen_server should be synchronised.
+  #- It is automatically refreshed in the background when it expires
+  #- If the gen_server crashes, it will attempt to re-establish the access token
+  #- The refresh token by attempting the following:
+  #  - 1. Firstly, try to recuperate the refresh_token from a dets entry.
+  #  - 2. Secondly, by checking for the refresh_token in the config secret file.
+  #- If both of the above methods fail, then ultimately the gen_server will crash and the user
+  #  will have to retrieve another refresh_token using the `mix hubic` task
+  #
+  #tokens is a map with the following structure:
+  #- `%{
+  #     :lock => :true,
+  #     "access_token" => "access_token",
+  #     "expires_in" => 21600,
+  #     "refresh_token" => "refresh_token",
+  #     "token_type" => "Bearer"
+  #  }`
+  #"""
+  @moduledoc :false
   use GenServer
   alias ExOvh.Hubic.HubicApi.Auth
   @get_token_retries 20

@@ -1,5 +1,5 @@
 defmodule Mix.Tasks.Hubic do
-  @moduledoc ~s"""
+  @moduledoc ~S"""
   Gets the access and refresh token for access the hubic api
   and returns them as a map to assist setting up the
   configuration file `secret.prod.exs`

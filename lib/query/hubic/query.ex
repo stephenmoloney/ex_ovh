@@ -1,5 +1,5 @@
 defmodule ExOvh.Query.Hubic do
-  @moduledoc ~s"""
+  @moduledoc ~S"""
     Helps to build queries for the hubic api.
 
     The raw query can be passed into a client request.
@@ -17,7 +17,7 @@ defmodule ExOvh.Query.Hubic do
   # General Hubic Requests
   #########################
 
-  @doc ~s"""
+  @doc ~S"""
   GET /scope/scope, Get the possible scopes for hubiC API
 
     ### Example:
@@ -29,7 +29,7 @@ defmodule ExOvh.Query.Hubic do
   def scope(), do: {:get, "/scope/scope", :nil}
 
 
-  @doc ~s"""
+  @doc ~S"""
   GET /account, Get the account object properties
 
     ### Example:
@@ -41,7 +41,7 @@ defmodule ExOvh.Query.Hubic do
   def account(), do: {:get, "/account", :nil}
 
 
-  @doc ~s"""
+  @doc ~S"""
   GET /account/credentials, Returns openstack credentials for connecting to the file API
 
       ### Example:
@@ -53,7 +53,7 @@ defmodule ExOvh.Query.Hubic do
   def openstack_credentials(), do: {:get, "/account/credentials", :nil}
 
 
-  @doc ~s"""
+  @doc ~S"""
   GET /account/usage, Returns used space & quota of your account
 
       ### Example:
@@ -115,7 +115,7 @@ defmodule ExOvh.Query.Hubic do
   def get_link(uri), do: {:get, "/account/links/", uri}
 
 
-  @doc ~s"""
+  @doc ~S"""
   POST /account/links, Create a public url to a file
 
   Note: links have a max ttl of 30 days on hubic currently.
@@ -156,7 +156,7 @@ defmodule ExOvh.Query.Hubic do
 
 
 
-  @doc ~s"""
+  @doc ~S"""
   DELETE /account/links/{uri}, Deletes a public url to a file
 
 

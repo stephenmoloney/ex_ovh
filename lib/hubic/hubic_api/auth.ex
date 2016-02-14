@@ -1,6 +1,6 @@
 defmodule ExOvh.Hubic.HubicApi.Auth do
-  @moduledoc "Gets the access and refresh token for access the hubic api"
-
+  #@moduledoc "Gets the access and refresh token for access the hubic api"
+  @moduledoc :false
   alias ExOvh.Hubic.Defaults
   alias ExOvh.Hubic.HubicApi.Cache
   @timeout 20_000
@@ -10,10 +10,6 @@ defmodule ExOvh.Hubic.HubicApi.Auth do
   # Public
   ###################
   
-  @spec prepare_request(query :: ExOvh.Client.raw_query_t)
-                     :: ExOvh.Client.query_t
-  def prepare_request({method, uri, params} = query), do: prepare_request(ExOvh, query)
-
 
   @spec prepare_request(client :: atom, query :: ExOvh.Client.raw_query_t)
                     :: ExOvh.Client.query_t

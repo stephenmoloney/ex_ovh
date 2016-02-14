@@ -3,7 +3,7 @@ defmodule ExOvh.Hubic.RequestHelpers do
   alias ExOvh.Hubic.OpenstackApi.Cache, as: OpenCache
 
 
-  @doc ~s"""
+  @doc ~S"""
   Gets a list of all openstack swift containers for the hubic app
 
   Returns `{:ok, [<container_name>, <container_name> ...]`
@@ -32,7 +32,7 @@ defmodule ExOvh.Hubic.RequestHelpers do
   end
 
 
-  @doc ~s"""
+  @doc ~S"""
   Gets a list of all objects by name in an openstack swift container for the hubic app
   Allows to filter the returned list by hash or by name depending on the filter used.
 

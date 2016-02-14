@@ -1,5 +1,5 @@
 defmodule ExOvh.Query.Ovh.Webstorage do
-  @moduledoc ~s"""
+  @moduledoc ~S"""
   Helps to build queries for the openstack swift api.
   The raw query can be passed into a client request.
 
@@ -13,7 +13,7 @@ defmodule ExOvh.Query.Ovh.Webstorage do
 
 
 
-  @doc ~s"""
+  @doc ~S"""
   GET /v1/​cdn/webstorage​, Get a list of all webstorage cdn services available for the client account
 
   ### Example usage
@@ -28,7 +28,7 @@ defmodule ExOvh.Query.Ovh.Webstorage do
 
 
 
-  @doc ~s"""
+  @doc ~S"""
   GET /v1/​cdn/webstorage​/{serviceName}, Get the domain, server and storage limits for a specific webstorage cdn service
 
   ### Example usage
@@ -50,7 +50,7 @@ defmodule ExOvh.Query.Ovh.Webstorage do
 
 
 
-  @doc ~s"""
+  @doc ~S"""
   GET /v1/​cdn/webstorage​/{serviceName}/serviceInfos, Get a administrative details for a specific webstorage cdn service
 
   ### Example usage
@@ -67,7 +67,7 @@ defmodule ExOvh.Query.Ovh.Webstorage do
 
 
 
-  @doc ~s"""
+  @doc ~S"""
   GET /v1/​cdn/webstorage​/{serviceName}/statistics, Get statistics for a specific webstorage cdn service
 
     `period can be "month", "week" or "day"`
@@ -89,7 +89,7 @@ defmodule ExOvh.Query.Ovh.Webstorage do
 
 
 
-  @doc ~s"""
+  @doc ~S"""
   GET /v1/​cdn/webstorage​/{serviceName}/credentials, Get credentials for using the swift compliant api
 
   ### Example usage

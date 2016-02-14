@@ -1,12 +1,5 @@
 defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Supervisor do
-  @moduledoc ~s"""
-  Supervisor for the Ovh Openstack Configurations.
-
-  Rather than adding every single instance of an openstack account to the `secret.prod.exs` file, it is
-  probably better to start the openstack workers on demand.
-
-  The openstack workers cache the openstack token and maintain it.
-  """
+  @moduledoc :false
   use Supervisor
   alias ExOvh.Ovh.OpenstackApi.Webstorage.Cache
 
@@ -14,7 +7,7 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Supervisor do
   #  Public
   #####################
 
-  @doc ~s"""
+  @doc ~S"""
   Starts the OVH Openstack dynamic supervisor.
   """
   def start_link({client, config, opts}) do

@@ -1,6 +1,6 @@
 defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Auth do
+  @moduledoc :false
   alias ExOvh.Ovh.OpenstackApi.Webstorage.Cache, as: WebStorageCache
-  # import ExOvh.Query.Ovh.Webstorage, only: []
 
   @methods [:get, :post, :put, :delete]
   @timeout 10_000

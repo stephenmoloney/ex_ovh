@@ -1,5 +1,5 @@
 defmodule ExOvh.Hubic.Auth do
-  @moduledoc ~s"""
+  @moduledoc ~S"""
     Delegates the prepare_request to the appropriate module and function
     depending on the opts specified.
     `%{ openstack: :true }` ==> delegates the query to the OpenstackApi.Auth Module

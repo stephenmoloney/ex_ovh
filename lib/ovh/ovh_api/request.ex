@@ -1,4 +1,5 @@
 defmodule ExOvh.Ovh.OvhApi.Request do
+  @moduledoc :false
   alias ExOvh.Ovh.OvhApi.Auth
   alias ExOvh.Ovh.OvhApi.Cache
   alias ExOvh.Ovh.Defaults
@@ -35,11 +36,7 @@ defmodule ExOvh.Ovh.OvhApi.Request do
   # Private
   ############################
 
-
-  defp config(), do: Cache.get_config(ExOvh)
   defp config(client), do: Cache.get_config(client)
-  defp endpoint(config), do: Defaults.endpoints()[config[:endpoint]]
-  defp api_version(config), do: config[:api_version]
 
 
 end

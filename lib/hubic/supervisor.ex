@@ -1,7 +1,5 @@
 defmodule ExOvh.Hubic.Supervisor do
-  @moduledoc ~s"""
-  Supervisor for the Hubic Configuration
-  """
+  @moduledoc :false
   use Supervisor
   alias LoggingUtils
   alias ExOvh.Hubic.HubicApi.Cache, as: TokenCache

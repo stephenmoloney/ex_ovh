@@ -1,4 +1,5 @@
 defmodule ExOvh.Ovh.Defaults do
+  @moduledoc :false
 
   @doc "Returns ovh default configuration settings"
   @spec ovh() :: map

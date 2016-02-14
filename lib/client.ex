@@ -1,17 +1,15 @@
 defmodule ExOvh.Client do
-  alias LoggingUtils
   alias ExOvh.Defaults
 
-  # <<TODO>> Reconsider is here the best place to declare the types
+
   @type method_t :: atom()
   @type path_t :: String.t
   @type params_t :: map() | :nil
   @type options_t :: map() | :nil
-
   @type raw_query_t :: { method_t, path_t, params_t }
   @type query_t :: { method_t, path_t, options_t }
-
   @type response_t :: %{ body: map() | String.t, headers: map(), status_code: integer() }
+
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
@@ -60,32 +58,70 @@ defmodule ExOvh.Client do
   @callback start_link() :: :ok | {:error, {:already_started, pid}} | {:error, term}
 
 
-  @doc ~s"""
-  Makes a request to the ovh api.
-  Returns a map `%{ body: <body>, headers: [<headers>], status_code: <code>}`
+  @doc ~S"""
+  Gets the ovh and hubic config from the application environment.
+
+  Returns a map if the config is present in the config.exs file(s)
+  or
+  Returns :nil if the config is absent.
   """
-  @callback ovh_request(query :: raw_query_t, opts :: map)
-                        :: {:ok, response_t} | {:error, response_t}
+  @callback config() :: :nil | map
 
 
-  @doc ~s"""
-  Prepares all elements necessary prior to making a request to the ovh api.
-  Returns a tuple `{method, uri, options}`
+
+  @doc """
+  Prepares all elements necessary for making a request to the ovh api.
+
+  Returns a tuple `{method, uri, options}` which is the `query_t` tuple.
+  With the returned query_t, a request can easily be made with
+  the `ovh_request` function or [HTTPotion](http://hexdocs.pm/httpotion/HTTPotion.html).
+
+  ## Example
+
+  Making a request to the custom ovh api:
+      query = ExOvh.ovh_prepare_request({:get, "/cdn/webstorage", :nil}, %{})
+
+
+  Making a request to the openstack compliant ovh cdn webstorage service:
+      query = ExOvh.ovh_prepare_request({:get, "<account_name>", %{"format" => "json"}}, %{ openstack: :true, webstorage: "<ovh_service_name>" })
   """
   @callback ovh_prepare_request(query :: raw_query_t)
                              :: query_t
 
 
-  @doc ~s"""
+
+  @doc ~S"""
+  Makes a request to the ovh api.
+
+  Returns a `response_t` map  with the structure:
+  `%{ body: <body>, headers: [<headers>], status_code: <code>}`
+
+  ## Example
+
+  Making a request to the custom ovh api:
+      ExOvh.ovh_request({:get, "/cdn/webstorage", :nil}, %{})
+
+  Making a request to the openstack compliant ovh cdn webstorage service:
+      ExOvh.ovh_request({:get, "<account_name>", %{"format" => "json"}}, %{ openstack: :true, webstorage: "<ovh_service_name>" })
+  """
+  @callback ovh_request(query :: raw_query_t, opts :: map)
+                        :: {:ok, response_t} | {:error, response_t}
+
+
+
+
+  @doc ~S"""
   Makes a request to the hubic api.
+
   Returns a map `%{ body: <body>, headers: %{<headers>}, status_code: <code>}`
   """
   @callback hubic_request(query :: raw_query_t, opts :: map)
                          :: {:ok, response_t} | {:error, response_t}
 
 
-  @doc ~s"""
+  @doc ~S"""
   Prepares all elements necessary prior to making a request to the hubic api.
+
   Returns a tuple `{method, uri, options}`
   """
   @callback hubic_prepare_request(query :: raw_query_t)

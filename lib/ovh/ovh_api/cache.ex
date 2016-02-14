@@ -1,7 +1,5 @@
 defmodule ExOvh.Ovh.OvhApi.Cache do
-  @moduledoc ~s"""
-    Caches the ovh api time diff
-  """
+  @moduledoc :false
   use GenServer
   alias ExOvh.Ovh.Defaults
 

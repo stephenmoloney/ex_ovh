@@ -1,6 +1,6 @@
 defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Request do
+  @moduledoc :false
   alias ExOvh.Ovh.OpenstackApi.Webstorage.Auth
-  alias ExOvh.Ovh.OvhApi.Cache, as: ClientCache
 
 
   @spec request(client :: atom, query :: ExOvh.Client.query_t, service :: String.t)

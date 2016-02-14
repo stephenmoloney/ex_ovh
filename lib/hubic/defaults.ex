@@ -1,5 +1,5 @@
 defmodule ExOvh.Hubic.Defaults do
-
+  @moduledoc :false
 
   @doc "Returns hubic default configuration settings"
   @spec hubic() :: map

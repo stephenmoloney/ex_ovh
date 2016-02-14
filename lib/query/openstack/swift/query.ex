@@ -1,5 +1,5 @@
 defmodule ExOvh.Query.Openstack.Swift do
-  @moduledoc ~s"""
+  @moduledoc ~S"""
   Helps to build queries for the openstack swift api.
   The raw query can be passed into a client request.
 
@@ -20,7 +20,7 @@ defmodule ExOvh.Query.Openstack.Swift do
   #############################
 
 
-  @doc ~s"""
+  @doc ~S"""
   GET /v1/​{account}​, Get account details and containers for given account
 
   ### Example usage
@@ -37,7 +37,7 @@ defmodule ExOvh.Query.Openstack.Swift do
   def account_info(account), do: {:get, account, %{ "format" => "json" }}
 
 
-  @doc ~s"""
+  @doc ~S"""
   PUT /v1/​{account}/{container}​, Create a new container
 
   ### Example usage
@@ -55,7 +55,7 @@ defmodule ExOvh.Query.Openstack.Swift do
   def create_container(account, container), do: {:put, account <> "/" <> container, %{ "format" => "json" }}
 
 
-  @doc ~s"""
+  @doc ~S"""
   DELETE /v1/​{account}/{container}​, Delete a container
 
   ### Example usage
@@ -78,7 +78,7 @@ defmodule ExOvh.Query.Openstack.Swift do
   ##########################
 
 
-  @doc ~s"""
+  @doc ~S"""
   GET /v1/​{account}​/{container}, List objects in a container
 
   ### Example usage
@@ -97,7 +97,7 @@ defmodule ExOvh.Query.Openstack.Swift do
 
 
 
-  @doc ~s"""
+  @doc ~S"""
   GET /v1/​{account}​/{container}/{object}, Get/Download a specific object (file)
 
   ### Example usage

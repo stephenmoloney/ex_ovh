@@ -1,4 +1,5 @@
 defmodule ExOvh.Hubic.OpenstackApi.Auth do
+  @moduledoc :false
   alias ExOvh.Hubic.OpenstackApi.Cache
 
   @methods [:get, :post, :put, :delete]
@@ -9,10 +10,6 @@ defmodule ExOvh.Hubic.OpenstackApi.Auth do
   # Public
   ############################
 
-
-  @spec prepare_request(query :: ExOvh.Client.raw_query_t)
-                     :: ExOvh.Client.query_t
-  def prepare_request({method, uri, params} = query), do: prepare_request(ExOvh, query)
 
   @spec prepare_request(client :: atom, query :: ExOvh.Client.raw_query_t)
                      :: ExOvh.Client.query_t

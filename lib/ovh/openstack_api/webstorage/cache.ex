@@ -1,9 +1,5 @@
 defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
-  @moduledoc """
-  Caches the openstack credentials for access to the openstack api associated with the webstorage cdn.
-
-  Uses the standard Openstack Identity (Keystone) api for auth.
-  """
+  @moduledoc :false
   use GenServer
   alias ExOvh.Ovh.OpenstackApi.Webstorage.Supervisor, as: WebStorageSupervisor
   import ExOvh.Query.Ovh.Webstorage, only: [get_webstorage_credentials: 1]
@@ -25,9 +21,6 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
 
   def get_credentials(service), do: get_credentials(ExOvh, service)
   def get_credentials(client, service) do
-    LoggingUtils.log_return("client, service", :warn)
-    LoggingUtils.log_return(client, :warn)
-    LoggingUtils.log_return(service, :warn)
     unless supervisor_exists?(client, service), do: Supervisor.start_child(WebStorageSupervisor, [service])
     get_credentials(client, service, 0)
   end
@@ -68,7 +61,6 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
     :erlang.process_flag(:trap_exit, :true)
     create_ets_table(client, service)
     {:ok, credentials} = identity(service)
-    |> LoggingUtils.log_return(:debug)
     credentials = Map.put(credentials, :lock, :false)
     :ets.insert(ets_tablename(client, service), {:credentials, credentials})
     expires = to_seconds(credentials.token_expires_on)

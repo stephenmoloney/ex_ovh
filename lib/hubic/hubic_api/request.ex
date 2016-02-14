@@ -1,11 +1,8 @@
 defmodule ExOvh.Hubic.HubicApi.Request do
+  @moduledoc :false
   alias ExOvh.Hubic.HubicApi.Auth
   alias ExOvh.Hubic.HubicApi.Cache, as: TokenCache
 
-
-  ###################
-  # Public
-  ###################
 
   @spec request(client :: atom, query :: ExOvh.Client.raw_query_t, retries :: integer)
                 :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
@@ -33,7 +30,6 @@ defmodule ExOvh.Hubic.HubicApi.Request do
       end
     else
       if Map.has_key?(resp.body, "error") do
-        #error = Map.get(body, "error") <> " :: " <> Map.get(body, "error_description")
         if resp.body["error"] === "invalid_token" do
           GenServer.call(TokenCache, :stop) # Restart the gen_server to recuperate state
           unless retries >= 1, do: request(query, 1) # Try request one more time
@@ -46,10 +42,6 @@ defmodule ExOvh.Hubic.HubicApi.Request do
     end
 
   end
-
-  ###################
-  # Private
-  ###################
 
 
 end

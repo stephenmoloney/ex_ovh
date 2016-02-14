@@ -1,7 +1,5 @@
 defmodule ExOvh.Ovh.Supervisor do
-  @moduledoc ~s"""
-  Supervisor for the Ovh Configuration
-  """
+  @moduledoc :false
   use Supervisor
   alias ExOvh.Ovh.OvhApi.Cache
   alias ExOvh.Ovh.OpenstackApi.Webstorage.Supervisor, as: Webstorage
@@ -10,7 +8,7 @@ defmodule ExOvh.Ovh.Supervisor do
   #  Public
   #####################
 
-  @doc ~s"""
+  @doc ~S"""
   Starts the OVH supervisor.
   """
   def start_link(client, config, opts) do
@@ -31,6 +29,11 @@ defmodule ExOvh.Ovh.Supervisor do
            ]
     supervise(tree, strategy: :one_for_one, max_restarts: 20)
   end
+
+
+  #####################
+  #  Private
+  #####################
 
   defp supervisor_name(client), do: String.to_atom(Atom.to_string(client) <> Atom.to_string(__MODULE__))
 

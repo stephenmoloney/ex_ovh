@@ -1,10 +1,7 @@
 defmodule ExOvh.Hubic.OpenstackApi.Request do
+  @moduledoc :false
   alias ExOvh.Hubic.OpenstackApi.Cache
   alias ExOvh.Hubic.OpenstackApi.Auth
-
-  ###################
-  # Public
-  ###################
 
 
   @spec request(client :: atom, query :: ExOvh.Client.raw_query_t)
@@ -38,12 +35,6 @@ defmodule ExOvh.Hubic.OpenstackApi.Request do
     end
 
   end
-
-
-
-  ###################
-  # Private
-  ###################
 
 
 end

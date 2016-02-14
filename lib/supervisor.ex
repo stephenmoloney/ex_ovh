@@ -1,6 +1,6 @@
 defmodule ExOvh.Supervisor do
-  @moduledoc ~s"""
-  Supervisor for the Ovh Configuration
+  @moduledoc ~S"""
+  Supervisor for the Hubic and Ovh api configuration.
   """
   use Supervisor
   alias ExOvh.Ovh.Cache
@@ -15,8 +15,14 @@ defmodule ExOvh.Supervisor do
   #  Public
   #####################
 
-  @doc ~s"""
+  @doc ~S"""
   Starts the OVH and Hubic supervisors.
+
+  If the hubic_config is set to :nil, it will simply ignore hubic and start ovh only.
+  If the ovh_config is set to :nil, it will simply ignore ovh and start hubic only.
+
+  If the both ovh_config and hubic_config are set to :nil, then an error will be raised
+  which will crash the supervisor.
   """
   def start_link(client, config, opts) do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
@@ -56,10 +62,11 @@ defmodule ExOvh.Supervisor do
 
 
   @doc """
-  Returns ovh configuration settings or an error
-  if the ovh config is not found
-  ## <<TODO>> Add some additional config validation (
-  to test absence of essential information)
+  Gets the ovh config settings.
+
+  Returns the config_map if the ovh_config is not :nil.
+  or
+  Returns {:error, :config_not_found} if the ovh_config is set to :nil.
   """
   @spec ovh_config(config :: map, client :: atom) :: map | {:error, atom}
   def ovh_config(config, client) do
@@ -71,7 +78,11 @@ defmodule ExOvh.Supervisor do
 
 
   @doc """
-  Returns hubic configuration settings
+  Gets the hubic config settings.
+
+  Returns the config_map if the hubic_config is not :nil.
+  or
+  Returns {:error, :config_not_found} if the hubic_config is set to :nil.
   """
   @spec hubic_config(config :: map, client :: atom) :: map | :nil
   def hubic_config(config, client) do

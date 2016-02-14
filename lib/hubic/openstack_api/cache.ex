@@ -1,8 +1,5 @@
 defmodule ExOvh.Hubic.OpenstackApi.Cache do
-  @moduledoc """
-  Caches the openstack credentials for access to the openstack api
-  Hubic does not use the standard Openstack Identity (Keystone) api for auth.
-  """
+  @moduledoc :false
   use GenServer
   alias ExOvh.Hubic.HubicApi.Cache
   alias ExOvh.Hubic.Request
