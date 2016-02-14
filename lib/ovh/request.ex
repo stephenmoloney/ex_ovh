@@ -1,26 +1,30 @@
 defmodule ExOvh.Ovh.Request do
   @moduledoc ~S"""
-  Contains the `request` function which delegates the request
-  to the correct module and functions depending on the parameters in `opts`.
+  Houses the `request` function which delegates the function call to the appropriate
+  module & function depending on the `opts` key-values.
 
   Ovh uses it's own custom api and also separate Openstack compliant apis so
   and these apis are quite different.
-  Therefore, the request needs to be routed to the correct `prepare_request` function so
+  Therefore, the request needs to be routed to the correct `request` function so
   that the correct auth credentials are put into the `options_t` in the returned
   `ExOvh.Client.query_t` query tuple.
 
-  This module's request function delegates the query to the correct `prepare_request`
-  function by pattern matching on the `opts` map.
+  ## Examples of what some delegation depending on opts
 
-  ## Routing/Delegating depending on opts
+      ExOvh.ovh_request(query, %{} = opts)
+      calls
+      ExOvh.Ovh.OvhApi.Request.request(ExOvh, query, opts)
 
-  `%{ }` -> `ExOvh.Ovh.OvhApi.Request`
+  -
 
-  `%{ openstack: :true, webstorage: "service_name" }` -> `ExOvh.Ovh.OpenstackApi.Webstorage.Request`
+      ExOvh.ovh_request(query, %{ openstack: :true, webstorage: "service_name" } = opts)
+      calls
+      ExOvh.Ovh.OpenstackApi.Webstorage.Request.request(ExOvh, query, opts)
+
 
   ## Subsequent Request modules
 
-  The subsequent request modules process the request by
+  The subsequent request functions process the request by
 
   1. Calling the appropriate `prepare_request` function which has been delegated to.
   2. Making the actual request with `HTTPotion`
@@ -31,7 +35,7 @@ defmodule ExOvh.Ovh.Request do
 
 
   @doc ~S"""
-  Redirects the query to the appropriate function dependeing on the `opts` key-values.
+  Delegates the function call to the appropriate module & function depending on the `opts` key-values.
 
   Subsequent request functions return `{:ok, response_t}` or `{:error, response_t}`
 
@@ -39,18 +43,20 @@ defmodule ExOvh.Ovh.Request do
 
       { } = opts
 
-  The request will be delegated to `ExOvh.Ovh.OvhApi.Request` and processed as a hubic api request.
+  The function call will be delegated to `ExOvh.Ovh.OvhApi.Request` and processed as a hubic api request.
 
       { openstack: :true, webstorage: service } = opts
 
-  The request will be delegated to `ExOvh.Ovh.OpenstackApi.Webstorage.Request`
-  and processed as an openstack api request with the service value. The `service` value is a String.t
-  and is the name the cdn webstorage in your ovh stack which you which to use.
+  The function call will be delegated to `ExOvh.Ovh.OpenstackApi.Webstorage.Request`.
+
+  `openstack: :true` - boolean - indicates whether the request is an openstack one or not.
+
+  `webstorage: service` - String.t and is the name the cdn webstorage in your ovh stack which you which to use.
   """
   @spec request(client :: atom, query :: ExOvh.Client.raw_query_t, opts :: map)
                 :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
   def request(client, {method, uri, params} = query, %{ openstack: :true, webstorage: service } = opts) do
-    Webstorage.request(client, query, service)
+    Webstorage.request(client, query, opts)
   end
 
   def request(client, {method, uri, params} = query, opts) do

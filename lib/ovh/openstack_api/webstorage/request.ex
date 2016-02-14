@@ -5,7 +5,7 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Request do
 
   @spec request(client :: atom, query :: ExOvh.Client.query_t, service :: String.t)
                :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
-  def request(client, {method, uri, params} = query, service) do
+  def request(client, {method, uri, params} = query, %{ webstorage: service } = opts) do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
 
     {method, uri, options} = Auth.prepare_request(client, query, service)

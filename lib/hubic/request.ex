@@ -1,26 +1,30 @@
 defmodule ExOvh.Hubic.Request do
   @moduledoc ~S"""
-  Contains the `request` function which delegates the request
-  to the correct module and functions depending on the parameters in `opts`.
+  Houses the `request` function which delegates the function call to the appropriate
+  module & function depending on the `opts` key-values.
 
-  Hubic uses it's own custom api and also a distinct Openstack compliant api so
+  Hubic uses it's own custom api and also separate Openstack compliant apis so
   and these apis are quite different.
-  Therefore, the request needs to be routed to the correct `prepare_request` function so
+  Therefore, the request needs to be routed to the correct `request` function so
   that the correct auth credentials are put into the `options_t` in the returned
   `ExOvh.Client.query_t` query tuple.
 
-  This module's request function delegates the query to the correct `prepare_request`
-  function by pattern matching on the `opts` map.
+  ## Examples of what some delegation depending on opts
 
-  ## Routing/Delegating depending on opts
+      ExOvh.hubic_request(query, %{} = opts)
+      calls
+      ExOvh.Hubic.HubicApi.Request.request(ExOvh, query, opts)
 
-  `%{ }` -> `ExOvh.Hubic.HubicApi.Request`
+  -
 
-  `%{ openstack: :true}` -> `ExOvh.Hubic.OpenstackApi.Request`
+      ExOvh.hubic_request(query, %{ openstack: :true } = opts)
+      calls
+      ExOvh.Hubic.OpenstackApi.Request.request(ExOvh, query, opts)
+
 
   ## Subsequent Request modules
 
-  The subsequent request modules process the request by
+  The subsequent request functions process the request by
 
   1. Calling the appropriate `prepare_request` function which has been delegated to.
   2. Making the actual request with `HTTPotion`
@@ -31,7 +35,7 @@ defmodule ExOvh.Hubic.Request do
 
 
   @doc ~S"""
-  Redirects the query to the appropriate function dependeing on the `opts` key-values.
+  Delegates the function call to the appropriate module & function depending on the `opts` key-values.
 
   Subsequent request functions return `{:ok, response_t}` or `{:error, response_t}`
 
@@ -39,11 +43,13 @@ defmodule ExOvh.Hubic.Request do
 
       { } = opts
 
-  The request will be delegated to `ExOvh.Hubic.HubicApi.Request` and processed as a hubic api request.
+  The function call will be delegated to `ExOvh.Hubic.HubicApi.Request` and processed as a hubic api request.
 
       { openstack: :true } = opts
 
-  The request will be delegated to `ExOvh.Hubic.OpenstackApi.Request` and processed as an openstack api request.
+  The function call will be delegated to `ExOvh.Hubic.OpenstackApi.Request`.
+
+  `openstack: :true` - boolean - indicates whether the request is an openstack one or not.
   """
   @spec request(client :: atom, query :: ExOvh.Client.raw_query_t, opts :: map)
                 :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}

@@ -4,9 +4,9 @@ defmodule ExOvh.Hubic.OpenstackApi.Request do
   alias ExOvh.Hubic.OpenstackApi.Auth
 
 
-  @spec request(client :: atom, query :: ExOvh.Client.raw_query_t)
+  @spec request(client :: atom, query :: ExOvh.Client.raw_query_t, opts :: map)
                 :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
-  def request(client, {method, uri, params} = query) do
+  def request(client, {method, uri, params} = query, opts) do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
     {method, uri, options} = Auth.prepare_request(client, query)
     |> LoggingUtils.log_return(:debug)

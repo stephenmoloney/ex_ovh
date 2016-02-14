@@ -9,9 +9,9 @@ defmodule ExOvh.Ovh.OvhApi.Request do
   ############################
 
 
-  @spec request(client :: atom, query :: ExOvh.Client.query_t)
+  @spec request(client :: atom, query :: ExOvh.Client.query_t, opts :: map)
                :: {:ok, ExOvh.Client.response_t} | {:error, ExOvh.Client.response_t}
-  def request(client, {method, uri, params} = query) do
+  def request(client, {method, uri, params} = query, opts) do
     LoggingUtils.log_mod_func_line(__ENV__, :debug)
     config = config(client)
 
