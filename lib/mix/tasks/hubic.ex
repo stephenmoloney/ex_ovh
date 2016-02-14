@@ -21,7 +21,7 @@ defmodule Mix.Tasks.Hubic do
   --redirecturi=<uri>
   ```
 
-  - A map is printed to the shell as follows:
+  ## Shell Output
 
   ```elixir
   %{
@@ -31,8 +31,6 @@ defmodule Mix.Tasks.Hubic do
   redirect_uri: "<uri>"
   }
   ```
-
-  ## Shell Output
 
   This map can then be manually added by the user to the `config/prod.secret.exs` file
 
