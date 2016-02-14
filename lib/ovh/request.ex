@@ -1,5 +1,6 @@
 defmodule ExOvh.Ovh.Request do
-  @moduledoc ~S"""
+  @moduledoc :false
+  @doc ~S"""
   Houses the `request` function which delegates the function call to the appropriate
   module & function depending on the `opts` key-values.
 

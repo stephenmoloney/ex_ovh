@@ -1,5 +1,6 @@
 defmodule ExOvh.Supervisor do
-  @moduledoc ~S"""
+  @moduledoc :false
+  @doc ~S"""
   Supervisor for the Hubic and Ovh api configuration.
   """
   use Supervisor

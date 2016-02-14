@@ -1,5 +1,6 @@
 defmodule ExOvh.Ovh.Auth do
-  @moduledoc ~s"""
+  @moduledoc :false
+  @doc ~s"""
   Houses the `prepare_request` function which delegates the function call to the appropriate
   module & function depending on the `opts` key-values.
 

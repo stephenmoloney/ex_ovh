@@ -1,5 +1,6 @@
 defmodule ExOvh.Hubic.Auth do
-  @moduledoc ~S"""
+  @moduledoc :false
+  @doc ~S"""
   Houses the `prepare_request` function which delegates the function call to the appropriate
   module & function depending on the `opts` key-values.
 

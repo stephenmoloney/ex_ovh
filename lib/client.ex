@@ -31,10 +31,9 @@ defmodule ExOvh.Client do
   which to authenticate requests.
   For example, if hubic is set to :nil, then the hubic side of the supervision tree
   will not be started. Then the only functions available will be:
+
       TestOs.ExOvh.ovh_request/3
       TestOs.ExOvh.ovh_prepare_request/3
-
-
   """
   alias ExOvh.Defaults
 

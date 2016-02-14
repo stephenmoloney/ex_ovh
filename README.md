@@ -1,18 +1,16 @@
 # ExOvh
 
-ExOvh is an unofficial client library to make it easier to interact with both the [Ovh](https://api.ovh.com/) api 
+ExOvh is an elixir library to make it easier to interact with both the [Ovh](https://api.ovh.com/) api 
 and the [Hubic](https://api.hubic.com/) api.
-
-## Note 
-
-This is an unofficial client to the OVH api and is not maintained by OVH.
-
 
 ## Note
 
 This repository is a work in progress.
 
-## <<TODO>> Add Proper Readme
+
+
+
+## TODO list
 
 
 - [ ] *Needed* - generate hex docs
@@ -22,13 +20,16 @@ This repository is a work in progress.
 - [ ] *Needed* - *Tests* - verify the supervisor chain, genservers and genserver naming is working ok.
 
  
-- [ ] *Maybe* - add sensitive keys, secrets, etc to system env and allow the config.exs to get variables from `System`.
+- [ ] *Maybe* - investigate ways to add sensitive keys, secrets, etc to system env and allow the config.exs to get variables from `System`.
 - [ ] *Maybe* - improve error handling for unexpected responses if possible - hard to find good documentation for expected error responses.
 - [ ] *Maybe* - add a time to live configuration for the validity period of the ovh credential token
 - [ ] *Maybe* - Add some further validations during the mix tasks.
 - [ ] *Maybe* - Add request helper functions to create folders in the hubic api.
 
 
+## Note 
+
+This is an unofficial client to the OVH api and is not maintained by OVH.
 
 ## Licence 
 
