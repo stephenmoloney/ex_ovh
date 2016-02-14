@@ -125,7 +125,7 @@ Add the supervisor to your supervision tree:
     ex_ovh = [supervisor(ExOvh, [])]
 
     opts = [strategy: :one_for_one, name: TestOs.Supervisor]
-    Supervisor.start_link(phoenix ++ ex_ovh  ++ child3, opts)
+    Supervisor.start_link(phoenix ++ ex_ovh, opts)
   end
   ```
 
