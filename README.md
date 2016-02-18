@@ -129,7 +129,9 @@ Add the supervisor to your supervision tree:
   end
   ```
 
-## SHOW HOW TO ADD ANOTHER CLIENT HERE LATER.....
+
+#### Show how to add another client here ......
+
 
 
 ## Example Usage(s)
@@ -185,7 +187,7 @@ Adding an object to the "default" container in OVH Webstorage
     ExOvh.ovh_request(create_file_request, %{ openstack: :true, webstorage: service })
 
 
-# Listing all objects for "default" container to see if the new `server_object` is there.
+Listing all objects for "default" container to see if the new `server_object` is there.
 
     import ExOvh.Query.Openstack.Swift
     alias ExOvh.Ovh.OpenstackApi.Webstorage.Cache, as: OpenCache
@@ -200,7 +202,7 @@ Adding an object to the "default" container in OVH Webstorage
     Enum.member?(objects, server_object)
       
 
-## Add more examples ....
+#### Add more examples ....
 
 
 
