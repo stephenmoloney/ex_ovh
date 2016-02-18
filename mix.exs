@@ -27,12 +27,12 @@ defmodule ExOvh.Mixfile do
     [
       {:httpotion, "~> 2.2"},
       {:poison, "~> 2.0"},
-      {:secure_random, "~> 0.2"},
+      {:secure_random     , "~> 0.2"},
       {:floki, "~> 0.7.1"},
       {:calendar, "~> 0.12.4"},
+      {:og, "~> 0.0", only: :dev},
       {:earmark, "~> 0.2.1", only: :dev},
-      {:ex_doc,  "~> 0.11", only: :dev},
-      {:og, "~> 0.0"}
+      {:ex_doc,  "~> 0.11", only: :dev}
     ]
   end
 
@@ -48,7 +48,7 @@ defmodule ExOvh.Mixfile do
       licenses: ["MIT"],
       maintainers: ["Stephen Moloney"],
       links: %{ "GitHub" => "https://github.com/stephenmoloney/ex_ovh"},
-      files: ~w(lib priv mix.exs README* LICENSE* CHANGELOG* changelog* src)
+      files: ~w(lib priv mix.exs README* LICENSE* CHANGELOG*)
      }
   end
 
