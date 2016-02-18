@@ -34,7 +34,7 @@ defmodule ExOvh.Query.Ovh.Webstorage do
 
       import ExOvh.Query.Ovh.Webstorage
       service_name = "cdnwebstorage-????"
-      resp = ExOvh.ovh_request(get_webstorage_service(service_name), %{})
+      {:ok, resp} = ExOvh.ovh_request(get_webstorage_service(service_name), %{})
       %{
         "domain" => domain,
         "storageLimit => storage_limit,
@@ -54,7 +54,7 @@ defmodule ExOvh.Query.Ovh.Webstorage do
 
       import ExOvh.Query.Ovh.Webstorage
       service_name = "cdnwebstorage-????"
-      resp = ExOvh.ovh_request(get_webstorage_service_info(service_name), %{})
+      {:ok, resp} = ExOvh.ovh_request(get_webstorage_service_info(service_name), %{})
   """
   @spec get_webstorage_service_info(service_name :: String.t)
                                :: ExOvh.Client.raw_query_t
@@ -72,7 +72,7 @@ defmodule ExOvh.Query.Ovh.Webstorage do
 
       import ExOvh.Query.Ovh.Webstorage
       # service_name = "cdnwebstorage-????"
-      resp = ExOvh.ovh_request(get_webstorage_service_stats(service_name, "month", "backend"), %{})
+      {:ok, resp} = ExOvh.ovh_request(get_webstorage_service_stats(service_name, "month", "backend"), %{})
   """
   @spec get_webstorage_service_stats(service_name :: String.t, period :: String.t, type :: String.t)
                                :: ExOvh.Client.raw_query_t
@@ -89,7 +89,7 @@ defmodule ExOvh.Query.Ovh.Webstorage do
 
       import ExOvh.Query.Ovh.Webstorage
       # service_name = "cdnwebstorage-????"
-      resp = ExOvh.ovh_request(get_webstorage_credentials(service_name), %{})
+      {:ok, resp} = ExOvh.ovh_request(get_webstorage_credentials(service_name), %{})
   """
   @spec get_webstorage_credentials(service_name :: String.t)
                                :: ExOvh.Client.raw_query_t
