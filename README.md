@@ -129,14 +129,13 @@ Add the supervisor to your supervision tree:
   end
   ```
 
-# SHOW HOW TO ADD ANOTHER CLIENT HERE .... LATER.....
+## SHOW HOW TO ADD ANOTHER CLIENT HERE LATER.....
 
 
 ## Example Usage(s)
 
 
 ### Example 1: 
-
 
 
 Get account details and containers for given account
@@ -167,9 +166,41 @@ Get the count of containers again
   ```
   
   
+### Example 2: 
+
+Adding an object to the "default" container in OVH Webstorage
+
+    import ExOvh.Query.Openstack.Swift
+    alias ExOvh.Ovh.OpenstackApi.Webstorage.Cache, as: OpenCache
+    client = ExOvh
+    service = "cdnwebstorage-<your_service_name>"
+    account = OpenCache.get_account(client, service)
+    
+    object_name = "client_file.txt"
+    client_object = Kernel.to_string(:code.priv_dir(:ex_ovh)) <> "/" <> object_name
+    container = "default"
+    server_object = String.replace(object_name, "client", "server")
+    create_file_request = create_object(account, container, client_object, server_object)
+    
+    ExOvh.ovh_request(create_file_request, %{ openstack: :true, webstorage: service })
 
 
-# TO BE CONTINUED..... LATER ....
+# Listing all objects for "default" container to see if the new `server_object` is there.
+
+    import ExOvh.Query.Openstack.Swift
+    alias ExOvh.Ovh.OpenstackApi.Webstorage.Cache, as: OpenCache
+    client = ExOvh
+    service = "cdnwebstorage-<your_service_name>"
+    account = OpenCache.get_account(client, service)
+    request = get_objects(account, "default")
+    
+    {:ok, resp} = ExOvh.ovh_request(request, %{ openstack: :true, webstorage: service })
+    objects = Enum.map(resp.body, &(Map.get(&1, "name")))
+    
+    Enum.member?(objects, server_object)
+      
+
+## Add more examples ....
 
 
 
