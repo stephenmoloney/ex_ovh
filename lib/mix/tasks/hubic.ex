@@ -60,9 +60,9 @@ defmodule Mix.Tasks.Hubic do
 
 
   def run(args) do
-    LoggingUtils.log_return(args, :debug)
+    Og.log_return(args, :debug)
     opts_map = parse_args(args)
-    LoggingUtils.log_return(opts_map, :debug)
+    Og.log_return(opts_map, :debug)
     IO.inspect(opts_map, pretty: :true)
     Mix.Shell.IO.info("")
     Mix.Shell.IO.info("The details in the map above will be used to get the hubic refresh token.")
@@ -91,7 +91,7 @@ defmodule Mix.Tasks.Hubic do
 
   defp parse_args(args) do
     {opts, _, _} = OptionParser.parse(args)
-    LoggingUtils.log_return(opts, :debug)
+    Og.log_return(opts, :debug)
     {opts, opts_map} = opts
     |> has_required_args()
     |> parsers_login()
@@ -140,7 +140,7 @@ defmodule Mix.Tasks.Hubic do
   # - Sends the application/x-www-form-urlencoded information to the @hubic_auth_uri on behalf of the user
   # - Parses and returns the authorisation code inside the opts_map
   defp get_auth_code(opts_map) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     query_string = "?client_id=" <> opts_map.client_id <>
                    "&redirect_uri=" <> URI.encode_www_form(opts_map.redirect_uri) <>
                    "&scope=" <> "usage.r,account.r,getAllLinks.r,credentials.r,sponsorCode.r,activate.w,sponsored.r,links.drw" <>
@@ -205,7 +205,7 @@ defmodule Mix.Tasks.Hubic do
 
 
   defp get_validated_inputs(resp_body) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     inputs = Floki.find(resp_body, "form input[type=text], form input[type=password], form input[type=checkbox], form input[type=hidden]")
     |> List.flatten()
     if Enum.any?(inputs, fn(input) -> input === [] end), do: raise "Empty input found"
@@ -215,7 +215,7 @@ defmodule Mix.Tasks.Hubic do
   #- Adds the refresh_token to the opts_map
   @spec get_refresh_token(opts_map :: map) :: map
   defp get_refresh_token(opts_map) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     auth_credentials = opts_map.client_id <> ":" <> opts_map.client_secret
     auth_credentials_base64 = Base.encode64(auth_credentials)
     req_body = "code=" <> opts_map.auth_code <>

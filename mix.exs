@@ -32,7 +32,7 @@ defmodule ExOvh.Mixfile do
       {:calendar, "~> 0.12.4"},
       {:earmark, "~> 0.2.1", only: :dev},
       {:ex_doc,  "~> 0.11", only: :dev},
-      {:loggingutils, github: "stephenmoloney/loggingutils", only: :dev}
+      {:og, "~> 0.0"}
     ]
   end
 

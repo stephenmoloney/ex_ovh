@@ -1,7 +1,6 @@
 defmodule ExOvh.Hubic.Supervisor do
   @moduledoc :false
   use Supervisor
-  alias LoggingUtils
   alias ExOvh.Hubic.HubicApi.Cache, as: TokenCache
   alias ExOvh.Hubic.OpenstackApi.Cache, as: OpenstackCache
 
@@ -10,7 +9,7 @@ defmodule ExOvh.Hubic.Supervisor do
   #####################
 
   def start_link(client, config, opts) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     Supervisor.start_link(__MODULE__, {client, config, opts}, [name: supervisor_name(client)])
   end
 
@@ -19,7 +18,7 @@ defmodule ExOvh.Hubic.Supervisor do
   #####################
 
   def init({client, config, opts}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     workers = [
                 {TokenCache, {TokenCache, :start_link, [{client, config, opts}]}, :permanent, 15000, :worker, [TokenCache]},
                 {OpenstackCache, {OpenstackCache, :start_link, [{client, config, opts}]}, :permanent, 20000, :worker, [OpenstackCache]}

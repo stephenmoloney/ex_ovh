@@ -38,7 +38,7 @@ defmodule ExOvh.Hubic.HubicApi.Cache do
 
   @doc "Starts the genserver"
   def start_link({client, config, opts}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     GenServer.start_link(__MODULE__, {client, config, opts}, [name: gen_server_name(client)])
   end
 
@@ -64,14 +64,14 @@ defmodule ExOvh.Hubic.HubicApi.Cache do
   # trap exits so that terminate callback is invoked
   # the :lock key is to allow for locking during the brief moment that the access token is being refreshed
   def init({client, config, _opts}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     :erlang.process_flag(:trap_exit, :true)
     create_ets_table(client)
     refresh_token = config.refresh_token
     case refresh_token  do
       :nil -> # RAISE AN EXCEPTION DUE TO UNAVAILABILITY OF THE REFRESH TOKEN
         error = "Valid refresh token not available"
-        LoggingUtils.log_return(error, :error)
+        Og.log_return(error, :error)
         raise error
       refresh_token -> # TRY TO GET REFRESH TOKEN FROM THE CONFIG
         tokens = get_latest_tokens(%{"refresh_token" => refresh_token}, config) |> Map.put(:lock, :false)
@@ -82,21 +82,21 @@ defmodule ExOvh.Hubic.HubicApi.Cache do
   end
 
   def handle_call(:add_lock, _from, {client, config, tokens}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     new_tokens = Map.put(tokens, :lock, :true)
     :ets.insert(ets_tablename(client), {:tokens, new_tokens})
     {:reply, :ok, new_tokens}
   end
 
   def handle_call(:remove_lock, _from, {client, config, tokens}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     new_tokens = Map.put(tokens, :lock, :false)
     :ets.insert(ets_tablename(client), {:tokens, new_tokens})
     {:reply, :ok, new_tokens}
   end
 
   def handle_call(:update_tokens, _from, {client, config, tokens}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     new_tokens = get_latest_tokens(tokens, config)
     |> Map.put(tokens, :lock, :false)
     :ets.insert(ets_tablename(client), {:tokens, new_tokens})
@@ -104,17 +104,17 @@ defmodule ExOvh.Hubic.HubicApi.Cache do
   end
 
   def handle_call(:get_config, _from, {client, config, tokens}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     {:reply, config, {client, config, tokens}}
   end
 
   def handle_call(:stop, _from, {client, config, tokens}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     {:stop, :shutdown, :ok, {client, config, tokens}}
   end
 
   def terminate(:shutdown, {client, config, tokens}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     :ets.delete(ets_tablename(client))
     :ok
   end
@@ -129,7 +129,7 @@ defmodule ExOvh.Hubic.HubicApi.Cache do
 
   # get the token from the :ets table
   defp get_token(client, index) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     if ets_tablename(client) in :ets.all() do
       [tokens: tokens] = :ets.lookup(ets_tablename(client), :tokens)
       if tokens.lock === :true do
@@ -156,7 +156,7 @@ defmodule ExOvh.Hubic.HubicApi.Cache do
   # Returns a map in following format with the latest tokens:
   # %{"access_token" => "access_token", "expires_in" => 21600, "refresh_token" => "refresh_token", "token_type" => "Bearer"}
   defp get_latest_tokens(tokens, config) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     Auth.get_latest_access_token(tokens["refresh_token"], config)
     |> Map.put("refresh_token", tokens["refresh_token"])
   end
@@ -166,7 +166,7 @@ defmodule ExOvh.Hubic.HubicApi.Cache do
   # expires_in parameter is in seconds
   # This function is used as a worker `Task` everytime the genserver is initialised.
   defp monitor_expiry(client, expires_in) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     interval = (expires_in - 30) * 1000
     :timer.sleep(interval)
     {:reply, :ok, _state} = GenServer.call(gen_server_name(client), :add_lock)
@@ -177,7 +177,7 @@ defmodule ExOvh.Hubic.HubicApi.Cache do
 
   # creates the ets table
   defp create_ets_table(client) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     ets_options = [
                    :set, # type
                    :protected, # read - all, write this process only.

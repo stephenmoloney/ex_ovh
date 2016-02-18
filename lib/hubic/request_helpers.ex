@@ -25,7 +25,7 @@ defmodule ExOvh.Hubic.RequestHelpers do
     account = OpenCache.get_account(client)
     case ExOvh.hubic_request(account_info(account), %{ openstack: :true }) do
       {:ok, resp} ->
-        LoggingUtils.log_return(resp)
+        Og.log_return(resp)
         {:ok, resp.body |> Enum.map(fn(%{"name" => container}) -> container end)}
       {:error, resp} ->
         {:error, resp}
@@ -64,7 +64,7 @@ defmodule ExOvh.Hubic.RequestHelpers do
     account = OpenCache.get_account(client)
     case ExOvh.hubic_request(get_objects(account, container), %{ openstack: :true }) do
       {:ok, resp} ->
-        LoggingUtils.log_return(resp)
+        Og.log_return(resp)
         {:ok, resp.body |> Enum.map(fn(%{"name" => object_name}) -> object_name end)}
       {:error, resp} ->
         {:error, resp}
@@ -75,7 +75,7 @@ defmodule ExOvh.Hubic.RequestHelpers do
     account = OpenCache.get_account(client)
     case ExOvh.hubic_request(get_objects(account, container), %{ openstack: :true }) do
       {:ok, resp} ->
-        LoggingUtils.log_return(resp)
+        Og.log_return(resp)
         {:ok, resp.body |> Enum.map(fn(%{"hash" => object_hash}) -> object_hash end)}
       {:error, resp} ->
         {:error, resp}

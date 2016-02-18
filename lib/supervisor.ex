@@ -26,7 +26,7 @@ defmodule ExOvh.Supervisor do
   which will crash the supervisor.
   """
   def start_link(client, config, opts) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     Supervisor.start_link(__MODULE__, {client, config, opts}, [name: client])
   end
 
@@ -35,7 +35,7 @@ defmodule ExOvh.Supervisor do
   #####################
 
   def init({client, config, opts}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     sup_tree =
     case ovh_config(config, client) do
       {:error, :config_not_found} ->
@@ -48,7 +48,7 @@ defmodule ExOvh.Supervisor do
     sup_tree =
     case hubic_config(config, client) do
       {:error, :config_not_found} ->
-        LoggingUtils.log_return("No hubic config found. Hubic supervisor will not be started for client #{client}", :warn)
+        Og.log_return("No hubic config found. Hubic supervisor will not be started for client #{client}", :warn)
         sup_tree
       valid_config -> sup_tree ++
         [{HubicSupervisor,

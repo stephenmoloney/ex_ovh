@@ -14,7 +14,7 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
 
   @doc "Starts the genserver"
   def start_link({client, config, opts}, service) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     GenServer.start_link(__MODULE__, {client, service}, [name: gen_server_name(client, service)])
   end
 
@@ -57,7 +57,7 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
   # trap exits so that terminate callback is invoked
   # the :lock key is to allow for locking during the brief moment that the access token is being refreshed
   def init({client, service}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     :erlang.process_flag(:trap_exit, :true)
     create_ets_table(client, service)
     {:ok, credentials} = identity(service)
@@ -69,21 +69,21 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
   end
 
   def handle_call(:add_lock, _from, {client, service, credentials}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     new_credentials = Map.put(credentials, :lock, :true)
     :ets.insert(ets_tablename(client, service), {:credentials, new_credentials})
     {:reply, :ok, {client, service, new_credentials}}
   end
 
   def handle_call(:remove_lock, _from, {client, service, credentials}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     new_credentials = Map.put(credentials, :lock, :false)
     :ets.insert(ets_tablename(client, service), {:credentials, new_credentials})
     {:reply, :ok, {client, service, new_credentials}}
   end
 
   def handle_call(:update_credentials, _from, {client, service, credentials}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     {:ok, new_credentials} = identity(service)
     |> Map.put(credentials, :lock, :false)
     :ets.insert(ets_tablename(client, service), {:credentials, new_credentials})
@@ -91,12 +91,12 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
   end
 
   def handle_call(:stop, _from, state) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     {:stop, :shutdown, :ok, state}
   end
 
   def terminate(:shutdown, {client, service, credentials}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     :ets.delete(ets_tablename(client, service)) # explicilty remove
     :ok
   end
@@ -198,7 +198,7 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
 
 
   defp get_credentials(client, service, index) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     if ets_tablename(client, service) in :ets.all() do
       [credentials: credentials] = :ets.lookup(ets_tablename(client, service), :credentials)
       if credentials.lock === :true do
@@ -223,7 +223,7 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
 
 
   defp monitor_expiry(expires) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     interval = (expires - 30) * 1000
     :timer.sleep(interval)
     {:reply, :ok, _credentials} = GenServer.call(self(), :add_lock)
@@ -235,7 +235,7 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
 
 
   defp create_ets_table(client, service) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     ets_options = [
                    :set, # type
                    :protected, # read - all, write this process only.

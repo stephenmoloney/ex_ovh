@@ -15,7 +15,7 @@ defmodule ExOvh.Hubic.OpenstackApi.Cache do
 
   @doc "Starts the genserver"
   def start_link({client, config, opts}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     GenServer.start_link(__MODULE__, {client, config, opts}, [name: gen_server_name(client)])
   end
 
@@ -57,13 +57,13 @@ defmodule ExOvh.Hubic.OpenstackApi.Cache do
   # trap exits so that terminate callback is invoked
   # the :lock key is to allow for locking during the brief moment that the access token is being refreshed
   def init({client, config, opts}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     :erlang.process_flag(:trap_exit, :true)
     token = Cache.get_token(client)
     :timer.sleep(@init_delay) # give some time for TokenCache Genserver to initialize
     create_ets_table(client)
     {:ok, resp} = Request.request(client, {:get, "/account/credentials", :nil}, %{})
-    |> LoggingUtils.log_return(:debug)
+    |> Og.log_return(:debug)
     credentials = Map.put(resp.body, :lock, :false)
     :ets.insert(ets_tablename(client), {:credentials, credentials})
     expires = to_seconds(credentials["expires"])
@@ -73,19 +73,19 @@ defmodule ExOvh.Hubic.OpenstackApi.Cache do
 
 
   def handle_call(:add_lock, _from, {client, config, credentials}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     new_credentials = Map.put(credentials, :lock, :true)
     :ets.insert(ets_tablename(client), {:credentials, new_credentials})
     {:reply, :ok, {client, config, new_credentials}}
   end
   def handle_call(:remove_lock, _from, {client, config, credentials}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     new_credentials = Map.put(credentials, :lock, :false)
     :ets.insert(ets_tablename(client), {:credentials, new_credentials})
     {:reply, :ok, {client, config, new_credentials}}
   end
   def handle_call(:update_credentials, _from, {client, config, credentials}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     {:ok, resp} = Request.request(client, {:get, "/account/credentials", ""}, %{})
     new_credentials = resp.body
     |> Map.put(credentials, :lock, :false)
@@ -93,11 +93,11 @@ defmodule ExOvh.Hubic.OpenstackApi.Cache do
     {:reply, :ok, {client, config, new_credentials}}
   end
   def handle_call(:stop, _from, state) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     {:stop, :shutdown, :ok, state}
   end
   def terminate(:shutdown, {client, config, credentials}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     :ets.delete(ets_tablename(client)) # explicilty remove
     :ok
   end
@@ -113,7 +113,7 @@ defmodule ExOvh.Hubic.OpenstackApi.Cache do
 
 
   defp get_credentials(client, index) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     if ets_tablename(client) in :ets.all() do
       [credentials: credentials] = :ets.lookup(ets_tablename(client), :credentials)
       if credentials.lock === :true do
@@ -138,7 +138,7 @@ defmodule ExOvh.Hubic.OpenstackApi.Cache do
 
 
   defp monitor_expiry(client, expires) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     interval = (expires - 30) * 1000
     :timer.sleep(interval)
     {:reply, :ok, _credentials} = GenServer.call(gen_server_name(client), :add_lock)
@@ -150,7 +150,7 @@ defmodule ExOvh.Hubic.OpenstackApi.Cache do
 
 
   defp create_ets_table(client) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     ets_options = [
                    :set, # type
                    :protected, # read - all, write this process only.

@@ -20,7 +20,7 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Auth do
     if params !== :nil and params !== "", do: uri = uri <> "?" <> URI.encode_query(params)
     options = %{ headers: headers(client, service), timeout: @timeout }
     {method, uri, options}
-    |> LoggingUtils.log_return(:debug)
+    |> Og.log_return(:debug)
   end
 
   def prepare_request(client, {method, uri, params} = query, service) when method in [:post, :put] do
@@ -28,7 +28,7 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Auth do
     if params !== "" and params !== :nil and is_map(params), do: params = Poison.encode!(params)
     options = %{ body: params, headers: headers(client, service), timeout: @timeout }
     {method, uri, options}
-    |> LoggingUtils.log_return(:debug)
+    |> Og.log_return(:debug)
   end
 
 

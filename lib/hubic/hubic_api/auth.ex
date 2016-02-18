@@ -45,7 +45,7 @@ defmodule ExOvh.Hubic.HubicApi.Auth do
   """
   @spec get_latest_access_token(refresh_token :: String.t, config :: map) :: map
   def get_latest_access_token(refresh_token, config) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     auth_credentials = config.client_id <> ":" <> config.client_secret
     auth_credentials_base64 = Base.encode64(auth_credentials)
     req_body = "refresh_token=" <> refresh_token <>

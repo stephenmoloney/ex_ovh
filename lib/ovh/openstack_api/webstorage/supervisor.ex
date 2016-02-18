@@ -11,7 +11,7 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Supervisor do
   Starts the OVH Openstack dynamic supervisor.
   """
   def start_link({client, config, opts}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     Supervisor.start_link(__MODULE__, {client, config, opts}, [name: __MODULE__])
   end
 
@@ -21,7 +21,7 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Supervisor do
   #####################
 
   def init({client, config, opts}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     tree = [
             {Cache, {Cache, :start_link, [{client, config, opts}]}, :transient, 10_000, :worker, []}
            ]

@@ -9,9 +9,9 @@ defmodule ExOvh.Hubic.HubicApi.Request do
 
   def request(client, {method, uri, params} = query, opts, retries \\ 0) do
     {method, uri, options} = Auth.prepare_request(client, query)
-    LoggingUtils.log_return({method, uri, options}, :debug)
+    Og.log_return({method, uri, options}, :debug)
     resp = HTTPotion.request(method, uri, options)
-    |> LoggingUtils.log_return(:debug)
+    |> Og.log_return(:debug)
     if resp.status_code >= 100 and resp.status_code < 300 do
       try do
         {:ok, %{

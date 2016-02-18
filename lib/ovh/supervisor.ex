@@ -12,7 +12,7 @@ defmodule ExOvh.Ovh.Supervisor do
   Starts the OVH supervisor.
   """
   def start_link(client, config, opts) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     Supervisor.start_link(__MODULE__, {client, config, opts}, [name: supervisor_name(client)])
   end
 
@@ -22,7 +22,7 @@ defmodule ExOvh.Ovh.Supervisor do
   #####################
 
   def init({client, config, opts}) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     tree = [
             {Cache, {Cache, :start_link, [{client, config, opts}]}, :permanent, 10_000, :worker, [Cache]},
             {Webstorage, {Webstorage, :start_link, [{client, config, opts}]}, :permanent, 10_000, :supervisor, [Webstorage]}

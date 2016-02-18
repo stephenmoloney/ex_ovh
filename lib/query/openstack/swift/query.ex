@@ -141,8 +141,8 @@ defmodule ExOvh.Query.Openstack.Swift do
         path = account <> "/" <> container <> "/" <> server_object
         {:put, path, binary_object}
       {:error, posix_error} ->
-        LoggingUtils.log_mod_func_line(__ENV__, :error)
-        LoggingUtils.log_return(posix_error, :error)
+        Og.context(__ENV__, :error)
+        Og.log_return(posix_error, :error)
         raise posix_error
     end
   end

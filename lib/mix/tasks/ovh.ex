@@ -164,7 +164,7 @@ defmodule Mix.Tasks.Ovh do
 
   defp parse_args(args) do
     {opts, _, _} = OptionParser.parse(args)
-    LoggingUtils.log_return(opts, :debug)
+    Og.log_return(opts, :debug)
     {opts, opts_map } = opts
     |> has_required_args()
     |> parsers_login()
@@ -262,7 +262,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_app_create_page(opts_map) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     options = [ timeout: @timeout ]
     default_create_app_uri(opts_map)
     %HTTPotion.Response{body: resp_body, headers: headers, status_code: status_code} =
@@ -272,7 +272,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_create_app_inputs(resp_body) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     inputs = Floki.find(resp_body, "form input")
     |> List.flatten()
     if Enum.any?(inputs, fn(input) -> input === [] end), do: raise "Empty input found"
@@ -281,7 +281,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp build_app_request(inputs, %{login: login, password: password} = opts_map) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     {acc, _index, _max} =
     Enum.reduce(inputs, {"", 1, Enum.count(inputs)}, fn({"input", input, _}, acc) ->
       name = :proplists.get_value("name", input)
@@ -312,7 +312,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp send_app_request(req_body, opts_map) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     uri = Defaults.endpoints()[opts_map.endpoint] <> "createApp/"
     resp = HTTPotion.request(:post, uri, [body: req_body, headers: ["Content-Type": "application/x-www-form-urlencoded"]])
     error_msg1 = "There is already an application with that name for that Account ID"
@@ -351,14 +351,14 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_consumer_key(%{access_rules: access_rules, redirect_uri: redirect_uri} = opts_map) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     body = %{ accessRules: access_rules, redirection: redirect_uri }
     # {method, uri, options} = Auth.ovh_prepare_request(ExOvh, query, %{})
     options = %{ body: Poison.encode!(body), headers: Map.merge(@default_headers, %{ "X-Ovh-Application": app_key(opts_map) } ), timeout: @timeout }
-    |> LoggingUtils.log_return(:debug)
+    |> Og.log_return(:debug)
 
-    LoggingUtils.log_return(consumer_key_uri(opts_map), :debug)
-    LoggingUtils.log_return(options, :debug)
+    Og.log_return(consumer_key_uri(opts_map), :debug)
+    Og.log_return(options, :debug)
 
     body = HTTPotion.request(:post, consumer_key_uri(opts_map), options) |> Map.get(:body) |> Poison.decode!()
     {Map.get(body, "consumerKey"), Map.get(body, "validationUrl")}
@@ -386,7 +386,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp build_ck_binding_request(inputs, %{login: login, password: password} = opts_map) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     {acc, _index, _max} =
     Enum.reduce(inputs, {"", 1, Enum.count(inputs)}, fn({type, input, options}, acc) ->
       {name_val, value} =
@@ -424,7 +424,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp send_ck_binding_request(req_body, validation_url, ck) do
-    LoggingUtils.log_mod_func_line(__ENV__, :debug)
+    Og.context(__ENV__, :debug)
     resp = HTTPotion.request(:post, validation_url, [body: req_body, headers: ["Content-Type": "application/x-www-form-urlencoded"]])
     error_msg1 = "Failed to bind the consumer token to the application. Please try to validate the consumer token manually at #{validation_url}"
     error_msg2 = "Invalid validity period entered for the consumer token. Please try to validate the consumer token manually at #{validation_url}"
