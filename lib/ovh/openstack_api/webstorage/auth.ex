@@ -15,7 +15,7 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Auth do
                      :: ExOvh.Client.query_t
   def prepare_request(client, query)
 
-  def prepare_request(client, {method, uri, params} = query, service) when method in [:get, :delete] do
+  def prepare_request(client, {method, uri, params} = query, service) when method in [:get, :head, :delete] do
     uri =  WebStorageCache.get_swift_endpoint(client, service) <> uri
     if params !== :nil and params !== "", do: uri = uri <> "?" <> URI.encode_query(params)
     options = %{ headers: headers(client, service), timeout: @timeout }

@@ -21,7 +21,7 @@ defmodule ExOvh.Ovh.OvhApi.Auth do
                      :: ExOvh.Client.query_t
   def prepare_request(client, query)
 
-  def prepare_request(client, {method, uri, params} = query) when method in [:get, :delete] do
+  def prepare_request(client, {method, uri, params} = query) when method in [:get, :head, :delete] do
     uri = uri(config, uri)
     config = config(client)
     if params !== :nil and params !== "" and is_map(params), do: uri = uri <> "?" <> URI.encode_query(params)

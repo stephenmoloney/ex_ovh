@@ -15,7 +15,7 @@ defmodule ExOvh.Hubic.HubicApi.Auth do
                     :: ExOvh.Client.query_t
   def prepare_request(client, query)
 
-  def prepare_request(client, {method, uri, params} = query) when method in [:get, :delete] do
+  def prepare_request(client, {method, uri, params} = query) when method in [:get, :head, :delete] do
     config = config(client)
     uri = uri(config, uri)
     if params !== :nil and params !== "" and is_map(params), do: uri = uri <> "?" <> URI.encode_query(params)
@@ -78,7 +78,7 @@ defmodule ExOvh.Hubic.HubicApi.Auth do
   defp headers(client, method) when method in [:post, :put] do
     Map.merge(default_headers(client), %{ "Content-Type": "application/json;charset=utf-8" })
   end
-  defp headers(client, method) when method in [:get, :delete], do: default_headers(client)
+  defp headers(client, method) when method in [:get, :head, :delete], do: default_headers(client)
 
   defp config(), do: Cache.get_config(ExOvh)
   defp config(client), do: Cache.get_config(client)
