@@ -88,8 +88,8 @@ defmodule ExOvh.Query.Ovh.Webstorage do
   ### Example usage
 
       import ExOvh.Query.Ovh.Webstorage
-      # service_name = "cdnwebstorage-????"
-      {:ok, resp} = ExOvh.ovh_request(get_webstorage_credentials(service_name), %{})
+      # service = "cdnwebstorage-????"
+      {:ok, resp} = ExOvh.ovh_request(get_webstorage_credentials(service), %{})
   """
   @spec get_webstorage_credentials(service_name :: String.t)
                                :: ExOvh.Client.raw_query_t
