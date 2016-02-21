@@ -116,6 +116,14 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
   # This function probably should be broken down into smaller parts
   def identity(service) do
 
+    {:ok, resp} = ExOvh.ovh_request(get_webstorage_service(service), %{})
+
+    %{
+      "server" => public_url,
+      "storageLimit" => storage_limit
+    } = resp.body
+
+
     {:ok, resp} = ExOvh.ovh_request(get_webstorage_credentials(service), %{})
 
     %{
@@ -190,7 +198,9 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
             token_created_on: token_created_on,
             swift_endpoint: swift_endpoint,
             identity_endpoint: identity_endpoint,
-            service: service
+            service: service,
+            public_url: public_url,
+            storage_limit: storage_limit
           }
       }
 
