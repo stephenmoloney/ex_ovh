@@ -2,9 +2,9 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
   @moduledoc :false
   use GenServer
   alias ExOvh.Ovh.OpenstackApi.Webstorage.Supervisor, as: WebStorageSupervisor
-  import ExOvh.Query.Ovh.Webstorage, only: [get_webstorage_credentials: 1]
+  import ExOvh.Query.Ovh.Webstorage, only: [get_webstorage_credentials: 1, get_webstorage_service: 1]
   @get_credentials_retries 10
-  @get_credentials_sleep_interval 150
+  @get_credentials_sleep_interval 450
 
 
   #####################
@@ -40,7 +40,7 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
   end
 
 
-  def get_account(service), do: get_account(ExOvh)
+  def get_account(service), do: get_account(ExOvh, service)
   def get_account(client, service) do
     credentials = get_credentials(client, service)
     path = URI.parse(credentials.swift_endpoint) |> Map.get(:path)
@@ -119,7 +119,7 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
     {:ok, resp} = ExOvh.ovh_request(get_webstorage_service(service), %{})
 
     %{
-      "server" => public_url,
+      "server" => domain,
       "storageLimit" => storage_limit
     } = resp.body
 
@@ -199,35 +199,44 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
             swift_endpoint: swift_endpoint,
             identity_endpoint: identity_endpoint,
             service: service,
-            public_url: public_url,
+            public_url: public_url(domain, swift_endpoint),
             storage_limit: storage_limit
           }
       }
 
   end
 
+  defp public_url(domain, swift_endpoint) do
+    path = URI.parse(swift_endpoint) |> Map.get(:path)
+    {version, account} = String.split_at(path, 4)
+    domain <> version <> account
+  end
 
   defp get_credentials(client, service, index) do
     Og.context(__ENV__, :debug)
-    if ets_tablename(client, service) in :ets.all() do
-      [credentials: credentials] = :ets.lookup(ets_tablename(client, service), :credentials)
-      if credentials.lock === :true do
-        if index > @get_credentials_retries do
-          raise "Cannot retrieve openstack credentials from ets table, #{__ENV__.module}, #{__ENV__.line}"
-        else
-          :timer.sleep(@get_credentials_sleep_interval)
-          get_credentials(client, service, index + 1)
-        end
-      else
-        credentials
-      end
-    else
+
+    retry = fn(client, service, index) ->
       if index > @get_credentials_retries do
         raise "Cannot retrieve openstack credentials from ets table, #{__ENV__.module}, #{__ENV__.line}"
       else
         :timer.sleep(@get_credentials_sleep_interval)
         get_credentials(client, service, index + 1)
       end
+    end
+
+    if ets_tablename(client, service) in :ets.all() do
+      table = :ets.lookup(ets_tablename(client, service), :credentials)
+      case table do
+        [credentials: credentials] ->
+          if credentials.lock === :true do
+            retry.(client, service, index)
+          else
+            credentials
+          end
+        [] -> retry.(client,service,index)
+      end
+    else
+      retry.(client, service, index)
     end
   end
 
@@ -274,7 +283,10 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
 
 
   defp supervisor_exists?(client, service) do
-    Process.whereis(registered_supervisor_name(client, service))
+    case Process.whereis(registered_supervisor_name(client, service)) do
+      :nil -> :false
+      _pid -> :true
+    end
   end
 
 

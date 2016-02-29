@@ -37,7 +37,8 @@ defmodule ExOvh.Ovh.OvhApi.Auth do
     config = config(client)
     consumer_key = get_consumer_key(config)
     if params !== "" and params !== :nil and is_map(params), do: params = Poison.encode!(params)
-    opts = [app_secret(config), consumer_key, Atom.to_string(method), uri, params]
+    opts = [app_secret(config), app_key(config), consumer_key, Atom.to_string(method), uri, params]
+    #opts = [app_secret(config), consumer_key, Atom.to_string(method), uri, params]
     options = %{ body: params, headers: headers(opts, client), timeout: @timeout }
     {method, uri, options}
   end

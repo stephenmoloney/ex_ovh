@@ -113,6 +113,17 @@ Shell Output
          }
   ```
 
+
+### Add :httpotion to applications on startup (httpotion is used for http requests) 
+
+```elixir
+  def application do 
+    [ 
+      applications: [:httpotion]
+    ]
+  end
+```
+
 ### Starting the supervisor
 
 Add the supervisor to your supervision tree:
@@ -166,11 +177,12 @@ Get the count of containers again
   container_count2 = resp.body |> Enum.count()
   container_count1 + 1 == container_count2
   ```
-  
-  
+ 
+ 
 ### Example 2: 
 
-Adding an object to the "default" container in OVH Webstorage
+
+Adding an object to the "default" container in [OVH CDN Webstorage](https://www.ovh.ie/cdn/webstorage/)
 
     import ExOvh.Query.Openstack.Swift
     alias ExOvh.Ovh.OpenstackApi.Webstorage.Cache, as: OpenCache
@@ -187,7 +199,7 @@ Adding an object to the "default" container in OVH Webstorage
     ExOvh.ovh_request(create_file_request, %{ openstack: :true, webstorage: service })
 
 
-Listing all objects for "default" container to see if the new `server_object` is there.
+Listing all objects for "default" container to see if the new `server_object` is there in [OVH CDN Webstorage](https://www.ovh.ie/cdn/webstorage/)
 
     import ExOvh.Query.Openstack.Swift
     alias ExOvh.Ovh.OpenstackApi.Webstorage.Cache, as: OpenCache
@@ -228,6 +240,7 @@ Listing all objects for "default" container to see if the new `server_object` is
 - [ ] *Needed* - generate release and publish to hex packages
 - [ ] *Needed* - *Tests* - add basic tests for most api calls.
 - [ ] *Needed* - *Tests* - verify the supervisor chain, genservers and genserver naming is working ok.
+- [ ] *Needed* - *New functions* - ovh and hubic functions with !.
 
  
 - [ ] *Maybe* - investigate ways to add sensitive keys, secrets, etc to system env and allow the config.exs to get variables from `System`.

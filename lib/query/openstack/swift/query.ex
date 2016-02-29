@@ -72,6 +72,24 @@ defmodule ExOvh.Query.Openstack.Swift do
   def delete_container(account, container), do: {:delete, account <> "/" <> container, %{ "format" => "json" }}
 
 
+  @doc ~S"""
+  DELETE /v1/​{account}/{container}​, Delete a container
+
+  ### Example usage
+
+      ```elixir
+      import ExOvh.Query.Openstack.Swift
+      alias ExOvh.Hubic.OpenstackApi.Cache, as: OpenCache
+      client = ExOvh
+      account = OpenCache.get_account(client)
+      ExOvh.hubic_request(container_info(account, "new_container"), %{ openstack: :true })
+      ```
+  """
+  @spec container_info(account :: String.t, container :: String.t)
+                         :: ExOvh.Client.raw_query_t
+  def container_info(account, container), do: {:head, account <> "/" <> container, %{ "format" => "json" }}
+
+
   ##########################
   # OBJECT RELATED REQUESTS
   ##########################

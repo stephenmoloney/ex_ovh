@@ -30,7 +30,7 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Request do
         }
       end
     else
-     {:error, resp}
+      {:error, resp}
     end
 
   end

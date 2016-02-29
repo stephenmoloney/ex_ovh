@@ -32,7 +32,7 @@ defmodule ExOvh.Ovh.Auth do
   3. Returning `ExOvh.Client.query_t` which is a tuple of the format {method, uri, options} which
      can then be easily used to make requests using HTTPpotion, `ovh_request` or `hubic_request`.
   """
-  alias ExOvh.Ovh.Openstack.Auth, as: OpenstackAuth
+  alias ExOvh.Ovh.OpenstackApi.Webstorage.Auth, as: Webstorage
   alias ExOvh.Ovh.OvhApi.Auth, as: OvhAuth
 
 
@@ -57,8 +57,8 @@ defmodule ExOvh.Ovh.Auth do
   """
   @spec prepare_request(client :: atom, query :: ExOvh.Client.raw_query_t, opts :: map())
                      :: ExOvh.Client.query_t
-  def prepare_request(client, {method, uri, params} = query, %{openstack: :true} = opts) do
-    OpenstackAuth.prepare_request(client, query)
+  def prepare_request(client, {method, uri, params} = query, %{ openstack: :true, webstorage: service } = opts) do
+    Webstorage.prepare_request(client, query, service)
   end
 
   def prepare_request(client, {method, uri, params} = query, opts) do
