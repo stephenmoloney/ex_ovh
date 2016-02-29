@@ -25,7 +25,7 @@ defmodule ExOvh.Mixfile do
 
   defp deps() do
     [
-      {:httpotion, "~> 2.2"},
+      {:httpotion, "<= 2.2.0"},
       {:poison, "~> 1.0"},
       {:secure_random, "~> 0.2"},
       {:floki, "~> 0.7.1"},
