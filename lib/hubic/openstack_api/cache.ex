@@ -167,6 +167,11 @@ defmodule ExOvh.Hubic.OpenstackApi.Cache do
 
   defp to_seconds(iso_time) do
     {:ok, expiry_ndt, offset} = Calendar.NaiveDateTime.Parse.iso8601(iso_time)
+    offset =
+    case offset do
+      :nil -> 0
+      offset -> offset
+    end
     {:ok, expiry_dt_utc} = Calendar.NaiveDateTime.with_offset_to_datetime_utc(expiry_ndt, offset)
     {:ok, now} = Calendar.DateTime.from_erl(:calendar.universal_time(), "UTC")
     {:ok, seconds, _microseconds, _when} = Calendar.DateTime.diff(expiry_dt_utc, now)

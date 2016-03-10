@@ -29,7 +29,7 @@ defmodule ExOvh.Mixfile do
       {:poison, "~> 1.0"},
       {:secure_random, "~> 0.2"},
       {:floki, "~> 0.7.1"},
-      {:calendar, "~> 0.12.4"},
+      {:calendar, "~> 0.13.2"},
       {:og, "~> 0.0", only: :dev},
       {:earmark, "~> 0.2.1", only: :dev},
       {:ex_doc,  "~> 0.11", only: :dev}
