@@ -1,36 +1,31 @@
-defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
+defmodule ExOvh.Auth.Openstack.Swift.Cache do
   @moduledoc :false
+
   use GenServer
-  alias ExOvh.Ovh.OpenstackApi.Webstorage.Supervisor, as: WebStorageSupervisor
-  import ExOvh.Query.Ovh.Webstorage, only: [get_webstorage_credentials: 1, get_webstorage_service: 1]
+  alias ExOvh.Auth.Supervisor, as: AuthSupervisor
+  alias ExOvh.Utils
   @get_credentials_retries 10
   @get_credentials_sleep_interval 450
 
 
-  #####################
   # Public
-  #####################
 
 
-  @doc "Starts the genserver"
   def start_link({client, config, opts}, service) do
     Og.context(__ENV__, :debug)
     GenServer.start_link(__MODULE__, {client, service}, [name: gen_server_name(client, service)])
   end
 
 
-  def get_credentials(service), do: get_credentials(ExOvh, service)
   def get_credentials(client, service) do
-    unless supervisor_exists?(client, service), do: Supervisor.start_child(WebStorageSupervisor, [service])
+    unless supervisor_exists?(client, service), do: Supervisor.start_child(AuthSupervisor, [service])
     get_credentials(client, service, 0)
   end
 
 
-  def get_credentials_token(service), do: get_credentials_token(ExOvh, service)
   def get_credentials_token(client, service), do: get_credentials(client, service).token
 
 
-  def get_swift_endpoint(service), do: get_swift_endpoint(ExOvh, service)
   def get_swift_endpoint(client, service) do
     credentials = get_credentials(client, service)
     path = URI.parse(credentials.swift_endpoint) |> Map.get(:path)
@@ -49,9 +44,7 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
   end
 
 
-  #####################
   # Genserver Callbacks
-  #####################
 
 
   # trap exits so that terminate callback is invoked
@@ -60,7 +53,9 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
     Og.context(__ENV__, :debug)
     :erlang.process_flag(:trap_exit, :true)
     create_ets_table(client, service)
-    {:ok, credentials} = identity(service)
+
+    {:ok, credentials} = identity(client, service)
+
     credentials = Map.put(credentials, :lock, :false)
     :ets.insert(ets_tablename(client, service), {:credentials, credentials})
     expires = to_seconds(credentials.token_expires_on)
@@ -84,7 +79,7 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
 
   def handle_call(:update_credentials, _from, {client, service, credentials}) do
     Og.context(__ENV__, :debug)
-    {:ok, new_credentials} = identity(service)
+    {:ok, new_credentials} = identity(client, service)
     |> Map.put(credentials, :lock, :false)
     :ets.insert(ets_tablename(client, service), {:credentials, new_credentials})
     {:reply, :ok, {client, service, new_credentials}}
@@ -102,29 +97,38 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
   end
 
 
-
-  #####################
   # Private
-  #####################
+
 
   defp gen_server_name(client, service), do:  String.to_atom(Atom.to_string(client) <> service)
   defp ets_tablename(client, service), do: String.to_atom(Atom.to_string(client) <> "-" <> service)
 
 
-  #@spec identity(service :: String.t, username :: String.t, password :: String.t)
-  #               :: {:ok, map()} | {:error, map()} ??
-  # This function probably should be broken down into smaller parts
-  def identity(service) do
 
-    {:ok, resp} = ExOvh.ovh_request(get_webstorage_service(service), %{})
+  def identity(client, {service_name, :webstorage} = service) when is_atom(client) do
+    credentials =  ExOvh.Ovh.V1.Webstorage.Query.get_credentials(service_name) |> client.request!()
+    identity(service_name, credentials, client)
+  end
+  def identity(client, {service_name, pcs_service_name, :cloudstorage} = service) when is_atom(client) do
+    credentials = ExOvh.Ovh.V1.Cloudstorage.Query.get_credentials(service_name, pcs_service_name) |> client.request!()
+    identity(service_name, credentials, client)
+  end
+
+
+  def identity(service_name, credentials, client) do
+
+    config = Utils.config(client)
+    q1 = ExOvh.Ovh.V1.Webstorage.Query.get_service(service_name)
+    {:ok, resp} = ExOvh.request(service_name)
 
     %{
       "server" => domain,
-      "storageLimit" => storage_limit
+      "storageLimit" => storage_limit,
+      "server" => server
     } = resp.body
 
 
-    {:ok, resp} = ExOvh.ovh_request(get_webstorage_credentials(service), %{})
+    {:ok, resp} = ExOvh.request(credentials)
 
     %{
       "endpoint" => endpoint,
@@ -133,17 +137,18 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
       "tenant" => tenant
     } = resp.body
 
-    params = %{"auth" =>
-                        %{
-                        "passwordCredentials" => %{"username" => login, "password" => password}
-                        }
-              }
-    options = %{
-                body: params |> Poison.encode!,
-                headers: %{ "Content-Type": "application/json; charset=utf-8" },
-                timeout: 10_000
-               }
-    resp = HTTPotion.request(:post, endpoint <> "/tokens", options)
+
+    method = :post
+    uri = endpoint <> "/tokens"
+    body = %{"auth" =>
+                %{
+                "passwordCredentials" => %{"username" => login, "password" => password}
+                }
+        }
+        |> Poison.encode!()
+    headers = [{"Content-Type", "application/json; charset=utf-8"}]
+    options = Utils.set_opts([], config)
+    resp = HTTPoison.request(method, uri, body, headers, options)
 
     unless resp.status_code >= 200 and resp.status_code <= 203, do: raise resp.body
 
@@ -158,17 +163,20 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
                   }
       } = Poison.decode!(resp.body)
 
-    params = %{"auth" =>
-                        %{
-                        "tenantName" => tenant,
-                        "token" => %{"id" => token}}
-                        }
-    options = %{
-                body: params |> Poison.encode!,
-                headers: %{ "Content-Type": "application/json; charset=utf-8" },
-                timeout: 10_000
-               }
-    resp = HTTPotion.request(:post, endpoint <> "/tokens", options)
+
+    method = :post
+    uri = endpoint <> "/tokens"
+    body = %{
+            "auth" =>
+                      %{
+                      "tenantName" => tenant,
+                      "token" => %{"id" => token}
+                      }
+            }
+    |> Poison.decode!()
+    headers = [{"Content-Type", "application/json; charset=utf-8"}]
+    options = Utils.set_opts([], config)
+    resp = HTTPoison.request(method, uri, body, headers, options)
 
     unless resp.status_code >= 200 and resp.status_code <= 203, do: raise resp.body
 
@@ -198,13 +206,18 @@ defmodule ExOvh.Ovh.OpenstackApi.Webstorage.Cache do
             token_created_on: token_created_on,
             swift_endpoint: swift_endpoint,
             identity_endpoint: identity_endpoint,
-            service: service,
+            service: service_name,
             public_url: public_url(domain, swift_endpoint),
-            storage_limit: storage_limit
+            storage_limit: storage_limit,
+            server: server
           }
       }
 
   end
+
+
+  # private
+
 
   defp public_url(domain, swift_endpoint) do
     path = URI.parse(swift_endpoint) |> Map.get(:path)

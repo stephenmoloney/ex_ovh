@@ -19,18 +19,19 @@ defmodule ExOvh.Mixfile do
   def application() do
     [
       mod: [],
-      applications: [:calendar, :crypto, :httpotion, :logger]
+      applications: [:calendar, :crypto, :logger, :openstex]
     ]
   end
 
   defp deps() do
     [
-      {:httpotion, "<= 2.2.0"},
-      {:poison, "~> 1.0"},
       {:secure_random, "~> 0.2"},
       {:floki, "~> 0.7.1"},
       {:calendar, "~> 0.13.2"},
-      {:og, "~> 0.0", only: :dev},
+      {:og, "~> 0.1"},
+      # {:openstex, github: "stephenmoloney/openstex", branch: "master"}, # incorporates :poison and httpoison
+      {:openstex, path: "../openstex"},
+
       {:earmark, "~> 0.2.1", only: :dev},
       {:ex_doc,  "~> 0.11", only: :dev}
     ]
@@ -38,7 +39,7 @@ defmodule ExOvh.Mixfile do
 
   defp description() do
     ~s"""
-    An elixir client library for easier use of the Hubic api and Ovh api.
+    An elixir client library for easier use of the Ovh api.
     """
   end
 

@@ -3,11 +3,14 @@
 /cover
 /deps
 /doc
-erl_crash.dump
-*.ez
-*.secret.exs
-.deprecated
-.notes
-.idea
-mix.lock
+/.idea
+/.deprecated
+/.notes
+/.backup
 
+*.ez
+erl_crash.dump
+*.secret.exs
+.env
+mix.lock
+todo.md

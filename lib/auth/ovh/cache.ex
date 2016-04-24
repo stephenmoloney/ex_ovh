@@ -1,32 +1,39 @@
-defmodule ExOvh.Ovh.OvhApi.Cache do
+defmodule ExOvh.Auth.Ovh.Cache do
   @moduledoc :false
   use GenServer
-  alias ExOvh.Ovh.Defaults
+  import ExOvh.Utils, only: [gen_server_name: 1]
+  alias ExOvh.Utils
 
-  ############################
+
   # Public
-  ###########################
 
-  @doc "Starts a genserver to keep state on the config and time diff"
+
   def start_link({client, config, opts}) do
     Og.context(__ENV__, :debug)
+    client
+    |> Og.log_return(__ENV__, :warn)
     GenServer.start_link(__MODULE__, {client, config, opts}, [name: gen_server_name(client)])
   end
 
 
-  @doc "Retrieves the ovh api time diff from the cache"
+  @doc "Retrieves the ovh api time diff from the state"
   def get_time_diff(client) do
+    client |> Og.log_return(__ENV__, :warn)
+    gen_server_name(client) |> Og.log_return(__ENV__, :warn)
+
     GenServer.call(gen_server_name(client), :get_diff)
   end
   @doc "Retrieves the ovh config map"
   def get_config(client) do
+    client |> Og.log_return(__ENV__, :warn)
+    gen_server_name(client) |> Og.log_return(__ENV__, :warn)
+
     GenServer.call(gen_server_name(client), :get_config)
   end
 
 
-  ############################
   # Genserver Callbacks
-  ###########################
+
 
   def init({client, config, opts}) do
     Og.context(__ENV__, :debug)
@@ -56,20 +63,17 @@ defmodule ExOvh.Ovh.OvhApi.Cache do
   end
 
 
-  ############################
   # Private
-  ###########################
-
-
-  defp gen_server_name(client), do: String.to_atom(Atom.to_string(client) <> Atom.to_string(__MODULE__))
-  defp endpoint(config), do: Defaults.endpoints()[config[:endpoint]]
-  defp api_version(config), do: config[:api_version]
 
 
   defp api_time_request(config) do
-    time_uri = endpoint(config) <> api_version(config) <> "/auth/time"
-    options = %{ headers: %{ "Content-Type": "application/json; charset=utf-8" }, timeout: 10_000 }
-    api_time = HTTPotion.request(:get, time_uri, options) |> Map.get(:body) |> Poison.decode!()
+    method = :get
+    uri = Utils.endpoint(config) <> Utils.api_version(config) <> "/auth/time"
+    body = ""
+    headers = [{"Content-Type", "application/json; charset=utf-8"}]
+    options = Utils.set_opts([], config)
+    resp = HTTPoison.request!(method, uri, body, headers, options)
+    api_time = Poison.decode!(resp.body)
   end
 
 

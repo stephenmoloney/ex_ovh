@@ -1,4 +1,4 @@
-defmodule ExOvh.Ovh.Defaults do
+defmodule ExOvh.Defaults do
   @moduledoc :false
 
   @doc "Returns ovh default configuration settings"
@@ -11,7 +11,7 @@ defmodule ExOvh.Ovh.Defaults do
   end
 
 
-  @doc "Returns map of ovh endpoints"
+  @doc "Returns a map of ovh endpoints"
   @spec endpoints() :: map
   def endpoints() do
     %{
@@ -26,7 +26,7 @@ defmodule ExOvh.Ovh.Defaults do
   end
 
 
-  @doc "Returns the default access rules (all methods and paths)"
+  @doc "Returns the default access rules (all methods and paths by default)"
   @spec access_rules() :: [map]
   def access_rules() do
      [
