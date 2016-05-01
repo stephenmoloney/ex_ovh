@@ -23,13 +23,14 @@ config :ex_ovh,
   swift: [
           webstorage: [ #  <-- :webstorage will be the config_id
                         cdn_name: System.get_env("EX_OVH_WEBSTORAGE_CDN_NAME"),
-                        type: :ovh_webstorage
+                        type: :webstorage
                       ],
           cloudstorage: [ #  <-- :cloudstorage will be the config_id
                           tenant_id: System.get_env("EX_OVH_CLOUDSTORAGE_TENANT_ID"), # mandatory, corresponds to a project id
                           user_id: System.get_env("EX_OVH_CLOUDSTORAGE_USER_ID"), # optional, if absent a user will be created using the ovh api.
+                          endpoint: "https://auth.cloud.ovh.net/v2.0",
                           region: :nil, # defaults to "SBG1" if set to :nil
-                          type: :ovh_cloudstorage
+                          type: :cloudstorage
                         ]
          ]
 
