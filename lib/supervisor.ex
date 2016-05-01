@@ -2,47 +2,63 @@ defmodule ExOvh.Supervisor do
   @moduledoc :false
 
   use Supervisor
-  alias ExOvh.Defaults
-  alias ExOvh.Auth.Supervisor, as: AuthSupervisor
+  alias ExOvh.Ovh.Defaults
+  alias ExOvh.Auth.Ovh.Cache, as: OvhCache
+  alias ExOvh.Auth.Openstack.Swift.Cache, as: SwiftCache
+
 
 
   #  Public
 
 
-  def start_link(client, ovh_config, opts) do
+  def start_link(client, opts) do
     Og.context(__ENV__, :debug)
-    Supervisor.start_link(__MODULE__, {client, ovh_config, opts}, [name: client])
+    Supervisor.start_link(__MODULE__, client, [name: client])
   end
 
 
   #  Callbacks
 
 
-  def init({client, ovh_config, opts}) do
+  def init(client) do
     Og.context(__ENV__, :debug)
+
+    ovh_config = Keyword.merge(Defaults.ovh(), Keyword.fetch!(client.config(), :ovh))
+    webstorage_config = Keyword.get(client.config(), :swift, []) |> Keyword.get(:webstorage, :nil)
+    cloudstorage_config = Keyword.get(client.config(), :swift, []) |> Keyword.get(:cloudstorage, :nil)
+
+    ovh_client = Module.concat(client, Ovh)
+    sup_tree = [
+                {ovh_client, {OvhCache, :start_link, [ovh_client]}, :permanent, 10_000, :worker, [OvhCache]}
+               ]
+
     sup_tree =
-    case ovh_config(ovh_config, client) do
-      {:error, :config_not_found} ->
-        Og.log("No ovh config found. Ovh supervisor will not be started for client #{client}", :error)
-        []
-      valid_ovh_config ->
-        [{AuthSupervisor,
-         {AuthSupervisor, :start_link, [client, valid_ovh_config, opts]}, :permanent, 10_000, :supervisor, [AuthSupervisor]}]
+    case webstorage_config do
+      :nil ->
+        Og.log("No webstorage config found. Skipping initiation of OVH webstorage cdn service", :debug)
+        sup_tree
+      webstorage_config ->
+        webstorage_client = Module.concat(client, Swift.Webstorage)
+        sup_tree ++
+        [{webstorage_client, {SwiftCache, :start_link, [{ovh_client, webstorage_client}]}, :permanent, 10_000, :worker, [SwiftCache]}]
     end
+
+    sup_tree =
+    case cloudstorage_config do
+      :nil ->
+        Og.log("No cloudstorage config found. Skipping initiation of OVH cloudstorage service", :debug)
+        sup_tree
+      cloudstorage_config ->
+        cloudstorage_client = Module.concat(client, Swift.Cloudstorage)
+        sup_tree ++
+        [{cloudstorage_client, {Swift, :start_link, [{ovh_client, cloudstorage_client}]}, :permanent, 10_000, :worker, [Swift]}]
+    end
+
     if sup_tree === [] do
         raise "No configuration found for ovh."
     end
-    supervise(sup_tree, strategy: :one_for_one, max_restarts: 20)
-  end
 
-
-  @doc "Gets the ovh config settings."
-  @spec ovh_config(map, atom) :: map | {:error, :config_not_found}
-  def ovh_config(ovh_config, client) do
-    case ovh_config do
-      :nil -> {:error, :config_not_found}
-      _ -> Map.merge(Defaults.ovh(), client.ovh_config())
-    end
+    supervise(sup_tree, strategy: :one_for_one, max_restarts: 30)
   end
 
 

@@ -8,11 +8,12 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache.Webstorage do
 
 
   @doc :false
-  @spec webstorage(atom, String.t) :: __MODULE__.t | no_return
-  def webstorage(client, config) do
-    cdn_name = Keyword.fetch!(config, :cdn_name)
-    properties = ExOvh.Ovh.V1.Webstorage.Query.get_service(cdn_name) |> client.request!() |> Map.fetch!(:body)
-    credentials = ExOvh.Ovh.V1.Webstorage.Query.get_credentials(cdn_name) |> client.request!() |> Map.fetch!(:body)
+  @spec webstorage({atom, atom}, String.t) :: __MODULE__.t | no_return
+  def webstorage(ovh_client, cdn_name) do
+    Og.context(__ENV__, :debug)
+
+    properties = ExOvh.Ovh.V1.Webstorage.Query.get_service(cdn_name) |> ovh_client.request!() |> Map.fetch!(:body)
+    credentials = ExOvh.Ovh.V1.Webstorage.Query.get_credentials(cdn_name) |> ovh_client.request!() |> Map.fetch!(:body)
 
     webstorage =
     %{
@@ -31,13 +32,14 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache.Webstorage do
   end
 
   @doc :false
-  @spec create_identity(atom, atom) :: Identity.t | no_return
-  def create_identity(client, config_id) do
-    config = client.swift_config() |> Keyword.fetch!(config_id)
+  @spec create_identity({atom, atom}, atom) :: Identity.t | no_return
+  def create_identity({ovh_client, swift_client}, config) do
+    Og.context(__ENV__, :debug)
+
     cdn_name = Keyword.fetch!(config, :cdn_name)
-    webstorage = webstorage(client, cdn_name)
+    webstorage = webstorage(ovh_client, cdn_name)
     %{endpoint: endpoint, username: username, password: password, tenant_name: tenant_name} = webstorage
-    identity = Module.concat(client, Helpers.Keystone).authenticate!(endpoint, username, password, [tenant_name: tenant_name])
+    identity = Module.concat(swift_client, Helpers.Keystone).authenticate!(endpoint, username, password, [tenant_name: tenant_name])
   end
 
 #  token = Openstex.Keystone.V2.Query.get_token(endpoint, username, password)

@@ -17,9 +17,7 @@ defmodule ExOvh.Ovh.V1.Webstorage.Query do
 
   ### Example usage
 
-      alias ExOvh.Ovh.V1.Webstorage.Query
-      query = Query.get_services()
-      ExOvh.request(query)
+      ExOvh.Ovh.V1.Webstorage.Query. get_services() |> ExOvh.request()
   """
   @spec get_services() :: Query.t
   def get_services() do

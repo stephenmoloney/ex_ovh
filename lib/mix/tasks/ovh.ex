@@ -70,7 +70,7 @@ defmodule Mix.Tasks.Ovh do
   """
   use Mix.Task
   alias ExOvh.Utils
-  alias ExOvh.Defaults
+  alias ExOvh.Ovh.Defaults
 
 
   @default_headers [{"Content-Type", "application/json; charset=utf-8"}]

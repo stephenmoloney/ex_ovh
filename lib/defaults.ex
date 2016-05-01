@@ -1,14 +1,13 @@
-defmodule ExOvh.Defaults do
+defmodule ExOvh.Ovh.Defaults do
   @moduledoc :false
 
   @doc "Returns ovh default configuration settings"
   @spec ovh() :: map
   def ovh() do
-    %{
-      endpoint: "ovh-eu",
-      api_version: "1.0",
-      cloudstorage_endpoint: "https://auth.cloud.ovh.net/v2.0"
-    }
+    [
+     endpoint: endpoints()["ovh-eu"],
+     api_version: "1.0"
+    ]
   end
 
 

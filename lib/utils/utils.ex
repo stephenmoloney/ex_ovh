@@ -3,7 +3,7 @@ defmodule ExOvh.Utils do
 
   alias ExOvh.Auth.Ovh.Cache, as: OvhCache
   alias ExOvh.Auth.Openstack.Swift.Cache, as: SwiftCache
-  alias ExOvh.Defaults
+  alias ExOvh.Ovh.Defaults
 
 
   @doc """
@@ -66,8 +66,7 @@ defmodule ExOvh.Utils do
       "Ets."
       <>
       (
-        gen_server_name(unquote(client))
-        |> Atom.to_string()
+        unquote(client) |> Atom.to_string()
       )
       |> String.to_atom()
     end

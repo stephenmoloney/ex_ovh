@@ -4,11 +4,9 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
   use Openstex.Cache
   alias ExOvh.Auth.Openstack.Swift.Cache.Cloudstorage
   alias ExOvh.Auth.Openstack.Swift.Cache.Webstorage
-  alias ExOvh.Auth.Openstack.Supervisor, as: OpenstackSupervisor
-  alias ExOvh.Utils
   alias Openstex.Helpers.V2.Keystone
   alias Openstex.Helpers.V2.Keystone.Identity
-  import ExOvh.Utils, only: [gen_server_name: 1, ets_tablename: 1]
+  import ExOvh.Utils, only: [ets_tablename: 1]
   @get_identity_retries 5
   @get_identity_interval 1000
 
@@ -16,15 +14,15 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
   # Public
 
 
-  def start_link(client) do
+  def start_link({ovh_client, swift_client}) do
     Og.context(__ENV__, :debug)
-    GenServer.start_link(__MODULE__, client, [name: gen_server_name(client)])
+    GenServer.start_link(__MODULE__, {ovh_client, swift_client}, [name: swift_client])
   end
 
   # Pulic Opestex.Cache callbacks (public 'interface' to the Cache module)
 
-  def get_swift_account(client) do
-    public_url = get_identity(client)
+  def get_swift_account(swift_client) do
+    public_url = get_identity(swift_client)
     |> Map.get(:service_catalog)
     |> Enum.find(fn(%Identity.Service{} = service) ->  service.name == "swift" end)
     |> Map.get(:endpoints)
@@ -36,8 +34,8 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
     account
   end
 
-  def get_swift_endpoint(client) do
-    public_url = get_identity(client)
+  def get_swift_endpoint(swift_client) do
+    public_url = get_identity(swift_client)
     |> Map.get(:service_catalog)
     |> Enum.find(fn(%Identity.Service{} = service) ->  service.name == "swift" end)
     |> Map.get(:endpoints)
@@ -50,8 +48,8 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
     endpoint
   end
 
-  def get_xauth_token(client) do
-    get_identity(client) |> Map.get(:token) |> Map.get(:id)
+  def get_xauth_token(swift_client) do
+    get_identity(swift_client) |> Map.get(:token) |> Map.get(:id)
   end
 
 
@@ -60,48 +58,45 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
 
   # trap exits so that terminate callback is invoked
   # the :lock key is to allow for locking during the brief moment that the access token is being refreshed
-  def init(client) do
+  def init({ovh_client, swift_client}) do
     Og.context(__ENV__, :debug)
     :erlang.process_flag(:trap_exit, :true)
-    create_ets_table(client)
+    create_ets_table(swift_client)
 
-
-
-    ## Get the client id from the config ??
     Og.context(__ENV__, :debug)
-    config = get_config(client)
+    config = swift_client.config()
     |> Og.log_return(__ENV__, :warn)
 
-    {:ok, identity} = create_identity(client, config, config[:type])
+    {:ok, identity} = create_identity({ovh_client, swift_client}, config, config[:type])
     Og.context(__ENV__, :debug)
 
     identity = Map.put(identity, :lock, :false)
-    :ets.insert(ets_tablename(client), {:identity, identity})
+    :ets.insert(ets_tablename(swift_client), {:identity, identity})
     expiry = to_seconds(identity)
     Task.start_link(fn -> monitor_expiry(expiry) end)
-    {:ok, {client, identity}}
+    {:ok, {swift_client, identity}}
   end
 
-  def handle_call(:add_lock, _from, {client, identity}) do
+  def handle_call(:add_lock, _from, {swift_client, identity}) do
     Og.context(__ENV__, :debug)
     new_identity = Map.put(identity, :lock, :true)
-    :ets.insert(ets_tablename(client), {:identity, new_identity})
-    {:reply, :ok, {client, new_identity}}
+    :ets.insert(ets_tablename(swift_client), {:identity, new_identity})
+    {:reply, :ok, {swift_client, new_identity}}
   end
 
-  def handle_call(:remove_lock, _from, {client, identity}) do
+  def handle_call(:remove_lock, _from, {swift_client, identity}) do
     Og.context(__ENV__, :debug)
     new_identity = Map.put(identity, :lock, :false)
-    :ets.insert(ets_tablename(client), {:identity, new_identity})
-    {:reply, :ok, {client, new_identity}}
+    :ets.insert(ets_tablename(swift_client), {:identity, new_identity})
+    {:reply, :ok, {swift_client, new_identity}}
   end
 
-  def handle_call(:update_identity, _from, {client, identity}) do
+  def handle_call(:update_identity, _from, {swift_client, identity}) do
     Og.context(__ENV__, :debug)
-    {:ok, new_identity} = get_identity(client)
+    {:ok, new_identity} = get_identity(swift_client)
     |> Map.put(identity, :lock, :false)
-    :ets.insert(ets_tablename(client), {:identity, new_identity})
-    {:reply, :ok, {client, new_identity}}
+    :ets.insert(ets_tablename(swift_client), {:identity, new_identity})
+    {:reply, :ok, {swift_client, new_identity}}
   end
 
   def handle_call(:stop, _from, state) do
@@ -109,9 +104,9 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
     {:stop, :shutdown, :ok, state}
   end
 
-  def terminate(:shutdown, {client, identity}) do
+  def terminate(:shutdown, {swift_client, identity}) do
     Og.context(__ENV__, :debug)
-    :ets.delete(ets_tablename(client)) # explicilty remove
+    :ets.delete(ets_tablename(swift_client)) # explicilty remove
     :ok
   end
 
@@ -119,60 +114,48 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
   # private
 
 
-  defp create_identity(client, config, :webstorage) do
+  defp create_identity({ovh_client, swift_client}, config, :webstorage) do
     Og.context(__ENV__, :debug)
-    Webstorage.create_identity(client, config)
+    Webstorage.create_identity({ovh_client, swift_client}, config)
   end
-  defp create_identity(client, config, :cloudstorage) do
+  defp create_identity({ovh_client, swift_client}, config, :cloudstorage) do
     Og.context(__ENV__, :debug)
-    Cloudstorage.create_identity(client, config)
+    Cloudstorage.create_identity({ovh_client, swift_client}, config)
   end
-  defp create_identity(client, config, type) do
+  defp create_identity({ovh_client, swift_client}, config, type) do
     Og.context(__ENV__, :debug)
     raise "create_identity/3 is only supported for the :webstorage and :cloudstorage types, #{inspect(type)}"
   end
 
 
-  defp get_identity(client) do
-    if supervisor_exists?(client) do
-      get_identity(client, 0)
-    else
-      case Supervisor.start_child(OpenstackSupervisor, [client]) do
-        {:error, error} -> raise inspect(error)
-        {:ok, _} ->
-          if supervisor_exists?(client) do
-            get_identity(client, 0)
-          else
-            raise Og.log_return("", __ENV__, :error) |> inspect()
-          end
-      end
-    end
+  defp get_identity(swift_client) do
+      get_identity(swift_client, 0)
   end
-  defp get_identity(client, index) do
+  defp get_identity(swift_client, index) do
     Og.context(__ENV__, :debug)
 
-    retry = fn(client, index) ->
+    retry = fn(swift_client, index) ->
       if index > @get_identity_retries do
-        raise "Cannot retrieve openstack identity, #{__ENV__.module}, #{__ENV__.line}, client: #{client}"
+        raise "Cannot retrieve openstack identity, #{__ENV__.module}, #{__ENV__.line}, client: #{swift_client}"
       else
         :timer.sleep(@get_identity_interval)
-        get_identity(client, index + 1)
+        get_identity(swift_client, index + 1)
       end
     end
 
-    if ets_tablename(client) in :ets.all() do
-      table = :ets.lookup(ets_tablename(client), :identity)
+    if ets_tablename(swift_client) in :ets.all() do
+      table = :ets.lookup(ets_tablename(swift_client), :identity)
       case table do
         [identity: identity] ->
           if identity.lock === :true do
-            retry.(client, index)
+            retry.(swift_client, index)
           else
             identity
           end
-        [] -> retry.(client, index)
+        [] -> retry.(swift_client, index)
       end
     else
-      retry.(client, index)
+      retry.(swift_client, index)
     end
 
   end
@@ -191,7 +174,7 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
   end
 
 
-  defp create_ets_table(client) do
+  defp create_ets_table(swift_client) do
     Og.context(__ENV__, :debug)
     ets_options = [
                    :set, # type
@@ -201,8 +184,8 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
                    {:write_concurrency, :false},
                    {:read_concurrency, :true}
                   ]
-    unless ets_tablename(client) in :ets.all() do
-      :ets.new(ets_tablename(client), ets_options)
+    unless ets_tablename(swift_client) in :ets.all() do
+      :ets.new(ets_tablename(swift_client), ets_options)
     end
   end
 
@@ -225,34 +208,6 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
       0
     end
   end
-
-
-  defp supervisor_exists?(client) do
-    registered_name = gen_server_name(client)
-    |> Og.log_return(__ENV__, :debug)
-    case Process.whereis(registered_name) do
-      :nil -> :false
-      _pid -> :true
-    end
-  end
-
-
-  defp get_config(client) do
-    str = Atom.to_string(client) |> String.downcase()
-    config =
-    cond do
-      String.ends_with?(str, "webstorage") ->
-        client.swift_config() |> Keyword.fetch!(:webstorage)
-      String.ends_with?(str, "cloudstorage") ->
-        client.swift_config() |> Keyword.fetch!(:cloudstorage)
-      true ->
-        raise "config not found, #{Og.context(__ENV__, :error)}"
-    end
-    config
-  end
-
-  # defp gen_server_name(client, config_id), do:  String.to_atom(Atom.to_string(config_id) <>  "-" <> Atom.to_string(client))
-  # def ets_tablename(client, config_id), do: String.to_atom(Atom.to_string(config_id) <>  "-" <> Atom.to_string(client))
 
 
 end
