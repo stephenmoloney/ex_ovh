@@ -9,17 +9,17 @@ defimpl Openstex.Request, for: ExOvh.Ovh.Query do
 
 
   @spec request(Query.t, Keyword.t, atom) :: {:ok, Response.t} | {:error, Response.t}
-  def request(query, opts, client) do
+  def request(query, httpoison_opts, client) do
     Og.context(__ENV__, :debug)
 
-    q = Auth.prepare_request(query, opts, client) |> Map.from_struct()
+    q = Auth.prepare_request(query, httpoison_opts, client) |> Map.from_struct()
 
-    options = set_opts(q.options, opts)
+    options = Keyword.merge(q.options, httpoison_opts)
     case HTTPoison.request(q.method, q.uri, q.body, q.headers, options) do
       {:ok, resp} ->
         body = parse_body(resp)
         resp = %Response{ body: body, headers: resp.headers |> Enum.into(%{}), status_code: resp.status_code }
-        if resp.status_code >= 100 and resp.status_code < 300 do
+        if resp.status_code >= 100 and resp.status_code < 400 do
           {:ok, resp}
         else
           {:error, resp}
@@ -34,7 +34,7 @@ defimpl Openstex.Request, for: ExOvh.Ovh.Query do
   # private
 
 
-  def parse_body(resp) do
+  defp parse_body(resp) do
     try do
        resp.body |> Poison.decode!()
     rescue
@@ -42,9 +42,6 @@ defimpl Openstex.Request, for: ExOvh.Ovh.Query do
         resp.body
     end
   end
-
-
-  defp set_opts(query_opts, opts), do: Keyword.merge(query_opts, opts)
 
 
 end

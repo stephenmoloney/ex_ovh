@@ -1,46 +1,57 @@
 defmodule ExOvh.Auth.Openstack.Swift.Cache do
   @moduledoc :false
-
   use GenServer
-  alias ExOvh.Auth.Supervisor, as: AuthSupervisor
+  use Openstex.Cache
+  alias ExOvh.Auth.Openstack.Swift.Cache.Cloudstorage
+  alias ExOvh.Auth.Openstack.Swift.Cache.Webstorage
+  alias ExOvh.Auth.Openstack.Supervisor, as: OpenstackSupervisor
   alias ExOvh.Utils
-  @get_credentials_retries 10
-  @get_credentials_sleep_interval 450
+  alias Openstex.Helpers.V2.Keystone
+  alias Openstex.Helpers.V2.Keystone.Identity
+  import ExOvh.Utils, only: [gen_server_name: 1, ets_tablename: 1]
+  @get_identity_retries 5
+  @get_identity_interval 1000
 
 
   # Public
 
 
-  def start_link({client, config, opts}, service) do
+  def start_link(client) do
     Og.context(__ENV__, :debug)
-    GenServer.start_link(__MODULE__, {client, service}, [name: gen_server_name(client, service)])
+    GenServer.start_link(__MODULE__, client, [name: gen_server_name(client)])
   end
 
+  # Pulic Opestex.Cache callbacks (public 'interface' to the Cache module)
 
-  def get_credentials(client, service) do
-    unless supervisor_exists?(client, service), do: Supervisor.start_child(AuthSupervisor, [service])
-    get_credentials(client, service, 0)
-  end
+  def get_swift_account(client) do
+    public_url = get_identity(client)
+    |> Map.get(:service_catalog)
+    |> Enum.find(fn(%Identity.Service{} = service) ->  service.name == "swift" end)
+    |> Map.get(:endpoints)
+    |> List.first()
+    |> Map.get(:public_url)
 
-
-  def get_credentials_token(client, service), do: get_credentials(client, service).token
-
-
-  def get_swift_endpoint(client, service) do
-    credentials = get_credentials(client, service)
-    path = URI.parse(credentials.swift_endpoint) |> Map.get(:path)
+    path = URI.parse(public_url) |> Map.get(:path)
     {version, account} = String.split_at(path, 4)
-    endpoint = List.first(String.split(credentials.swift_endpoint, account))
+    account
+  end
+
+  def get_swift_endpoint(client) do
+    public_url = get_identity(client)
+    |> Map.get(:service_catalog)
+    |> Enum.find(fn(%Identity.Service{} = service) ->  service.name == "swift" end)
+    |> Map.get(:endpoints)
+    |> List.first()
+    |> Map.get(:public_url)
+
+    path = URI.parse(public_url) |> Map.get(:path)
+    {version, account} = String.split_at(path, 4)
+    endpoint = String.split(public_url, account) |> List.first()
     endpoint
   end
 
-
-  def get_account(service), do: get_account(ExOvh, service)
-  def get_account(client, service) do
-    credentials = get_credentials(client, service)
-    path = URI.parse(credentials.swift_endpoint) |> Map.get(:path)
-    {version, account} = String.split_at(path, 4)
-    account
+  def get_xauth_token(client) do
+    get_identity(client) |> Map.get(:token) |> Map.get(:id)
   end
 
 
@@ -49,40 +60,48 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
 
   # trap exits so that terminate callback is invoked
   # the :lock key is to allow for locking during the brief moment that the access token is being refreshed
-  def init({client, service}) do
+  def init(client) do
     Og.context(__ENV__, :debug)
     :erlang.process_flag(:trap_exit, :true)
-    create_ets_table(client, service)
+    create_ets_table(client)
 
-    {:ok, credentials} = identity(client, service)
 
-    credentials = Map.put(credentials, :lock, :false)
-    :ets.insert(ets_tablename(client, service), {:credentials, credentials})
-    expires = to_seconds(credentials.token_expires_on)
-    Task.start_link(fn -> monitor_expiry(expires) end)
-    {:ok, {client, service, credentials}}
+
+    ## Get the client id from the config ??
+    Og.context(__ENV__, :debug)
+    config = get_config(client)
+    |> Og.log_return(__ENV__, :warn)
+
+    {:ok, identity} = create_identity(client, config, config[:type])
+    Og.context(__ENV__, :debug)
+
+    identity = Map.put(identity, :lock, :false)
+    :ets.insert(ets_tablename(client), {:identity, identity})
+    expiry = to_seconds(identity)
+    Task.start_link(fn -> monitor_expiry(expiry) end)
+    {:ok, {client, identity}}
   end
 
-  def handle_call(:add_lock, _from, {client, service, credentials}) do
+  def handle_call(:add_lock, _from, {client, identity}) do
     Og.context(__ENV__, :debug)
-    new_credentials = Map.put(credentials, :lock, :true)
-    :ets.insert(ets_tablename(client, service), {:credentials, new_credentials})
-    {:reply, :ok, {client, service, new_credentials}}
+    new_identity = Map.put(identity, :lock, :true)
+    :ets.insert(ets_tablename(client), {:identity, new_identity})
+    {:reply, :ok, {client, new_identity}}
   end
 
-  def handle_call(:remove_lock, _from, {client, service, credentials}) do
+  def handle_call(:remove_lock, _from, {client, identity}) do
     Og.context(__ENV__, :debug)
-    new_credentials = Map.put(credentials, :lock, :false)
-    :ets.insert(ets_tablename(client, service), {:credentials, new_credentials})
-    {:reply, :ok, {client, service, new_credentials}}
+    new_identity = Map.put(identity, :lock, :false)
+    :ets.insert(ets_tablename(client), {:identity, new_identity})
+    {:reply, :ok, {client, new_identity}}
   end
 
-  def handle_call(:update_credentials, _from, {client, service, credentials}) do
+  def handle_call(:update_identity, _from, {client, identity}) do
     Og.context(__ENV__, :debug)
-    {:ok, new_credentials} = identity(client, service)
-    |> Map.put(credentials, :lock, :false)
-    :ets.insert(ets_tablename(client, service), {:credentials, new_credentials})
-    {:reply, :ok, {client, service, new_credentials}}
+    {:ok, new_identity} = get_identity(client)
+    |> Map.put(identity, :lock, :false)
+    :ets.insert(ets_tablename(client), {:identity, new_identity})
+    {:reply, :ok, {client, new_identity}}
   end
 
   def handle_call(:stop, _from, state) do
@@ -90,167 +109,72 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
     {:stop, :shutdown, :ok, state}
   end
 
-  def terminate(:shutdown, {client, service, credentials}) do
+  def terminate(:shutdown, {client, identity}) do
     Og.context(__ENV__, :debug)
-    :ets.delete(ets_tablename(client, service)) # explicilty remove
+    :ets.delete(ets_tablename(client)) # explicilty remove
     :ok
-  end
-
-
-  # Private
-
-
-  defp gen_server_name(client, service), do:  String.to_atom(Atom.to_string(client) <> service)
-  defp ets_tablename(client, service), do: String.to_atom(Atom.to_string(client) <> "-" <> service)
-
-
-
-  def identity(client, {service_name, :webstorage} = service) when is_atom(client) do
-    credentials =  ExOvh.Ovh.V1.Webstorage.Query.get_credentials(service_name) |> client.request!()
-    identity(service_name, credentials, client)
-  end
-  def identity(client, {service_name, pcs_service_name, :cloudstorage} = service) when is_atom(client) do
-    credentials = ExOvh.Ovh.V1.Cloudstorage.Query.get_credentials(service_name, pcs_service_name) |> client.request!()
-    identity(service_name, credentials, client)
-  end
-
-
-  def identity(service_name, credentials, client) do
-
-    config = Utils.config(client)
-    q1 = ExOvh.Ovh.V1.Webstorage.Query.get_service(service_name)
-    {:ok, resp} = ExOvh.request(service_name)
-
-    %{
-      "server" => domain,
-      "storageLimit" => storage_limit,
-      "server" => server
-    } = resp.body
-
-
-    {:ok, resp} = ExOvh.request(credentials)
-
-    %{
-      "endpoint" => endpoint,
-      "login" => login,
-      "password" => password,
-      "tenant" => tenant
-    } = resp.body
-
-
-    method = :post
-    uri = endpoint <> "/tokens"
-    body = %{"auth" =>
-                %{
-                "passwordCredentials" => %{"username" => login, "password" => password}
-                }
-        }
-        |> Poison.encode!()
-    headers = [{"Content-Type", "application/json; charset=utf-8"}]
-    options = Utils.set_opts([], config)
-    resp = HTTPoison.request(method, uri, body, headers, options)
-
-    unless resp.status_code >= 200 and resp.status_code <= 203, do: raise resp.body
-
-    %{
-      "access" =>
-                  %{
-                    "token" => %{
-                                 "expires" => expires_on,
-                                 "id" => token,
-                                 "issued_at" => created_on
-                                },
-                  }
-      } = Poison.decode!(resp.body)
-
-
-    method = :post
-    uri = endpoint <> "/tokens"
-    body = %{
-            "auth" =>
-                      %{
-                      "tenantName" => tenant,
-                      "token" => %{"id" => token}
-                      }
-            }
-    |> Poison.decode!()
-    headers = [{"Content-Type", "application/json; charset=utf-8"}]
-    options = Utils.set_opts([], config)
-    resp = HTTPoison.request(method, uri, body, headers, options)
-
-    unless resp.status_code >= 200 and resp.status_code <= 203, do: raise resp.body
-
-    %{
-      "serviceCatalog" => [
-                          %{
-                            "endpoints" => [%{"publicURL" => swift_endpoint}],
-                            "name" => "swift",
-                          },
-                          %{
-                            "endpoints" => [%{"publicURL" => identity_endpoint}],
-                            "name" => "keystone",
-                          }
-                         ],
-                          "token" => %{
-                                          "expires" => token_expires_on,
-                                          "id" => token,
-                                          "issued_at" => token_created_on,
-                                        },
-                          "user" => _user
-      } = Poison.decode!(resp.body) |> Map.get("access")
-
-      {:ok,
-          %{
-            token: token,
-            token_expires_on: expires_on,
-            token_created_on: token_created_on,
-            swift_endpoint: swift_endpoint,
-            identity_endpoint: identity_endpoint,
-            service: service_name,
-            public_url: public_url(domain, swift_endpoint),
-            storage_limit: storage_limit,
-            server: server
-          }
-      }
-
   end
 
 
   # private
 
 
-  defp public_url(domain, swift_endpoint) do
-    path = URI.parse(swift_endpoint) |> Map.get(:path)
-    {version, account} = String.split_at(path, 4)
-    domain <> version <> account
+  defp create_identity(client, config, :webstorage) do
+    Og.context(__ENV__, :debug)
+    Webstorage.create_identity(client, config)
+  end
+  defp create_identity(client, config, :cloudstorage) do
+    Og.context(__ENV__, :debug)
+    Cloudstorage.create_identity(client, config)
+  end
+  defp create_identity(client, config, type) do
+    Og.context(__ENV__, :debug)
+    raise "create_identity/3 is only supported for the :webstorage and :cloudstorage types, #{inspect(type)}"
   end
 
-  defp get_credentials(client, service, index) do
+
+  defp get_identity(client) do
+    if supervisor_exists?(client) do
+      get_identity(client, 0)
+    else
+      case Supervisor.start_child(OpenstackSupervisor, [client]) do
+        {:error, error} -> raise inspect(error)
+        {:ok, _} ->
+          if supervisor_exists?(client) do
+            get_identity(client, 0)
+          else
+            raise Og.log_return("", __ENV__, :error) |> inspect()
+          end
+      end
+    end
+  end
+  defp get_identity(client, index) do
     Og.context(__ENV__, :debug)
 
-    retry = fn(client, service, index) ->
-      if index > @get_credentials_retries do
-        raise "Cannot retrieve openstack credentials from ets table, #{__ENV__.module}, #{__ENV__.line}"
+    retry = fn(client, index) ->
+      if index > @get_identity_retries do
+        raise "Cannot retrieve openstack identity, #{__ENV__.module}, #{__ENV__.line}, client: #{client}"
       else
-        :timer.sleep(@get_credentials_sleep_interval)
-        get_credentials(client, service, index + 1)
+        :timer.sleep(@get_identity_interval)
+        get_identity(client, index + 1)
       end
     end
 
-    if ets_tablename(client, service) in :ets.all() do
-      table = :ets.lookup(ets_tablename(client, service), :credentials)
+    if ets_tablename(client) in :ets.all() do
+      table = :ets.lookup(ets_tablename(client), :identity)
       case table do
-        [credentials: credentials] ->
-          if credentials.lock === :true do
-            retry.(client, service, index)
+        [identity: identity] ->
+          if identity.lock === :true do
+            retry.(client, index)
           else
-            credentials
+            identity
           end
-        [] -> retry.(client,service,index)
+        [] -> retry.(client, index)
       end
     else
-      retry.(client, service, index)
+      retry.(client, index)
     end
+
   end
 
 
@@ -258,15 +182,16 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
     Og.context(__ENV__, :debug)
     interval = (expires - 30) * 1000
     :timer.sleep(interval)
-    {:reply, :ok, _credentials} = GenServer.call(self(), :add_lock)
-    {:reply, :ok, _credentials} = GenServer.call(self(), :update_credentials)
-    {:reply, :ok, credentials} = GenServer.call(self(), :remove_lock)
-    expires = to_seconds(credentials["expires"])
+    {:reply, :ok, _identity} = GenServer.call(self(), :add_lock)
+    {:reply, :ok, _identity} = GenServer.call(self(), :update_identity)
+    {:reply, :ok, identity} = GenServer.call(self(), :remove_lock)
+    identity |> Og.log_return(__ENV__, :debug)
+    expires = to_seconds(identity.token.expires)
     monitor_expiry(expires)
   end
 
 
-  defp create_ets_table(client, service) do
+  defp create_ets_table(client) do
     Og.context(__ENV__, :debug)
     ets_options = [
                    :set, # type
@@ -276,13 +201,15 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
                    {:write_concurrency, :false},
                    {:read_concurrency, :true}
                   ]
-    unless ets_tablename(client, service) in :ets.all() do
-      :ets.new(ets_tablename(client, service), ets_options)
+    unless ets_tablename(client) in :ets.all() do
+      :ets.new(ets_tablename(client), ets_options)
     end
   end
 
 
-  defp to_seconds(iso_time) do
+  defp to_seconds(identity) do
+    identity |> Og.log_return(__ENV__, :debug)
+    iso_time = identity.token.expires
     {:ok, expiry_ndt, offset} = Calendar.NaiveDateTime.Parse.iso8601(iso_time)
     offset =
     case offset do
@@ -300,17 +227,32 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
   end
 
 
-  defp supervisor_exists?(client, service) do
-    case Process.whereis(registered_supervisor_name(client, service)) do
+  defp supervisor_exists?(client) do
+    registered_name = gen_server_name(client)
+    |> Og.log_return(__ENV__, :debug)
+    case Process.whereis(registered_name) do
       :nil -> :false
       _pid -> :true
     end
   end
 
 
-  defp registered_supervisor_name(client, service) do
-    String.to_atom(Atom.to_string(client) <> service)
+  defp get_config(client) do
+    str = Atom.to_string(client) |> String.downcase()
+    config =
+    cond do
+      String.ends_with?(str, "webstorage") ->
+        client.swift_config() |> Keyword.fetch!(:webstorage)
+      String.ends_with?(str, "cloudstorage") ->
+        client.swift_config() |> Keyword.fetch!(:cloudstorage)
+      true ->
+        raise "config not found, #{Og.context(__ENV__, :error)}"
+    end
+    config
   end
+
+  # defp gen_server_name(client, config_id), do:  String.to_atom(Atom.to_string(config_id) <>  "-" <> Atom.to_string(client))
+  # def ets_tablename(client, config_id), do: String.to_atom(Atom.to_string(config_id) <>  "-" <> Atom.to_string(client))
 
 
 end

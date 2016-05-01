@@ -9,25 +9,25 @@ defmodule ExOvh.Supervisor do
   #  Public
 
 
-  def start_link(client, config, opts) do
+  def start_link(client, ovh_config, opts) do
     Og.context(__ENV__, :debug)
-    Supervisor.start_link(__MODULE__, {client, config, opts}, [name: client])
+    Supervisor.start_link(__MODULE__, {client, ovh_config, opts}, [name: client])
   end
 
 
   #  Callbacks
 
 
-  def init({client, config, opts}) do
+  def init({client, ovh_config, opts}) do
     Og.context(__ENV__, :debug)
     sup_tree =
-    case ovh_config(config, client) do
+    case ovh_config(ovh_config, client) do
       {:error, :config_not_found} ->
         Og.log("No ovh config found. Ovh supervisor will not be started for client #{client}", :error)
         []
-      valid_config ->
+      valid_ovh_config ->
         [{AuthSupervisor,
-         {AuthSupervisor, :start_link, [client, valid_config, opts]}, :permanent, 10_000, :supervisor, [AuthSupervisor]}]
+         {AuthSupervisor, :start_link, [client, valid_ovh_config, opts]}, :permanent, 10_000, :supervisor, [AuthSupervisor]}]
     end
     if sup_tree === [] do
         raise "No configuration found for ovh."
@@ -36,14 +36,12 @@ defmodule ExOvh.Supervisor do
   end
 
 
-  @doc """
-  Gets the ovh config settings.
-  """
-  @spec ovh_config(config :: map, client :: atom) :: map | {:error, atom}
-  def ovh_config(config, client) do
-    case config do
+  @doc "Gets the ovh config settings."
+  @spec ovh_config(map, atom) :: map | {:error, :config_not_found}
+  def ovh_config(ovh_config, client) do
+    case ovh_config do
       :nil -> {:error, :config_not_found}
-      _ -> Map.merge(Defaults.ovh(), client.config())
+      _ -> Map.merge(Defaults.ovh(), client.ovh_config())
     end
   end
 

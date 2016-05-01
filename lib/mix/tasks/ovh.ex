@@ -70,6 +70,7 @@ defmodule Mix.Tasks.Ovh do
   """
   use Mix.Task
   alias ExOvh.Utils
+  alias ExOvh.Defaults
 
 
   @default_headers [{"Content-Type", "application/json; charset=utf-8"}]
@@ -112,7 +113,6 @@ defmodule Mix.Tasks.Ovh do
 
   defp parse_args(args) do
     {opts, _, _} = OptionParser.parse(args)
-    Og.log_return(opts, :debug)
     {opts, opts_map } = opts
     |> has_required_args()
     |> parsers_login()
@@ -187,7 +187,7 @@ defmodule Mix.Tasks.Ovh do
   defp parsers_access_rules({opts, acc}) do
     access_rules = Keyword.get(opts, :accessrules, :nil)
     if access_rules === :nil do
-      access_rules = Utils.access_rules()
+      access_rules = Defaults.access_rules()
     else
       access_rules = access_rules
       |> String.split("::")
@@ -220,7 +220,7 @@ defmodule Mix.Tasks.Ovh do
     Og.context(__ENV__, :debug)
 
     method = :get
-    uri = Utils.default_create_app_uri(opts_map)
+    uri = opts_map[:endpoint] <> Defaults.create_app_uri_suffix()
     body = ""
     headers = []
     options = @default_options
@@ -231,6 +231,7 @@ defmodule Mix.Tasks.Ovh do
 
   defp get_create_app_inputs(resp_body) do
     Og.context(__ENV__, :debug)
+
     inputs = Floki.find(resp_body, "form input")
     |> List.flatten()
     if Enum.any?(inputs, fn(input) -> input === [] end), do: raise "Empty input found"
@@ -240,6 +241,7 @@ defmodule Mix.Tasks.Ovh do
 
   defp build_app_request(inputs, %{login: login, password: password} = opts_map) do
     Og.context(__ENV__, :debug)
+
     {acc, _index, _max} =
     Enum.reduce(inputs, {"", 1, Enum.count(inputs)}, fn({"input", input, _}, acc) ->
       name = :proplists.get_value("name", input)
@@ -273,16 +275,12 @@ defmodule Mix.Tasks.Ovh do
     Og.context(__ENV__, :debug)
 
     method = :post
-    uri = Utils.endpoints()[opts_map.endpoint] <> "createApp/"
+    uri = opts_map[:endpoint] <> "createApp/"
     body = req_body
     headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
     options = @default_options
     resp = HTTPoison.request!(method, uri, body, headers, options)
 
-    resp.body
-    |> Og.log_return(__ENV__, :warn)
-
-    error_msg1 =
     # Error checking
     cond do
      String.contains?(resp.body, msg = "There is already an application with that name for that Account ID") ->
@@ -325,9 +323,9 @@ defmodule Mix.Tasks.Ovh do
     Og.context(__ENV__, :debug)
 
     method = :post
-    uri = Utils.consumer_key_uri(opts_map)
+    uri = opts_map[:endpoint] <> opts_map[:api_version] <> Defaults.consumer_key_suffix()
     body = %{ accessRules: access_rules, redirection: redirect_uri } |> Poison.encode!()
-    headers = Map.merge(Enum.into(@default_headers, %{}), Enum.into([{"X-Ovh-Application", Utils.app_key(opts_map)}], %{})) |> Enum.into([])
+    headers = Map.merge(Enum.into(@default_headers, %{}), Enum.into([{"X-Ovh-Application", opts_map[:application_key]}], %{})) |> Enum.into([])
     options = @default_options
     resp = HTTPoison.request!(method, uri, body, headers, options)
 
@@ -337,6 +335,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp bind_consumer_key_to_app({ck, validation_url}, opts_map) do
+    Og.context(__ENV__, :debug)
 
     method = :get
     uri = validation_url
@@ -353,6 +352,8 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_bind_ck_to_app_inputs(resp_body) do
+    Og.context(__ENV__, :debug)
+
     inputs = Floki.find(resp_body, "form input") ++
     Floki.find(resp_body, "form select")
     |> List.flatten()
@@ -366,6 +367,7 @@ defmodule Mix.Tasks.Ovh do
 
   defp build_ck_binding_request(inputs, %{login: login, password: password} = opts_map) do
     Og.context(__ENV__, :debug)
+
     {acc, _index, _max} =
     Enum.reduce(inputs, {"", 1, Enum.count(inputs)}, fn({type, input, options}, acc) ->
       {name_val, value} =
@@ -405,7 +407,6 @@ defmodule Mix.Tasks.Ovh do
   defp send_ck_binding_request(req_body, validation_url, ck) do
     Og.context(__ENV__, :debug)
 
-
     method = :post
     uri = validation_url
     body = req_body
@@ -428,6 +429,8 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_credentials(opts_map) do
+    Og.context(__ENV__, :debug)
+
     create_app_body = get_app_create_page(opts_map) |> get_create_app_inputs() |> build_app_request(opts_map) |> send_app_request(opts_map)
     opts_map = Map.merge(opts_map, %{
       application_key: get_application_key(create_app_body),
@@ -447,6 +450,8 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp config_names(client_name) do
+    Og.context(__ENV__, :debug)
+
     {config_header, mod_client_name} =
     case client_name  do
       "ex_ovh" ->
@@ -488,6 +493,8 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp print_config(options) do
+    Og.context(__ENV__, :debug)
+
     client_name = options.client_name
     {config_header, mod_client_name} = config_names(client_name)
 

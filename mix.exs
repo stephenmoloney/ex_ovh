@@ -12,7 +12,12 @@ defmodule ExOvh.Mixfile do
       start_permanent: Mix.env == :prod,
       description: description(),
       package: package(),
-      deps: deps()
+      deps: deps(),
+      docs: [
+        main: "README.md",
+        extra_section: "Readme",
+        extras: ["README.md": [path: "README.md", title: "Readme"]]
+      ]
      ]
   end
 
@@ -31,8 +36,7 @@ defmodule ExOvh.Mixfile do
       {:og, "~> 0.1"},
       # {:openstex, github: "stephenmoloney/openstex", branch: "master"}, # incorporates :poison and httpoison
       {:openstex, path: "../openstex"},
-
-      {:earmark, "~> 0.2.1", only: :dev},
+      {:markdown, github: "devinus/markdown"},
       {:ex_doc,  "~> 0.11", only: :dev}
     ]
   end

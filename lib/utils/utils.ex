@@ -1,7 +1,8 @@
 defmodule ExOvh.Utils do
   @moduledoc false
 
-  alias ExOvh.Auth.Ovh.Cache
+  alias ExOvh.Auth.Ovh.Cache, as: OvhCache
+  alias ExOvh.Auth.Openstack.Swift.Cache, as: SwiftCache
   alias ExOvh.Defaults
 
 
@@ -92,23 +93,6 @@ defmodule ExOvh.Utils do
     Integer.to_string(month) <> "." <>
     Integer.to_string(year)
   end
-
-
-  def config(client), do: Cache.get_config(client)
-  def endpoints(), do: Defaults.endpoints()
-  def endpoint(config), do: Defaults.endpoints()[config[:endpoint]]
-  def api_version(config), do: config[:api_version]
-  def uri(uri, config), do: endpoint(config) <> api_version(config) <> uri
-  def app_secret(config), do: config[:application_secret]
-  def app_key(config), do: config[:application_key]
-  def get_consumer_key(config), do: config[:consumer_key]
-  def connect_timeout(config), do: config[:connect_timeout]
-  def receive_timeout(config), do: config[:receive_timeout]
-  def set_opts(opts, config), do: Keyword.merge([ timeout: connect_timeout(config), recv_timeout: receive_timeout(config) ], opts)
-  def access_rules(), do: Defaults.access_rules()
-  def access_rules(config), do: config[:access_rules]
-  def default_create_app_uri(config), do: endpoint(config) <> "createApp/"
-  def consumer_key_uri(config), do: endpoint(config) <> api_version(config) <> "/auth/credential/"
 
 
 end

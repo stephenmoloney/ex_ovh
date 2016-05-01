@@ -11,6 +11,7 @@
 *.ez
 erl_crash.dump
 *.secret.exs
+dev.exs
 .env
 mix.lock
 todo.md

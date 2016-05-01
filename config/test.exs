@@ -13,4 +13,7 @@ config :ex_ovh,
     api_version: System.get_env("EX_OVH_API_VERSION") || "1.0",
     connect_timeout: 30000, # 30 seconds
     connect_timeout: (60000 * 30) # 30 minutes
-  }
+  },
+  swift: %{
+          webstorage: "EX_OVH_WEBSTORAGE_CDN_NAME"
+        }

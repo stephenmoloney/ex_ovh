@@ -11,4 +11,6 @@ if Mix.env == :prod do
     compile_time_purge_level: :warn
 end
 
+config :ex_doc, :markdown_processor, ExDoc.Markdown.Hoedown
+
 import_config "#{Mix.env}.exs"

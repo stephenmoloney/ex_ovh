@@ -6,7 +6,8 @@ defmodule ExOvh.Defaults do
   def ovh() do
     %{
       endpoint: "ovh-eu",
-      api_version: "1.0"
+      api_version: "1.0",
+      cloudstorage_endpoint: "https://auth.cloud.ovh.net/v2.0"
     }
   end
 
@@ -24,6 +25,15 @@ defmodule ExOvh.Defaults do
       "runabove-ca"   => "https://api.runabove.com/"
     }
   end
+
+  @doc "Returns the default suffix for creating a new application in ovh"
+  @spec create_app_uri_suffix() :: String.t
+  def create_app_uri_suffix(), do: "createApp/"
+
+
+  @doc "Returns the default suffix for getting the consumer key in ovh"
+  @spec consumer_key_suffix() :: String.t
+  def consumer_key_suffix(), do: "/auth/credential/"
 
 
   @doc "Returns the default access rules (all methods and paths by default)"

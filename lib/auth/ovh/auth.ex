@@ -11,27 +11,28 @@ defimpl Openstex.Auth, for: ExOvh.Ovh.Query do
 
 
   @spec prepare_request(Query.t, Keyword.t, atom) :: Openstex.HttpQuery.t
-  def prepare_request(query, opts, client)
+  def prepare_request(query, httpoison_opts, client)
 
-  def prepare_request(%Query{method: method, uri: uri, params: params}, opts, client) when method in [:get, :head, :delete] do
-    config = Utils.config(client)
-    if params !== :nil and params !== "" and is_map(params), do: uri = uri <> "?" <> URI.encode_query(params)
-    if params !== :nil and params !== "" and is_map(params) === :false, do: uri = uri <> URI.encode_www_form(params)
-    uri = Utils.uri(uri, config)
+  def prepare_request(%Query{method: method, uri: uri, params: params}, httpoison_opts, client) when method in [:get, :head, :delete] do
+    uri = if params !== :nil and params !== "" and is_map(params), do: uri <> "?" <> URI.encode_query(params), else: uri
+    uri = if params !== :nil and params !== "" and is_map(params) === :false, do: uri <> URI.encode_www_form(params), else: uri
+    ovh_config = client.ovh_config()
+    uri = ovh_config[:endpoint] <> ovh_config[:api_version] <> uri
     body = params || ""
-    headers = headers([Utils.app_secret(config), Utils.app_key(config), Utils.get_consumer_key(config), Atom.to_string(method), uri, ""], client)
-    options = Utils.set_opts(opts, config)
+    headers = headers([ovh_config[:application_secret], ovh_config[:application_key], ovh_config[:consumer_key], Atom.to_string(method), uri, ""], client)
+    default_httpoison_opts = client.httpoison_config()
+    options = Keyword.merge(default_httpoison_opts, httpoison_opts)
     %Openstex.HttpQuery{method: method, uri: uri, body: body, headers: headers, options: options, service: :ovh}
   end
 
-  def prepare_request(%Query{method: method, uri: uri, params: params}, opts, client) when method in [:post, :put] do
-    config = Utils.config(client)
+  def prepare_request(%Query{method: method, uri: uri, params: params}, httpoison_opts, client) when method in [:post, :put] do
     if params !== "" and params !== :nil and is_map(params), do: params = Poison.encode!(params)
-    uri = Utils.uri(uri, config)
+    ovh_config = client.ovh_config()
+    uri = ovh_config[:endpoint] <> ovh_config[:api_version] <> uri
     body = params || ""
-    header_opts = [Utils.app_secret(config), Utils.app_key(config), Utils.get_consumer_key(config), Atom.to_string(method), uri, params]
-    headers = headers([Utils.app_secret(config), Utils.app_key(config), Utils.get_consumer_key(config), Atom.to_string(method), uri, ""], client)
-    options = Utils.set_opts(opts, config)
+    headers = headers([ovh_config[:application_secret], ovh_config[:application_key], ovh_config[:consumer_key], Atom.to_string(method), uri, ""], client)
+    default_httpoison_opts = client.httpoison_config()
+    options = Keyword.merge(default_httpoison_opts, httpoison_opts)
     %Openstex.HttpQuery{method: method, uri: uri, body: body, headers: headers, options: options, service: :ovh}
   end
 
