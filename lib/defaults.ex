@@ -20,7 +20,7 @@ defmodule ExOvh.Ovh.Defaults do
 
   def endpoints() do
     %{
-      "ovh-eu"        => "https://api.ovh.com/",
+      "ovh-eu"        => "https://eu.api.ovh.com/",
       "ovh-ca"        => "https://ca.api.ovh.com/",
       "kimsufi-eu"    => "https://eu.api.kimsufi.com/",
       "kimsufi-ca"    => "https://ca.api.kimsufi.com/",
@@ -34,7 +34,7 @@ defmodule ExOvh.Ovh.Defaults do
   def create_app_uri_suffix(), do: "createApp/"
 
 
-  def consumer_key_suffix(), do: "/auth/credential/"
+  def consumer_key_suffix(), do: "/auth/credential"
 
 
   def access_rules() do

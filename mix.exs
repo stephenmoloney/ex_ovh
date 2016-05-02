@@ -34,6 +34,7 @@ defmodule ExOvh.Mixfile do
       {:floki, "~> 0.7.1"},
       {:calendar, "~> 0.13.2"},
       {:og, "~> 0.1"},
+      {:morph, "~> 0.1.0"},
       # {:openstex, github: "stephenmoloney/openstex", branch: "master"}, # incorporates :poison and httpoison
       {:openstex, path: "../openstex"},
       {:markdown, github: "devinus/markdown"},

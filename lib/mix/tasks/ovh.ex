@@ -19,22 +19,20 @@ defmodule Mix.Tasks.Ovh do
   Create an app with access to all apis:
 
       mix ovh \
-      --login=<username> \
+      --login=<username-ovh> \
       --password=<password> \
       --appname='ex_ovh'
 
   Output:
 
       config :ex_ovh,
-        ovh: %{
+        ovh: [
           application_key: System.get_env("EX_OVH_APPLICATION_KEY"),
           application_secret: System.get_env("EX_OVH_APPLICATION_SECRET"),
           consumer_key: System.get_env("EX_OVH_CONSUMER_KEY"),
           endpoint: System.get_env("EX_OVH_ENDPOINT"),
-          api_version: System.get_env("EX_OVH_API_VERSION") || "1.0",
-          connect_timeout: 30000, # 30 seconds
-          connect_timeout: (60000 * 30) # 30 minutes
-        }
+          api_version: System.get_env("EX_OVH_API_VERSION") || "1.0"
+        ]
 
 
   Create an app with access to all apis with specific app name and description:
@@ -42,10 +40,10 @@ defmodule Mix.Tasks.Ovh do
       mix ovh \
       --login=<username> \
       --password=<password> \
-      --appdescription='my app for api' \
+      --appdescription='Ovh Application for my app' \
       --endpoint='ovh-eu' \
       --apiversion='1.0' \
-      --redirect_uri='http://localhost:4000/' \
+      --redirecturi='http://localhost:4000/' \
       --accessrules='get-[/*]::put-[/me,/cdn]::post-[/me,/cdn]::delete-[]' \
       --appname='my_app'
 
@@ -64,7 +62,7 @@ defmodule Mix.Tasks.Ovh do
 
   ## Notes
 
-  - Access rules: The default for access rules will give your ovh application access to *all* of the api calls. More
+  - Access rules: The default for access rules will give the ovh application access to *all* of the api calls. More
   than likely this is not a good idea. To limit the number of api endpoints available, generate access rules using
   the commandline arguments as seen in the example above.
   """
@@ -86,7 +84,7 @@ defmodule Mix.Tasks.Ovh do
     Mix.Shell.IO.info("")
     Mix.Shell.IO.info("The details in the map above will be used to create the ovh application.")
     Mix.Shell.IO.info("")
-    if Mix.Shell.IO.yes?("Do you want to proceed?") do
+    if Mix.Shell.IO.yes?("Proceed?") do
       HTTPoison.start
       opts_map = parse_args(args)
 
@@ -97,7 +95,7 @@ defmodule Mix.Tasks.Ovh do
 
       Mix.Shell.IO.info(message)
       Mix.Shell.IO.info("")
-      Mix.Shell.IO.info("Update your environment variables and your set.")
+      Mix.Shell.IO.info("Update the environment variables and all is done here.")
       Mix.Shell.IO.info("")
       Mix.Shell.IO.info("For example: ")
       Mix.Shell.IO.info("")
@@ -138,8 +136,8 @@ defmodule Mix.Tasks.Ovh do
       raise "Task requires password argument"
     end
     {opts, %{}}
-    client_name = Keyword.get(opts, :appname, :ex_ovh)
-    if client_name === :nil do
+    application_name = Keyword.get(opts, :appname, :ex_ovh)
+    if application_name === :nil do
       raise "Task requires appname argument"
     end
     {opts, %{}}
@@ -148,49 +146,63 @@ defmodule Mix.Tasks.Ovh do
 
   defp parsers_login({opts, acc}), do: {opts, Map.merge(acc, %{login: Keyword.fetch!(opts, :login)}) }
   defp parsers_password({opts, acc}), do: {opts, Map.merge(acc, %{ password: Keyword.fetch!(opts, :password)}) }
-  defp parsers_client_name({opts, acc}), do: {opts, Map.merge(acc, %{ client_name: Keyword.fetch!(opts, :appname)}) }
+  defp parsers_app_name({opts, acc}), do: {opts, Map.merge(acc, %{ application_name: Keyword.fetch!(opts, :appname)}) }
   defp parsers_endpoint({opts, acc}) do
     endpoint = Keyword.get(opts, :endpoint, :nil)
-    if endpoint === :nil do
-      endpoint = "ovh-eu"
+    endpoint =
+    case endpoint do
+      :nil -> "ovh-eu"
+      _ -> endpoint
     end
     {opts, Map.merge(acc, %{ endpoint: endpoint }) }
   end
   defp parsers_api_version({opts, acc}) do
     api_version = Keyword.get(opts, :apiversion, :nil)
-    if api_version === :nil do
-      api_version = "1.0"
+    api_version =
+    case api_version do
+      :nil -> "1.0"
+      _ -> api_version
     end
     {opts, Map.merge(acc, %{ api_version: api_version }) }
   end
   defp parsers_redirect_uri({opts, acc}) do
     redirect_uri = Keyword.get(opts, :redirecturi, :nil)
-    if redirect_uri === :nil do
-      redirect_uri = ""
+    redirect_uri =
+    case redirect_uri do
+      :nil -> ""
+      _ -> redirect_uri
     end
     {opts, Map.merge(acc, %{ redirect_uri: redirect_uri }) }
   end
+  defp parsers_client_name({opts, acc}) do
+    client_name = Keyword.get(opts, :clientname, :nil)
+    {opts, Map.merge(acc, %{ client_name: client_name }) }
+  end
   defp parsers_app_name({opts, acc}) do
     application_name = Keyword.get(opts, :appname, :nil)
-    if application_name === :nil do
-      application_name = "ex_ovh"
+    application_name =
+    case application_name do
+      :nil -> "ex_ovh"
+      _ -> application_name
     end
     {opts, Map.merge(acc, %{ application_name: application_name }) }
   end
   defp parsers_app_desc({opts, acc}) do
     application_description = Keyword.get(opts, :appdescription, :nil)
-    if application_description === :nil do
-      application_description = "ex_ovh"
+    application_description =
+    case application_description do
+      :nil -> "ex_ovh"
+      _ -> application_description
     end
     {opts, Map.merge(acc, %{ application_description: application_description }) }
   end
   defp parsers_access_rules({opts, acc}) do
     access_rules = Keyword.get(opts, :accessrules, :nil)
+    access_rules =
     if access_rules === :nil do
-      access_rules = Defaults.access_rules()
+      Defaults.access_rules()
     else
-      access_rules = access_rules
-      |> String.split("::")
+      String.split(access_rules, "::")
       |> Enum.map(fn(method_rules) ->
         [method, paths] = String.split(method_rules, "-")
         {method, paths}
@@ -211,7 +223,7 @@ defmodule Mix.Tasks.Ovh do
         List.insert_at(acc, -1, new_rules)
       end)
       |> List.flatten()
-      end
+    end
     {opts, Map.merge(acc, %{access_rules: access_rules}) }
   end
 
@@ -220,7 +232,7 @@ defmodule Mix.Tasks.Ovh do
     Og.context(__ENV__, :debug)
 
     method = :get
-    uri = opts_map[:endpoint] <> Defaults.create_app_uri_suffix()
+    uri = Defaults.endpoints()[opts_map[:endpoint]] <> Defaults.create_app_uri_suffix()
     body = ""
     headers = []
     options = @default_options
@@ -275,7 +287,7 @@ defmodule Mix.Tasks.Ovh do
     Og.context(__ENV__, :debug)
 
     method = :post
-    uri = opts_map[:endpoint] <> "createApp/"
+    uri = Defaults.endpoints()[opts_map[:endpoint]] <> Defaults.create_app_uri_suffix()
     body = req_body
     headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
     options = @default_options
@@ -323,7 +335,8 @@ defmodule Mix.Tasks.Ovh do
     Og.context(__ENV__, :debug)
 
     method = :post
-    uri = opts_map[:endpoint] <> opts_map[:api_version] <> Defaults.consumer_key_suffix()
+    uri = Defaults.endpoints()[opts_map[:endpoint]] <> opts_map[:api_version] <> Defaults.consumer_key_suffix()
+    |> Og.log_return(__ENV__)
     body = %{ accessRules: access_rules, redirection: redirect_uri } |> Poison.encode!()
     headers = Map.merge(Enum.into(@default_headers, %{}), Enum.into([{"X-Ovh-Application", opts_map[:application_key]}], %{})) |> Enum.into([])
     options = @default_options
@@ -414,13 +427,21 @@ defmodule Mix.Tasks.Ovh do
     options = @default_options
     resp = HTTPoison.request!(method, uri, body, headers, options)
 
+    resp |> Og.log_return(__ENV__)
+
     error_msg1 = "Failed to bind the consumer token to the application. Please try to validate the consumer token manually at #{validation_url}"
     error_msg2 = "Invalid validity period entered for the consumer token. Please try to validate the consumer token manually at #{validation_url}"
     cond do
      String.contains?(resp.body, "Invalid validity") ->
       raise error_msg2
-     String.contains?(resp.body, "Your token is now valid, you can use it in your application") ->
+     String.contains?(resp.body, "The token is now valid, it can be used in the application") ->
       ck
+    String.contains?(resp.body, "Your token is now valid, you can use it in your application") ->
+      ck
+    String.contains?(resp.body, "token is now valid") ->
+      ck
+     resp.status_code == 302 && (resp.headers |> Enum.into(%{}) |> Map.has_key?("Location")) ->
+      ck  # presume the validation was successful if redirected to redirect uri
      true ->
       raise error_msg1
     end
@@ -449,20 +470,25 @@ defmodule Mix.Tasks.Ovh do
   end
 
 
-  defp config_names(client_name) do
+  defp config_names(app_name, client_name) do
     Og.context(__ENV__, :debug)
 
     {config_header, mod_client_name} =
-    case client_name  do
+    case app_name do
       "ex_ovh" ->
         {
-          ":" <> client_name,
+          ":" <> app_name,
           "EX_OVH_"
         }
       other ->
+        client_name =
+        case client_name do
+          :nil -> "OvhClient"
+          client_name -> client_name
+        end
         {
-          ":" <> client_name <> ", " <> Macro.camelize(client_name) <> "." <> "ExOvh",
-          String.upcase(other) <> "_EX_OVH_"
+          ":" <> app_name <> ", " <> Macro.camelize(app_name) <> "." <> client_name,
+          String.upcase(other) <> "_" <> Morph.to_snake_caps(client_name) <>"_"
         }
     end
     {config_header, mod_client_name}
@@ -472,7 +498,7 @@ defmodule Mix.Tasks.Ovh do
     env_path = ".env"
     File.touch!(env_path)
     existing = File.read!(env_path)
-    {_config_header, mod_client_name} = config_names(options.client_name)
+    {_config_header, mod_client_name} = config_names(options.application_name, options.client_name)
     format_date = ExOvh.Utils.formatted_date()
     new = existing <>
     ~s"""
@@ -494,24 +520,20 @@ defmodule Mix.Tasks.Ovh do
 
   defp print_config(options) do
     Og.context(__ENV__, :debug)
-
-    client_name = options.client_name
-    {config_header, mod_client_name} = config_names(client_name)
+    {config_header, mod_client_name} = config_names(options.application_name, options.client_name)
 
     ~s"""
 
-    Add the following paragraph to your config.exs file(s):
+    Add the following paragraph to the config.exs file(s):
 
     config #{config_header},
-        ovh: %{
+        ovh: [
           application_key: System.get_env(\"#{mod_client_name <> "APPLICATION_KEY"}\"),
           application_secret: System.get_env(\"#{mod_client_name <> "APPLICATION_SECRET"}\"),
           consumer_key: System.get_env(\"#{mod_client_name <> "CONSUMER_KEY"}\"),
           endpoint: System.get_env(\"#{mod_client_name <> "ENDPOINT"}\"),
-          api_version: System.get_env(\"#{mod_client_name <> "API_VERSION"}\") || "1.0",
-          connect_timeout: 30000, # 30 seconds
-          connect_timeout: (60000 * 30) # 30 minutes
-        }
+          api_version: System.get_env(\"#{mod_client_name <> "API_VERSION"}\") || "1.0"
+        ]
     """
   end
 

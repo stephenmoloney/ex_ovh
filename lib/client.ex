@@ -57,10 +57,6 @@ defmodule ExOvh.Client do
         use Openstex.Swift.V1.Helpers, client: __MODULE__
       end
 
-#      defmodule Keystone do
-#        use Openstex.Helpers.V2.Keystone, client: Keyword.fetch!(opts, :client)
-#      end
-
 
     end
   end

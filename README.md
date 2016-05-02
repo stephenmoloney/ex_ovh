@@ -1,220 +1,273 @@
 # ExOvh
-ExOvh is an elixir library to make it easier to interact with both the [Ovh Api](https://api.ovh.com/) 
-and the [Hubic Api](https://api.hubic.com/).
-
-## Note
-
-This repository is a work in progress.
+ExOvh is an elixir library for the [Ovh Api](https://api.ovh.com/).
 
 
-## Project Features 
-- Provides Query modules that enable the easy generation of ovh and hubic related api queries for use by HTTPotion.
-- Provides Caches which are modules handling the authentication tokens in the background within a supervision tree.
-- Add more here....
+## Project Features
+
+- Cache modules (genservers) running in the background which store frequently accessed authentication information.
+- Query and Helper modules for making calls to the OVH API.
+- Query and Helper modules for making calls to the Openstack Swift API. OVH uses openstack for their [webstorage cdn service](https://www.ovh.ie/cdn/webstorage/)
+and their [public cloud storage service](https://www.ovh.ie/cloud/storage/)
 
 
 ## Getting Started
 
-
-### Hubic  
-
-Create a hubic account. 
-
-Create a hubic application.
-    
-With the credentials, get the refresh_token. Use the Mix hubic task to 
-help generate the refresh token on your behalf if you wish: 
-
-
-  ```shell
-  mix hubic
-  --login=<login>
-  --password=<password>
-  --clientid=<client_id>
-  --clientsecret=<client_secret>
-  --redirecturi=<uri>
-  ```
-
-  
-Shell Output
-  
-  ```elixir
-  %{
-  client_id: "<client_id>",
-  client_secret: "<client_secret>",
-  refresh_token: "<refresh_token>",
-  redirect_uri: "<uri>"
-  }
-  ```
-
-Add the hubic credentials printed in the shell by the mix hubic task to the `config/prod.secret.exs` file
-
-  ```
-  config :ex_ovh,
-    ovh: :nil
-    hubic:   %{
-              client_id: "<client_id>",
-              client_secret: "<client_secret>",
-              refresh_token: "<refresh_token>",
-              redirect_uri: "<uri>"
-             }
-  ```
-
-### OVH
-
-
-Create an OVH account 
-
-Create an application at `https://eu.api.ovh.com/createApp/` or
-alternatively use the mix ovh task to generate the application:
-
-
-  ```shell
-  mix ovh
-  --login=<username>
-  --password=<password>
-  --appname='My app'
-  --appdesc='my app for api'
-  --accessrules='get-[/*]::put-[/me,/cdn]::post-[/me,/cdn]::delete-[]'
-  ```
-
-As seen above, access rules can be specified so that only certain endpoints are allowed.
-
-Shell Output
-
-  A map is printed to the shell as follows:
+- Add :ex_ovh to the dependencies.
 
   ```elixir
-  %{
-  application_key: "<app_key>",
-  application_secret: "<app_secret>",
-  consumer_key: "<consumer_secret>",
-  endpoint: "ovh-eu",
-  api_version: "1.0"
-  }
-  ```
-
-  - This map can then be manually added by the user to the `config/prod.secret.exs` file
-
-  ```
-  config :ex_ovh,
-  ovh: %{
-        application_key: "<app_key>",
-        application_secret: "<app_secret>",
-        consumer_key: "<consumer_secret>",
-        endpoint: "ovh-eu",
-        api_version: "1.0"
-       },
-  hubic: %{
-          client_id: "<client_id>",
-          client_secret: "<client_secret>",
-          refresh_token: "<refresh_token>",
-          redirect_uri: "<uri>"
-         }
-  ```
-
-
-### Add :httpotion to applications on startup (httpotion is used for http requests) 
-
-```elixir
-  def application do 
-    [ 
-      applications: [:httpotion]
+  defp deps() do
+    [
+      {:ex_ovh, "~> 0.0.1"}
     ]
   end
-```
-
-### Starting the supervisor
-
-Add the supervisor to your supervision tree:
- 
- ```elixir 
-   def start(_type, _args) do
-    import Supervisor.Spec, warn: false
-
-    phoenix = [supervisor(TestOs.Endpoint, [])]
-    ex_ovh = [supervisor(ExOvh, [])]
-
-    opts = [strategy: :one_for_one, name: TestOs.Supervisor]
-    Supervisor.start_link(phoenix ++ ex_ovh, opts)
-  end
   ```
 
+- Create an OVH account at [OVH](https://www.ovh.com/us/)
 
-#### Show how to add another client here ......
+- Create an API application at the [OVH API page](https://eu.api.ovh.com/createApp/). Follow the
+  steps outlined by OVH there. This is the correct way to create the OVH application.
+
+- Alternatively, there is a mix task which:
+
+    1. Creates an application on the user's behalf by sending http requests using the user's username and password credentials.
+    2. Gets a consumer key and validation url.
+    3. Validates the validation url on the user's behalf by sending http requests using the user's username and password credentials.
+    4. Adds the application key, application secret and associated consumer key to the environment configuration.
+
+- Examples using the mix ovh task:
+
+  - Most basic usage:
+
+  **Shell Input:**
+  ```shell
+  mix ovh \
+  --login=<username-ovh> \
+  --password=<password> \
+  --appname='ex_ovh'
+  ```
+
+  - `login`: username/nic_handle for logging into OVH services. *Note*: must include `-ovh` at the end of the string.
+  - `password`: password for logging into OVH services.
+  - `appname`: this should correspond to the `otp_app` name in the elixir application. The same name will be used as
+  the name for the application in OVH.
+  - `redirecturi`: defaults to `""` when absent.
+  - `endpoint`: defaults to `"ovh-eu"` wen absent.
+  - `accessrules`: defaults to `get-[/*]::put-[/*]::post-[/*]::delete-[/*]` when absent giving the application all
+    full priveleges. One may consider fine-tuning the accessrules, see advanced example below.
+  - `appdescription`: defaults to `appname` if absent
+  - `clientname`:" defaults to `ExOvh` when the appname is exactly equal to `ex_ovh`, otherwise defaults to `OvhClient`.
+
+  **Shell Output:**
+
+  ```elixir
+  config :ex_ovh,
+    ovh: [
+      application_key: System.get_env("EX_OVH_APPLICATION_KEY"),
+      application_secret: System.get_env("EX_OVH_APPLICATION_SECRET"),
+      consumer_key: System.get_env("EX_OVH_CONSUMER_KEY"),
+      endpoint: System.get_env("EX_OVH_ENDPOINT"),
+      api_version: System.get_env("EX_OVH_API_VERSION") || "1.0"
+    ]
+  ```
+  This configuration can be added to `config.exs`.
+
+  - `EX_OVH_APPLICATION_KEY`: The system environment variable name for the application key.
+  - `EX_OVH_APPLICATION_SECRET`: The system environment variable name for the application secret.
+  - `EX_OVH_CONSUMER_KEY`: The system environment variable name for the consumer key.
+  - `EX_OVH_ENDPOINT`: The system environment variable name for the ovh endpoint.
+  - `EX_OVH_API_VERSION`: The system environment variable name for the api version.
 
 
+  - The enviroment variables are saved to a file called `.env` automatically by the mix task.
+  **Do not add the `.env` file to version control.** Add the variables to the system environment
+  by running the command or some other commands as appropriate to the deployment method.
 
-## Example Usage(s)
+  ```shell
+  source .env
+  ```
+
+  - Advanced usage:
+
+  **Shell Input:**
+
+  ```shell
+  mix ovh \
+  --login=<username-ovh> \
+  --password=<password> \
+  --appdescription='Ovh Application for my app' \
+  --endpoint='ovh-eu' \
+  --apiversion='1.0' \
+  --redirecturi='http://localhost:4000/' \
+  --accessrules='get-[/*]::put-[/me,/cdn]::post-[/me,/cdn]::delete-[]' \
+  --appname='my_app'
+  --clientname='OvhClient'
+  ```
+
+  - `login`: username/nic_handle for logging into OVH services. *Note*: must include `-ovh` at the end of the string.
+  - `password`: password for logging into OVH services.
+  - `appname`: appname corresponds to the `otp_app` name in the elixir application. The same name will be used as
+  the name for the application in OVH.
+  - `clientname`:" defaults to `ExOvh` when the appname is exactly equal to `ex_ovh`, otherwise defaults to `OvhClient`. `clientname` corresponds to the name of the client. So for example, if appname is `'my_app'` and clientname is
+    `'Client'` then the config file will be `config :my_app, MyApp.Client`. Also, the client in application code can be referred
+    to as `MyApp.Client.function_name`.
+  - `appdescription`: A description for the application saved to OVH.
+  - `endpoint`: OVH endpoint to be used. May vary depending on the OVH service. See `ExOvh.Ovh.Defaults`.
+  - `apiversion`: version of the api to use. Only one version available currently.
+  - `redirecturi`: redirect url for oauth authentication. Should be https.
+  - `accessrules`: restrictions can be added to the access rules. In this example, `get` requests to all endpoints are allowed,
+    `put` and `post` requests to `/me` and `/cdn` and `delete` requests are forbidden.
 
 
-### Example 1: 
+  **Shell Output:**
+
+  ```elixir
+  config :my_app, MyApp.OvhClient,
+      ovh: [
+        application_key: System.get_env("MY_APP_OVH_CLIENT_APPLICATION_KEY"),
+        application_secret: System.get_env("MY_APP_OVH_CLIENT_APPLICATION_SECRET"),
+        consumer_key: System.get_env("MY_APP_OVH_CLIENT_CONSUMER_KEY"),
+        endpoint: System.get_env("MY_APP_OVH_CLIENT_ENDPOINT"),
+        api_version: System.get_env("MY_APP_OVH_CLIENT_API_VERSION") || "1.0"
+      ]
+  ```
+  This configuration can be added to `config.exs`.
+
+  - `EX_OVH_APPLICATION_KEY`: The system environment variable name for the application key.
+  - `EX_OVH_APPLICATION_SECRET`: The system environment variable name for the application secret.
+  - `EX_OVH_CONSUMER_KEY`: The system environment variable name for the consumer key.
+  - `EX_OVH_ENDPOINT`: The system environment variable name for the ovh endpoint.
+  - `EX_OVH_API_VERSION`: The system environment variable name for the api version.
+
+
+  - The enviroment variables are saved to a file called `.env` automatically by the mix task.
+  **Do not add the `.env` file to version control.** Add the variables to the system environment
+  by running the command or some other commands as appropriate to the deployment method.
+
+  ```shell
+  source .env
+  ```
+
+- Make further configurations if necessary, depending on which OVH services are being used.
+
+  - Configuration for [webstorage cdn service](https://www.ovh.ie/cdn/webstorage/)
+
+  In the example below, `EX_OVH_WEBSTORAGE_CDN_NAME` is added to the environment variables.
+  ```elixir
+  config :ex_ovh,
+    ovh: [],
+    swift: [
+          webstorage: [
+                        cdn_name: System.get_env("MY_APP_OVH_CLIENT_WEBSTORAGE_CDN_NAME"),
+                        type: :webstorage
+                      ]
+         ]
+   ```
+
+  - Configuration for public cloud storage service](https://www.ovh.ie/cloud/storage/)
+
+  In the example below, `MY_APP_OVH_CLIENT_CLOUDSTORAGE_TENANT_ID` and `MY_APP_OVH_CLIENT_CLOUDSTORAGE_USER_ID` are
+  added to the environment variables.
+  ```elixir
+  config :ex_ovh,
+    ovh: [],
+    swift: [
+          cloudstorage: [
+                          tenant_id: System.get_env("MY_APP_OVH_CLIENT_CLOUDSTORAGE_TENANT_ID"), # mandatory, corresponds to a project id
+                          user_id: System.get_env("MY_APP_OVH_CLIENT_CLOUDSTORAGE_USER_ID"), # optional, if absent a user will be created using the ovh api.
+                          keystone_endpoint: "https://auth.cloud.ovh.net/v2.0", # default endpoint for keystone (identity) auth
+                          region: :nil, # defaults to "SBG1" if set to :nil
+                          type: :cloudstorage
+                        ]
+         ]
+   ```
+
+- Optionally configure `:openstex` which allows customization of [httpoison opts](https://github.com/edgurgel/httpoison/blob/master/lib/httpoison/base.ex#L127)
+  for each request.
+
+  Example configuration for custom [httpoison opts](https://github.com/edgurgel/httpoison/blob/master/lib/httpoison/base.ex#L127) (optional):
+  ```elixir
+  config :openstex,
+    httpoison: [
+                connect_timeout: 30000, # 30 seconds
+                receive_timeout: (60000 * 30) # 30 minutes
+               ]
+  ```
+
+- The final phase of configuration is to set up the supervision tree. There are effectively two ways to do
+  this:
+
+    1. The 'correct way' where a client is setup for the otp_app, therefore allowing for the creation of
+       multiple clients.
+
+       Example configuration:
+
+       ```elixir
+       config :my_app, MyApp.OvhClient,
+           ovh: [
+             application_key: System.get_env("MY_APP_OVH_CLIENT_APPLICATION_KEY"),
+             application_secret: System.get_env("MY_APP_OVH_CLIENT_APPLICATION_SECRET"),
+             consumer_key: System.get_env("MY_APP_OVH_CLIENT_CONSUMER_KEY"),
+             endpoint: System.get_env("MY_APP_OVH_CLIENT_ENDPOINT"),
+             api_version: System.get_env("MY_APP_OVH_CLIENT_API_VERSION") || "1.0"
+           ]
+       ```
+
+       Add supervisors to the supervision tree of the application, for example:
+
+       ```elixir
+       def start(_type, _args) do
+        import Supervisor.Spec, warn: false
+        spec1 = [supervisor(MyApp.Endpoint, [])]
+        spec2 = [supervisor(MyApp.OvhClient, [])]
+        opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+        Supervisor.start_link(spec1 ++ spec2, opts)
+       end
+       ```
+
+    2. The 'quick way' which is quite useful when only one client is needed.
+
+       Example Configuration:
+
+       ```elixir
+       config :ex_ovh,
+         ovh: [
+           application_key: System.get_env("EX_OVH_APPLICATION_KEY"),
+           application_secret: System.get_env("EX_OVH_APPLICATION_SECRET"),
+           consumer_key: System.get_env("EX_OVH_CONSUMER_KEY"),
+           endpoint: System.get_env("EX_OVH_ENDPOINT"),
+           api_version: System.get_env("EX_OVH_API_VERSION") || "1.0"
+         ]
+       ```
+
+       Then simply add the application to the project applications list. The supervision
+       tree is then started from the application level.
+
+       ```elixir
+       def application do
+         [
+         applications: [:ex_ovh]
+         ]
+       end
+       ```
+
+
+## Examples
 
 
 Get account details and containers for given account
-  ```elixir
-  alias ExOvh.Query.Openstack.Swift, as: Query
-  alias ExOvh.Hubic.OpenstackApi.Cache, as: OpenCache
-  client = ExOvh
-  
-  account = OpenCache.get_account(client)
-  query = Query.account_info(account)
-  {:ok, resp} = ExOvh.hubic_request(query, %{ openstack: :true })
-  container_count1 = resp.body |> Enum.count() 
-  ```
+``` ```
 
-Creating a new container in hubic
-  ```elixir
-  random_container = SecureRandom.base64(8)
-  query = Query.create_container(account, random_container)
-  ExOvh.hubic_request(query, %{ openstack: :true })
-  ```
+Creating a new container
+``` ```
 
-Get the count of containers again
-  ```elixir
-  query = Query.account_info(account)
-  {:ok, resp} = ExOvh.hubic_request(query, %{ openstack: :true })
-  container_count2 = resp.body |> Enum.count()
-  container_count1 + 1 == container_count2
-  ```
- 
- 
-### Example 2: 
-
+Get the container count
+``` ```
 
 Adding an object to the "default" container in [OVH CDN Webstorage](https://www.ovh.ie/cdn/webstorage/)
+``` ```
 
-    import ExOvh.Query.Openstack.Swift
-    alias ExOvh.Ovh.OpenstackApi.Webstorage.Cache, as: OpenCache
-    client = ExOvh
-    service = "cdnwebstorage-<your_service_name>"
-    account = OpenCache.get_account(client, service)
-    
-    object_name = "client_file.txt"
-    client_object = Kernel.to_string(:code.priv_dir(:ex_ovh)) <> "/" <> object_name
-    container = "default"
-    server_object = String.replace(object_name, "client", "server")
-    create_file_request = create_object(account, container, client_object, server_object)
-    
-    ExOvh.ovh_request(create_file_request, %{ openstack: :true, webstorage: service })
-
-
-Listing all objects for "default" container to see if the new `server_object` is there in [OVH CDN Webstorage](https://www.ovh.ie/cdn/webstorage/)
-
-    import ExOvh.Query.Openstack.Swift
-    alias ExOvh.Ovh.OpenstackApi.Webstorage.Cache, as: OpenCache
-    client = ExOvh
-    service = "cdnwebstorage-<your_service_name>"
-    account = OpenCache.get_account(client, service)
-    request = get_objects(account, "default")
-    
-    {:ok, resp} = ExOvh.ovh_request(request, %{ openstack: :true, webstorage: service })
-    objects = Enum.map(resp.body, &(Map.get(&1, "name")))
-    
-    Enum.member?(objects, server_object)
-      
-
-#### Add more examples ....
+Listing all objects for "default" container in [OVH CDN Webstorage](https://www.ovh.ie/cdn/webstorage/)
+``` ```
 
 
 
@@ -238,17 +291,8 @@ Listing all objects for "default" container to see if the new `server_object` is
 
 - [ ] *Needed* - generate hex docs
 - [ ] *Needed* - generate release and publish to hex packages
-- [ ] *Needed* - *Tests* - add basic tests for most api calls.
-- [ ] *Needed* - *Tests* - verify the supervisor chain, genservers and genserver naming is working ok.
-- [ ] *Needed* - *New functions* - ovh and hubic functions with !.
-
- 
-- [ ] *Maybe* - investigate ways to add sensitive keys, secrets, etc to system env and allow the config.exs to get variables from `System`.
-- [ ] *Maybe* - improve error handling for unexpected responses if possible - hard to find good documentation for expected error responses.
-- [ ] *Maybe* - add a time to live configuration for the validity period of the ovh credential token
-- [ ] *Maybe* - Add some further validations during the mix tasks.
-- [ ] *Maybe* - Add request helper functions to create folders in the hubic api.
-
+- [ ] *Needed* - Tests
+- [ ] *Maybe* - Option to set the application ttl when running ovh mix task.
 
 
 ## Note 
