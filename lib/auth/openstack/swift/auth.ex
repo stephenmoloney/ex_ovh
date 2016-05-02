@@ -25,7 +25,7 @@ defimpl Openstex.Auth, for: Openstex.Openstack.Swift.Query do
   def prepare_request(%Query{method: method, uri: uri, params: params}, httpoison_opts, client)
                                   when method in [:post, :put] do
     cache = client.cache()
-    uri = cache.get_endpoint(client) <> uri
+    uri = cache.get_swift_endpoint(client) <> uri
     headers =  headers(client)
     default_httpoison_opts = client.httpoison_config()
     options = Keyword.merge(default_httpoison_opts, httpoison_opts)

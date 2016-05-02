@@ -23,9 +23,19 @@ defmodule ExOvh.Supervisor do
   def init(client) do
     Og.context(__ENV__, :debug)
 
-    ovh_config = Keyword.merge(Defaults.ovh(), Keyword.fetch!(client.config(), :ovh))
+    ovh_config = Keyword.fetch!(client.config(), :ovh)
+                           |> Keyword.merge(Defaults.ovh(), fn(k, v1, v2) ->
+                             case {k, v1} do
+                              {_, :nil} -> v2
+                              {:endpoint, v1} -> Defaults.endpoints()[v1]
+                              _ -> v1
+                             end
+                           end)
+                           |> Og.log_return(__ENV__)
     webstorage_config = Keyword.get(client.config(), :swift, []) |> Keyword.get(:webstorage, :nil)
     cloudstorage_config = Keyword.get(client.config(), :swift, []) |> Keyword.get(:cloudstorage, :nil)
+                          |> Keyword.merge(Defaults.cloudstorage(), fn(_k, v1, v2) -> if v1 == :nil, do: v2, else: v1 end)
+                          |> Og.log_return(__ENV__)
 
     ovh_client = Module.concat(client, Ovh)
     sup_tree = [
@@ -51,7 +61,7 @@ defmodule ExOvh.Supervisor do
       cloudstorage_config ->
         cloudstorage_client = Module.concat(client, Swift.Cloudstorage)
         sup_tree ++
-        [{cloudstorage_client, {Swift, :start_link, [{ovh_client, cloudstorage_client}]}, :permanent, 10_000, :worker, [Swift]}]
+        [{cloudstorage_client, {SwiftCache, :start_link, [{ovh_client, cloudstorage_client}]}, :permanent, 10_000, :worker, [SwiftCache]}]
     end
 
     if sup_tree === [] do

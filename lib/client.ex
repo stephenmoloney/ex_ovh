@@ -26,7 +26,16 @@ defmodule ExOvh.Client do
       defmodule Ovh do
         use Openstex.Client, client: __MODULE__
         def cache(), do: ExOvh.Auth.Ovh.Cache
-        def config(), do: List.last(__ENV__.context_modules).config() |> Keyword.fetch!(:ovh) |> Keyword.merge(Defaults.ovh())
+        def config() do
+          List.last(__ENV__.context_modules).config() |> Keyword.fetch!(:ovh)
+          |> Keyword.merge(Defaults.ovh(), fn(k, v1, v2) ->
+            case {k, v1} do
+              {_, :nil} -> v2
+              {:endpoint, v1} -> Defaults.endpoints()[v1]
+              _ -> v1
+            end
+          end)
+        end
       end
 
       defmodule Swift.Webstorage do
@@ -34,18 +43,21 @@ defmodule ExOvh.Client do
         use Openstex.Client, client: __MODULE__
         def cache(), do: ExOvh.Auth.Openstack.Swift.Cache
         def config(), do: List.last(__ENV__.context_modules).config() |> Keyword.fetch!(:swift) |> Keyword.fetch!(:webstorage)
-        # use Openstex.Swift.V1.Helpers, client: __MODULE__
+        use Openstex.Swift.V1.Helpers, client: __MODULE__
       end
 
       defmodule Swift.Cloudstorage do
         defstruct []
         use Openstex.Client, client: __MODULE__
         def cache(), do: ExOvh.Auth.Openstack.Swift.Cache
-        def config(), do: List.last(__ENV__.context_modules).config() |> Keyword.fetch!(:swift) |> Keyword.fetch!(:cloudstorage)
-        # use Openstex.Swift.V1.Helpers, client: __MODULE__
+        def config() do
+          List.last(__ENV__.context_modules).config() |> Keyword.fetch!(:swift) |> Keyword.fetch!(:cloudstorage)
+          |> Keyword.merge(Defaults.cloudstorage(), fn(_k, v1, v2) -> if v1 == :nil, do: v2, else: v1 end)
+        end
+        use Openstex.Swift.V1.Helpers, client: __MODULE__
       end
 
-#      defmodule Helpers.Keystone do
+#      defmodule Keystone do
 #        use Openstex.Helpers.V2.Keystone, client: Keyword.fetch!(opts, :client)
 #      end
 

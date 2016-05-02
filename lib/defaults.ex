@@ -1,8 +1,7 @@
 defmodule ExOvh.Ovh.Defaults do
   @moduledoc :false
 
-  @doc "Returns ovh default configuration settings"
-  @spec ovh() :: map
+
   def ovh() do
     [
      endpoint: endpoints()["ovh-eu"],
@@ -11,8 +10,14 @@ defmodule ExOvh.Ovh.Defaults do
   end
 
 
-  @doc "Returns a map of ovh endpoints"
-  @spec endpoints() :: map
+  def cloudstorage() do
+    [
+     keystone_endpoint: "https://auth.cloud.ovh.net/v2.0", # default endpoint for keystone (identity) auth
+     region: "SBG1"
+    ]
+  end
+
+
   def endpoints() do
     %{
       "ovh-eu"        => "https://api.ovh.com/",
@@ -25,18 +30,13 @@ defmodule ExOvh.Ovh.Defaults do
     }
   end
 
-  @doc "Returns the default suffix for creating a new application in ovh"
-  @spec create_app_uri_suffix() :: String.t
+
   def create_app_uri_suffix(), do: "createApp/"
 
 
-  @doc "Returns the default suffix for getting the consumer key in ovh"
-  @spec consumer_key_suffix() :: String.t
   def consumer_key_suffix(), do: "/auth/credential/"
 
 
-  @doc "Returns the default access rules (all methods and paths by default)"
-  @spec access_rules() :: [map]
   def access_rules() do
      [
         %{

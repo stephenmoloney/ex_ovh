@@ -1,5 +1,6 @@
 defmodule ExOvh.Auth.Openstack.Swift.Cache.Webstorage do
   @moduledoc :false
+  alias Openstex.Helpers.V2.Keystone
   alias Openstex.Helpers.V2.Keystone.Identity
   defstruct [ :domain, :storage_limit, :server, :endpoint, :username, :password, :tenant_name ]
   @type t :: %__MODULE__{domain: String.t, storage_limit: String.t, server: String.t, endpoint: String.t,
@@ -31,33 +32,17 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache.Webstorage do
     webstorage = __MODULE__.new(webstorage)
   end
 
+
   @doc :false
-  @spec create_identity({atom, atom}, atom) :: Identity.t | no_return
+  @spec create_identity({atom, atom}, Keyword.t) :: Identity.t | no_return
   def create_identity({ovh_client, swift_client}, config) do
     Og.context(__ENV__, :debug)
 
     cdn_name = Keyword.fetch!(config, :cdn_name)
     webstorage = webstorage(ovh_client, cdn_name)
     %{endpoint: endpoint, username: username, password: password, tenant_name: tenant_name} = webstorage
-    identity = Module.concat(swift_client, Helpers.Keystone).authenticate!(endpoint, username, password, [tenant_name: tenant_name])
+    identity = Keystone.authenticate!(endpoint, username, password, [tenant_name: tenant_name])
   end
 
-#  token = Openstex.Keystone.V2.Query.get_token(endpoint, username, password)
-#  |> Og.log_return(:warn)
-#  |> client.request!()
-#  |> Og.log_return(:warn)
-#  |> Map.get(:body)
-#  |> Map.get("access")
-#  |> Map.get("token")
-#  |> Map.get("id")
-#  # |> Map.get("body")["access"]["token"]["id"]
-#  # |> Map.get(:body)  |> Og.log_return(:debug) |> Map.get("access") |> Og.log_return(:debug) |> Map.get("token") |> Og.log_return(:debug) |> Map.get("id")
-#
-#  {token, endpoint, tenant} |> Og.log()
-#  identity = Openstex.Keystone.V2.Query.get_identity(token, endpoint, tenant)
-#  |> Og.log_return(:debug)
-#  |> client.request!()
-#  |> Og.log_return(:debug)
-#  |> Keystone.parse_nested_map_into_identity_struct()
 
 end

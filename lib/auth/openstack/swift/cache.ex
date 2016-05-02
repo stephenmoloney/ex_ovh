@@ -26,7 +26,7 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
     |> Map.get(:service_catalog)
     |> Enum.find(fn(%Identity.Service{} = service) ->  service.name == "swift" end)
     |> Map.get(:endpoints)
-    |> List.first()
+    |> Enum.find(fn(%Identity.Endpoint{} = endpoint) ->  endpoint.region == swift_client.config()[:region] end)
     |> Map.get(:public_url)
 
     path = URI.parse(public_url) |> Map.get(:path)
@@ -39,7 +39,7 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
     |> Map.get(:service_catalog)
     |> Enum.find(fn(%Identity.Service{} = service) ->  service.name == "swift" end)
     |> Map.get(:endpoints)
-    |> List.first()
+    |> Enum.find(fn(%Identity.Endpoint{} = endpoint) ->  endpoint.region == swift_client.config()[:region] end)
     |> Map.get(:public_url)
 
     path = URI.parse(public_url) |> Map.get(:path)
@@ -62,12 +62,8 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
     Og.context(__ENV__, :debug)
     :erlang.process_flag(:trap_exit, :true)
     create_ets_table(swift_client)
-
-    Og.context(__ENV__, :debug)
     config = swift_client.config()
-    |> Og.log_return(__ENV__, :warn)
-
-    {:ok, identity} = create_identity({ovh_client, swift_client}, config, config[:type])
+    identity = create_identity({ovh_client, swift_client}, config, config[:type])
     Og.context(__ENV__, :debug)
 
     identity = Map.put(identity, :lock, :false)

@@ -21,14 +21,14 @@ config :ex_ovh,
     api_version: System.get_env("EX_OVH_API_VERSION") || "1.0"
   ],
   swift: [
-          webstorage: [ #  <-- :webstorage will be the config_id
+          webstorage: [
                         cdn_name: System.get_env("EX_OVH_WEBSTORAGE_CDN_NAME"),
                         type: :webstorage
                       ],
-          cloudstorage: [ #  <-- :cloudstorage will be the config_id
+          cloudstorage: [
                           tenant_id: System.get_env("EX_OVH_CLOUDSTORAGE_TENANT_ID"), # mandatory, corresponds to a project id
                           user_id: System.get_env("EX_OVH_CLOUDSTORAGE_USER_ID"), # optional, if absent a user will be created using the ovh api.
-                          endpoint: "https://auth.cloud.ovh.net/v2.0",
+                          keystone_endpoint: "https://auth.cloud.ovh.net/v2.0", # default endpoint for keystone (identity) auth
                           region: :nil, # defaults to "SBG1" if set to :nil
                           type: :cloudstorage
                         ]
@@ -37,16 +37,16 @@ config :ex_ovh,
 
 
 
-#config :my_app, MyApp.ExOvhClient1,
+#config :my_app, MyApp.OvhClient,
 #  ... then as above
 
 # SAMPLE CONFIGURATIONS ON A PER APP AND PER API BASIS FOR OPENSTEX
 
-#config :my_app, MyApp.ExOvhClient1.Ovh, <-- For OVH part of the api
+#config :my_app, MyApp.OvhClient.Ovh, <-- For OVH part of the api
 #  httpoison: ... as above
 
-#config :my_app, MyApp.ExOvhClient1.Swift.Webstorage, <-- For Openstack Webstorage part of the api
+#config :my_app, MyApp.OvhClient.Swift.Webstorage, <-- For Openstack Webstorage part of the api
 #  httpoison: ... as above
 
-#config :my_app, MyApp.ExOvhClient1.Swift.Cloudstorage, <-- <-- For Openstack Cloudstorage part of the api
+#config :my_app, MyApp.OvhClient.Swift.Cloudstorage, <-- <-- For Openstack Cloudstorage part of the api
 #  httpoison: ... as above

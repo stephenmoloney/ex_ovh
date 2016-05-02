@@ -1,10 +1,14 @@
 defmodule ExOvh.Auth.Openstack.Swift.Cache.Cloudstorage do
   @moduledoc :false
+  alias Openstex.Helpers.V2.Keystone
   alias Openstex.Helpers.V2.Keystone.Identity
 
+
   @doc :false
-  @spec create_identity({atom, atom}, atom) :: Identity.t | no_return
+  @spec create_identity({atom, atom}, Keyword.t) :: Identity.t | no_return
   def create_identity({ovh_client, swift_client}, config) do
+    Og.context(__ENV__, :debug)
+
     tenant_id = Keyword.fetch!(config, :tenant_id)
     user_id = Keyword.get(config, :user_id, :nil)
     region = Keyword.get(config, :region, "SBG1")
@@ -32,23 +36,13 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache.Cloudstorage do
     resp = ExOvh.Ovh.V1.Cloud.Query.regenerate_credentials(tenant_id, user_id) |> ovh_client.request!()
     password = resp.body["password"]
     username = resp.body["username"]
-    endpoint = config[:endpoint] || "https://auth.cloud.ovh.net/v2.0"
+    endpoint = config[:keystone_endpoint] || "https://auth.cloud.ovh.net/v2.0"
 
     # make sure the regenerate credentials (in the external ovh api) had a chance to take effect
     :timer.sleep(1000)
 
-    identity = Module.concat(swift_client, Helpers.Keystone).authenticate!(endpoint, username, password, [tenant_id: tenant_id])
+    identity = Keystone.authenticate!(endpoint, username, password, [tenant_id: tenant_id])
   end
 
-#    token = Openstex.Keystone.V2.Query.get_token(endpoint, username, password)
-#    |> client.request!()
-#    |> Map.get(:body)
-#    |> Map.get("access")
-#    |> Map.get("token")
-#    |> Map.get("id")
-
-#    identity = Openstex.Keystone.V2.Query.get_identity(token, endpoint, tenant)
-#    |> client.request!()
-#    |> Map.get(:body)
 
 end
