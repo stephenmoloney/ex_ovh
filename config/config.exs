@@ -1,9 +1,11 @@
 use Mix.Config
 
+
 config :logger,
   backends: [:console],
   level: :debug,
   format: "\n$date $time [$level] $metadata$message"
+
 
 if Mix.env == :prod do
   config :logger,
@@ -11,6 +13,5 @@ if Mix.env == :prod do
     compile_time_purge_level: :warn
 end
 
-config :ex_doc, :markdown_processor, ExDoc.Markdown.Hoedown
 
 import_config "#{Mix.env}.exs"

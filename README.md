@@ -39,6 +39,7 @@ and their [public cloud storage service](https://www.ovh.ie/cloud/storage/)
   - Most basic usage:
 
   **Shell Input:**
+  
   ```shell
   mix ovh \
   --login=<username-ovh> \
@@ -48,14 +49,14 @@ and their [public cloud storage service](https://www.ovh.ie/cloud/storage/)
 
   - `login`: username/nic_handle for logging into OVH services. *Note*: must include `-ovh` at the end of the string.
   - `password`: password for logging into OVH services.
-  - `appname`: this should correspond to the `otp_app` name in the elixir application. The same name will be used as
-  the name for the application in OVH.
+  - `appname`: this should correspond to the `otp_app` name in the elixir application. It also doubles as the application name 
+  for the application in the OVH servers.
   - `redirecturi`: defaults to `""` when absent.
   - `endpoint`: defaults to `"ovh-eu"` wen absent.
   - `accessrules`: defaults to `get-[/*]::put-[/*]::post-[/*]::delete-[/*]` when absent giving the application all
     full priveleges. One may consider fine-tuning the accessrules, see advanced example below.
   - `appdescription`: defaults to `appname` if absent
-  - `clientname`:" defaults to `ExOvh` when the appname is exactly equal to `ex_ovh`, otherwise defaults to `OvhClient`.
+  - `clientname`:" This is the elixir client name. defaults to `ExOvh` when the appname is exactly equal to `ex_ovh`, otherwise defaults to `OvhClient`.
 
   **Shell Output:**
 
@@ -105,9 +106,9 @@ and their [public cloud storage service](https://www.ovh.ie/cloud/storage/)
 
   - `login`: username/nic_handle for logging into OVH services. *Note*: must include `-ovh` at the end of the string.
   - `password`: password for logging into OVH services.
-  - `appname`: appname corresponds to the `otp_app` name in the elixir application. The same name will be used as
-  the name for the application in OVH.
-  - `clientname`:" defaults to `ExOvh` when the appname is exactly equal to `ex_ovh`, otherwise defaults to `OvhClient`. `clientname` corresponds to the name of the client. So for example, if appname is `'my_app'` and clientname is
+  - `appname`: this should correspond to the `otp_app` name in the elixir application. It also doubles as the application name 
+  for the application in the OVH servers.
+  - `clientname`:" This is the elixir client name. defaults to `ExOvh` when the appname is exactly equal to `ex_ovh`, otherwise defaults to `OvhClient`. `clientname` corresponds to the name of the client. So for example, if appname is `'my_app'` and clientname is
     `'Client'` then the config file will be `config :my_app, MyApp.Client`. Also, the client in application code can be referred
     to as `MyApp.Client.function_name`.
   - `appdescription`: A description for the application saved to OVH.
@@ -196,59 +197,59 @@ and their [public cloud storage service](https://www.ovh.ie/cloud/storage/)
 - The final phase of configuration is to set up the supervision tree. There are effectively two ways to do
   this:
 
-    1. The 'correct way' where a client is setup for the otp_app, therefore allowing for the creation of
-       multiple clients.
+  1. The 'quick way' which is quite useful when only one client is needed.
 
-       Example configuration:
+     Example Configuration:
 
-       ```elixir
-       config :my_app, MyApp.OvhClient,
-           ovh: [
-             application_key: System.get_env("MY_APP_OVH_CLIENT_APPLICATION_KEY"),
-             application_secret: System.get_env("MY_APP_OVH_CLIENT_APPLICATION_SECRET"),
-             consumer_key: System.get_env("MY_APP_OVH_CLIENT_CONSUMER_KEY"),
-             endpoint: System.get_env("MY_APP_OVH_CLIENT_ENDPOINT"),
-             api_version: System.get_env("MY_APP_OVH_CLIENT_API_VERSION") || "1.0"
-           ]
-       ```
+     ```elixir
+     config :ex_ovh,
+       ovh: [
+         application_key: System.get_env("EX_OVH_APPLICATION_KEY"),
+         application_secret: System.get_env("EX_OVH_APPLICATION_SECRET"),
+         consumer_key: System.get_env("EX_OVH_CONSUMER_KEY"),
+         endpoint: System.get_env("EX_OVH_ENDPOINT"),
+         api_version: System.get_env("EX_OVH_API_VERSION") || "1.0"
+       ]
+     ```
 
-       Add supervisors to the supervision tree of the application, for example:
+     Then simply add the application to the project applications list. The supervision
+     tree is then started from the application level.
 
-       ```elixir
-       def start(_type, _args) do
-        import Supervisor.Spec, warn: false
-        spec1 = [supervisor(MyApp.Endpoint, [])]
-        spec2 = [supervisor(MyApp.OvhClient, [])]
-        opts = [strategy: :one_for_one, name: MyApp.Supervisor]
-        Supervisor.start_link(spec1 ++ spec2, opts)
-       end
-       ```
+     ```elixir
+     def application do
+       [
+       applications: [:ex_ovh]
+       ]
+     end
+     ```
+     
+  2. The 'correct way' where a client is setup for the otp_app, therefore allowing for the creation of
+     multiple clients.
 
-    2. The 'quick way' which is quite useful when only one client is needed.
+     Example configuration:
 
-       Example Configuration:
-
-       ```elixir
-       config :ex_ovh,
+     ```elixir
+     config :my_app, MyApp.OvhClient,
          ovh: [
-           application_key: System.get_env("EX_OVH_APPLICATION_KEY"),
-           application_secret: System.get_env("EX_OVH_APPLICATION_SECRET"),
-           consumer_key: System.get_env("EX_OVH_CONSUMER_KEY"),
-           endpoint: System.get_env("EX_OVH_ENDPOINT"),
-           api_version: System.get_env("EX_OVH_API_VERSION") || "1.0"
+           application_key: System.get_env("MY_APP_OVH_CLIENT_APPLICATION_KEY"),
+           application_secret: System.get_env("MY_APP_OVH_CLIENT_APPLICATION_SECRET"),
+           consumer_key: System.get_env("MY_APP_OVH_CLIENT_CONSUMER_KEY"),
+           endpoint: System.get_env("MY_APP_OVH_CLIENT_ENDPOINT"),
+           api_version: System.get_env("MY_APP_OVH_CLIENT_API_VERSION") || "1.0"
          ]
-       ```
+     ```
 
-       Then simply add the application to the project applications list. The supervision
-       tree is then started from the application level.
+     Add supervisors to the supervision tree of the application, for example:
 
-       ```elixir
-       def application do
-         [
-         applications: [:ex_ovh]
-         ]
-       end
-       ```
+     ```elixir
+     def start(_type, _args) do
+      import Supervisor.Spec, warn: false
+      spec1 = [supervisor(MyApp.Endpoint, [])]
+      spec2 = [supervisor(MyApp.OvhClient, [])]
+      opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+      Supervisor.start_link(spec1 ++ spec2, opts)
+     end
+     ```
 
 
 ## Examples
@@ -275,10 +276,8 @@ Listing all objects for "default" container in [OVH CDN Webstorage](https://www.
 - Create [issues here](https://github.com/stephenmoloney/ex_ovh/issues/new) to communicate your ideas to me. Thanks. 
 
 
-
 ## Contributing
 - Pull requests welcome.
-
 
 
 ## Tests
