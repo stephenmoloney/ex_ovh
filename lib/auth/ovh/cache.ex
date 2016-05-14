@@ -25,12 +25,14 @@ defmodule ExOvh.Auth.Ovh.Cache do
   def init(client) do
     Og.context(__ENV__, :debug)
     diff = calculate_diff(client)
+    |> Og.log_return(:error)
     {:ok, diff}
   end
 
   def handle_call(:get_diff, _from, diff) do
     Og.context(__ENV__, :debug)
     {:reply, diff, diff}
+    |> Og.log_return(__ENV__, :warn)
   end
 
   def terminate(:shutdown, state) do

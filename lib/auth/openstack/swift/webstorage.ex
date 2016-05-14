@@ -1,7 +1,7 @@
 defmodule ExOvh.Auth.Openstack.Swift.Cache.Webstorage do
   @moduledoc :false
-  alias Openstex.Helpers.V2.Keystone
-  alias Openstex.Helpers.V2.Keystone.Identity
+  alias Openstex.Keystone.V2.Helpers, as: Keystone
+  alias Openstex.Keystone.V2.Helpers.Identity
   defstruct [ :domain, :storage_limit, :server, :endpoint, :username, :password, :tenant_name ]
   @type t :: %__MODULE__{domain: String.t, storage_limit: String.t, server: String.t, endpoint: String.t,
                          username: String.t, password: String.t, tenant_name: String.t}
@@ -14,7 +14,9 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache.Webstorage do
     Og.context(__ENV__, :debug)
 
     properties = ExOvh.Ovh.V1.Webstorage.Query.get_service(cdn_name) |> ovh_client.request!() |> Map.fetch!(:body)
+    |> Og.log_return(__ENV__, :debug)
     credentials = ExOvh.Ovh.V1.Webstorage.Query.get_credentials(cdn_name) |> ovh_client.request!() |> Map.fetch!(:body)
+    |> Og.log_return(__ENV__, :debug)
 
     webstorage =
     %{
@@ -40,8 +42,11 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache.Webstorage do
 
     cdn_name = Keyword.fetch!(config, :cdn_name)
     webstorage = webstorage(ovh_client, cdn_name)
+    |> Og.log_return(__ENV__, :debug)
     %{endpoint: endpoint, username: username, password: password, tenant_name: tenant_name} = webstorage
+    |> Og.log_return(__ENV__, :debug)
     identity = Keystone.authenticate!(endpoint, username, password, [tenant_name: tenant_name])
+    |> Og.log_return(__ENV__, :debug)
   end
 
 

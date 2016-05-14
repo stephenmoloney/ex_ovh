@@ -4,8 +4,8 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
   use Openstex.Cache
   alias ExOvh.Auth.Openstack.Swift.Cache.Cloudstorage
   alias ExOvh.Auth.Openstack.Swift.Cache.Webstorage
-  alias Openstex.Helpers.V2.Keystone
-  alias Openstex.Helpers.V2.Keystone.Identity
+  alias Openstex.Keystone.V2.Helpers, as: Keystone
+  alias Openstex.Keystone.V2.Helpers.Identity
   import ExOvh.Utils, only: [ets_tablename: 1]
   @get_identity_retries 5
   @get_identity_interval 1000

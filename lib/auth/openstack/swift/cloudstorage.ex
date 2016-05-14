@@ -1,7 +1,7 @@
 defmodule ExOvh.Auth.Openstack.Swift.Cache.Cloudstorage do
   @moduledoc :false
-  alias Openstex.Helpers.V2.Keystone
-  alias Openstex.Helpers.V2.Keystone.Identity
+  alias Openstex.Keystone.V2.Helpers, as: Keystone
+  alias Openstex.Keystone.V2.Helpers.Identity
 
 
   @doc :false
