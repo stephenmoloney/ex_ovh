@@ -14,14 +14,11 @@ defmodule Mix.Tasks.Ovh do
   - Then the user can create an application at `https://eu.api.ovh.com/createApp/` or
     alternatively the user can use this mix task to generate the application:
 
-  ## Examples
+  ## Example
 
   Create an app with access to all apis:
 
-      mix ovh \
-      --login=<username-ovh> \
-      --password=<password> \
-      --appname='ex_ovh'
+      mix ovh --login=<username-ovh> --password=<password> --appname='ex_ovh'
 
   Output:
 
@@ -34,37 +31,7 @@ defmodule Mix.Tasks.Ovh do
           api_version: System.get_env("EX_OVH_API_VERSION") || "1.0"
         ]
 
-
-  Create an app with access to all apis with specific app name and description:
-
-      mix ovh \
-      --login=<username> \
-      --password=<password> \
-      --appdescription='Ovh Application for my app' \
-      --endpoint='ovh-eu' \
-      --apiversion='1.0' \
-      --redirecturi='http://localhost:4000/' \
-      --accessrules='get-[/*]::put-[/me,/cdn]::post-[/me,/cdn]::delete-[]' \
-      --appname='my_app'
-
-  Output:
-
-      config :my_app, MyApp.ExOvh,
-          ovh: %{
-            application_key: System.get_env("MY_APP_EX_OVH_APPLICATION_KEY"),
-            application_secret: System.get_env("MY_APP_EX_OVH_APPLICATION_SECRET"),
-            consumer_key: System.get_env("MY_APP_EX_OVH_CONSUMER_KEY"),
-            endpoint: System.get_env("MY_APP_EX_OVH_ENDPOINT"),
-            api_version: System.get_env("MY_APP_EX_OVH_API_VERSION") || "1.0",
-            connect_timeout: 30000, # 30 seconds
-            connect_timeout: (60000 * 30) # 30 minutes
-          }
-
-  ## Notes
-
-  - Access rules: The default for access rules will give the ovh application access to *all* of the api calls. More
-  than likely this is not a good idea. To limit the number of api endpoints available, generate access rules using
-  the commandline arguments as seen in the example above.
+  See `README.md` for more advanced usage of the mix ovh task.
   """
   use Mix.Task
   alias ExOvh.Utils
@@ -166,12 +133,7 @@ defmodule Mix.Tasks.Ovh do
     {opts, Map.merge(acc, %{ api_version: api_version }) }
   end
   defp parsers_redirect_uri({opts, acc}) do
-    redirect_uri = Keyword.get(opts, :redirecturi, :nil)
-    redirect_uri =
-    case redirect_uri do
-      :nil -> ""
-      _ -> redirect_uri
-    end
+    redirect_uri = Keyword.get(opts, :redirecturi, "")
     {opts, Map.merge(acc, %{ redirect_uri: redirect_uri }) }
   end
   defp parsers_client_name({opts, acc}) do
