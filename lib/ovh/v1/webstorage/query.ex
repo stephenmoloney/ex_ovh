@@ -2,22 +2,35 @@ defmodule ExOvh.Ovh.V1.Webstorage.Query do
   @moduledoc ~s"""
   Helper functions for building `queries directed at the `/cdn/webstorage` part of the custom ovh api.
 
+  ## Functions Summary
+
+  | Function | Description | OVH API call |
+  |---|---|---|
+  | `get_services/0` | <small>Get a list of all webstorage cdn services.</small> | <sub><sup>GET /v1/​cdn/webstorage</sup></sub> |
+  | `get_service/1` | <small>Get the domain, server and storage limits for a specific webstorage cdn service</small> | <sub><sup>GET /v1/​cdn/webstorage​/{serviceName}</sup></sub> |
+  | `get_service_info/1` | <small>Get a administrative details for a specific webstorage cdn service</small> | <sub><sup>GET /v1/​cdn/webstorage​/{serviceName}/serviceInfos</sup></sub> |
+  | `get_service_stats/2`  | <small>Get statistics for a specific webstorage cdn service</small> | <sub><sup>GET /v1/​cdn/webstorage​/{serviceName}/statistics</sup></sub> |
+  | `get_credentials/1` | <small>Get credentials for using the swift compliant api</small> | <sub><sup>GET /v1/​cdn/webstorage​/{serviceName}/statistics</sup></sub> |
+
+
   ## Example
 
-      alias ExOvh.Ovh.V1.Webstorage.Query
-      query = Query.get_all_webstorage()
-      ExOvh.request(query)
+      ExOvh.Ovh.V1.Webstorage.Query.get_all_webstorage() |> ExOvh.Ovh.request()
   """
   alias ExOvh.Ovh.Query
 
 
 
   @doc ~s"""
-  GET /v1/​cdn/webstorage​, Get a list of all webstorage cdn services available for the client account
+  ​Get a list of all webstorage cdn services available for the client account
 
-  ### Example usage
+  ## Api call
 
-      ExOvh.Ovh.V1.Webstorage.Query. get_services() |> ExOvh.request()
+      GET /v1/​cdn/webstorage
+
+  ## Example
+
+      ExOvh.Ovh.V1.Webstorage.Query. get_services() |> ExOvh.Ovh.request()
   """
   @spec get_services() :: Query.t
   def get_services() do
@@ -31,14 +44,22 @@ defmodule ExOvh.Ovh.V1.Webstorage.Query do
 
 
   @doc ~s"""
-  GET /v1/​cdn/webstorage​/{serviceName}, Get the domain, server and storage limits for a specific webstorage cdn service
+  Get the domain, server and storage limits for a specific webstorage cdn service
 
-  ### Example usage
+  ## Api call
+
+      GET /v1/​cdn/webstorage​/{serviceName}
+
+  ## Arguments
+
+  - `service_name`: Name of the Webstorage CDN service - assigned by OVH.
+
+  ## Example
 
       alias ExOvh.Ovh.V1.Webstorage.Query
       service_name = "cdnwebstorage-????"
       query = Query.get_service(service_name)
-      {:ok, resp} = ExOvh.request(query)
+      {:ok, resp} = ExOvh.Ovh.request(query)
       %{
         "domain" => domain,
         "storageLimit => storage_limit,
@@ -57,14 +78,22 @@ defmodule ExOvh.Ovh.V1.Webstorage.Query do
 
 
   @doc ~s"""
-  GET /v1/​cdn/webstorage​/{serviceName}/serviceInfos, Get a administrative details for a specific webstorage cdn service
+  Get a administrative details for a specific webstorage cdn service
 
-  ### Example usage
+  ## Api call
+
+      GET /v1/​cdn/webstorage​/{serviceName}/serviceInfos
+
+  ## Arguments
+
+  - `service_name`: Name of the Webstorage CDN service - assigned by OVH.
+
+  ## Example
 
       alias ExOvh.Ovh.V1.Webstorage.Query
       service_name = "cdnwebstorage-????"
       Query.get_service_info(service_name)
-      {:ok, resp} = ExOvh.request(query)
+      {:ok, resp} = ExOvh.Ovh.request(query)
   """
   @spec get_service_info(String.t) :: Query.t
   def get_service_info(service_name) do
@@ -78,17 +107,25 @@ defmodule ExOvh.Ovh.V1.Webstorage.Query do
 
 
   @doc ~s"""
-  GET /v1/​cdn/webstorage​/{serviceName}/statistics, Get statistics for a specific webstorage cdn service
+  Get statistics for a specific webstorage cdn service
 
-    `period can be "month", "week" or "day"`
-    `type can be "backend", "quota" or "cdn"`
+  ## Api call
 
-  ### Example usage
+      GET /v1/​cdn/webstorage​/{serviceName}/statistics
+
+  ## Arguments
+
+  - `service_name`: Name of the Webstorage CDN service - assigned by OVH.
+  - `options`:
+      - `period can be "month", "week" or "day"`
+      - `type can be "backend", "quota" or "cdn"`
+
+  ## Example
 
       alias ExOvh.Ovh.V1.Webstorage.Query
       service_name = "cdnwebstorage-????"
       query = Query.get_service_stats(service_name, [period: "month", type: "backend"])
-      {:ok, resp} = ExOvh.request(query)
+      {:ok, resp} = ExOvh.Ovh.request(query)
   """
   @spec get_service_stats(String.t, Keyword.t) :: Query.t
   def get_service_stats(service_name, opts \\ []) do
@@ -104,14 +141,22 @@ defmodule ExOvh.Ovh.V1.Webstorage.Query do
 
 
   @doc ~s"""
-  GET /v1/​cdn/webstorage​/{serviceName}/credentials, Get credentials for using the swift compliant api
+  Get credentials for using the swift compliant api
 
-  ### Example usage
+  ## Api call
+
+      GET /v1/​cdn/webstorage​/{serviceName}/credentials
+
+  ## Arguments
+
+  - `service_name`: Name of the Webstorage CDN service - assigned by OVH.
+
+  ## Example
 
       alias ExOvh.Ovh.V1.Webstorage.Query
       service_name = "cdnwebstorage-????"
       query = Query.get_webstorage_credentials(service_name)
-      {:ok, resp} = ExOvh.request(query)
+      {:ok, resp} = ExOvh.Ovh.request(query)
   """
   @spec get_credentials(String.t) :: ExOvh.Query.Ovh.t
   def get_credentials(service_name) do

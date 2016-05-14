@@ -2,49 +2,60 @@ defmodule ExOvh.Ovh.V1.Cloud.Query do
   @moduledoc ~s"""
   Helper functions for building queries directed at the `/cloud` part of the ovh api.
 
-  ## Notes
+  ## Functions Summary
 
   | Function | Description | OVH API call |
   |---|---|---|
-  | `list_services/0` | <small>List available services</small> | <sub><sup>GET /cloud/project</sup></sub> |
+  | `list_services/0` | <small>List available services or list available cloud projects. A returned project id in OVH terms is similar to a tenant id in swift terms</small> | <sub><sup>GET /cloud/project</sup></sub> |
   | `get_users/1` | <small>Get all users</small> | <sub><sup>GET /cloud/project/{serviceName}/user</sup></sub> |
-  | `create_user/2` | <small>Create user</small> | <sub><sup>POST /cloud/project/{serviceName}/user</sup></sub> |
-  | `get_user_details/2` | <small>Get user details</small> | <sub><sup>GET /cloud/project/{serviceName}/user/{userId}</sup></sub> |
+  | `create_user/2` | <small>Create user</small> | <sub><sup>POST /ctsloud/project/{serviceName}/user</sup></sub> |
+  | `get_user_details/2` | <small>Get user details. Returns the user_id and username and other details.</small> | <sub><sup>GET /cloud/project/{serviceName}/user/{userId}</sup></sub> |
   | `delete_user/2` | <small>Delete user</small> | <sub><sup>DELETE /cloud/project/{serviceName}/user/{userId}</sup></sub> |
   | `download_openrc_script/3` | <small>Get RC file of OpenStack</small> | <sub><sup>GET /cloud/project/{serviceName}/user/{userId}/openrc</sup></sub> |
   | `regenerate_credentials/2`  | <small>Regenerate user credentials including password</small> | <sub><sup>POST /cloud/project/{serviceName}/user/{userId}/regeneratePassword</sup></sub> |
   | `swift_identity/3` | <small>Gets a json object similar to that returned by Keystone Identity. Includes the 'X-Auth-Token'</small> | <sub><sup>POST /cloud/project/{serviceName}/user/{userId}/token</sup></sub> |
+  | `create_project/2` | <small>Start a new cloud project in the OVH cloud. Corresponds to creating a new Swift stack with a new tenant_id.</small> | <sub><sup>POST /cloud/createProject</sup></sub> |
+  | `get_prices/2` | <small>Get Prices for OVH cloud services.</small> | <sub><sup>GET /cloud/price</sup></sub> |
+  | `project_info/1` | <small>Get information about a project with the project_id (tenant_id)</small> | <sub><sup>GET /cloud/project/{serviceName}</sup></sub> |
+  | `modify_project/2` | <small>Modify a project properties. Change the project description.</small> | <sub><sup>PUT /cloud/project/{serviceName}</sup></sub> |
+  | `project_administrative_info/1` | <small>Get administration information about the project.</small> | <sub><sup>GET /cloud/project/{serviceName}/serviceInfos</sup></sub> |
+  | `project_quotas/1` | <small>Get project quotas.</small> | <sub><sup>GET /cloud/project/{serviceName}/quota</sup></sub> |
+  | `project_regions/1` | <small>Get project regions.</small> | <sub><sup>GET /cloud/project/{serviceName}/region</sup></sub> |
+  | `project_region_info/2` | <small>Get details about a project region.</small> | <sub><sup>GET /cloud/project/{serviceName}/region/{regionName}</sup></sub> |
+  | `project_consumption/3` | <small>Get details about a project consumption for a given `date_from` and `date_to`.</small> | <sub><sup>GET /cloud/project/{serviceName}/consumption</sup></sub> |
+  | `project_bills/3` | <small>Get details about a project billing for a given `date_from` and `date_to`..</small> | <sub><sup>GET /cloud/project/{serviceName}/bill</sup></sub> |
+  | `create_project_alert/4` | <small>Add a new project alert</small> | <sub><sup>POST /cloud/project/{serviceName}/alerting</sup></sub> |
+  | `get_project_alert_info/2` | <small>Get detailed information about a project alert.</small> | <sub><sup>GET /cloud/project/{serviceName}/alerting/{id}</sup></sub> |
+  | `modify_project_alert/5` | <small>Modify an existing project alert.</small> | <sub><sup>PUT /cloud/project/{serviceName}/alerting/{id}</sup></sub> |
+  | `delete_project_alert/2` | <small>Delete an existing project alert.</small> | <sub><sup>DELETE /cloud/project/{serviceName}/alerting/{id}</sup></sub> |
+  | `terminate_service/2` | <small>Terminate a cloud project.</small> | <sub><sup>POST /cloud/project/{serviceName}/terminate</sup></sub> |
 
 
-  ## TODO
+  ## TO BE ADDED
 
-  POST /cloud/createProject Start a new cloud project
-  GET /cloud/price Get services prices
-  GET /cloud/project/{serviceName} Get this object properties
-  PUT /cloud/project/{serviceName} Alter this object properties
-  GET /cloud/project/{serviceName}/acl Get ACL on your cloud project
-  POST /cloud/project/{serviceName}/acl
-  GET /cloud/project/{serviceName}/serviceInfos
-  GET /cloud/project/{serviceName}/quota Get project quotas
-  GET /cloud/project/{serviceName}/region Get regions
-  GET /cloud/project/{serviceName}/region/{regionName}
-  GET /cloud/project/{serviceName}/consumption
-  GET /cloud/project/{serviceName}/bill
+      GET /cloud/project/{serviceName}/acl
+      POST /cloud/project/{serviceName}/acl
+      GET /cloud/project/{serviceName}/acl/{accountId}
+      DELETE /cloud/project/{serviceName}/acl/{accountId}
 
 
   ## Example
 
-      ExOvh.Ovh.V1.Cloud.Cloudstorage.Query.get_containers(service_name) |> ExOvh.request!()
+      ExOvh.Ovh.V1.Cloud.Cloudstorage.Query.get_containers(service_name) |> ExOvh.Ovh.request!()
   """
   alias ExOvh.Ovh.Query
 
 
   @doc ~s"""
-  GET /cloud/project List available services
+  List available services
+
+  ## Api Call
+
+      GET /cloud/project
 
   ## Example
 
-      ExOvh.Ovh.V1.Cloud.Query.list_services() |> ExOvh.request!()
+      ExOvh.Ovh.V1.Cloud.Query.list_services() |> ExOvh.Ovh.request!()
   """
   @spec list_services() :: Query.t
   def list_services() do
@@ -57,11 +68,19 @@ defmodule ExOvh.Ovh.V1.Cloud.Query do
 
 
   @doc ~s"""
-  GET /cloud/project/{serviceName}/user Get all users
+  Get all users
+
+  ## Api Call
+
+      GET /cloud/project/{serviceName}/user
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
 
   ## Example
 
-      ExOvh.Ovh.V1.Cloud.Query.get_users(service_name) |> ExOvh.request!()
+      ExOvh.Ovh.V1.Cloud.Query.get_users(service_name) |> ExOvh.Ovh.request!()
   """
   @spec get_users(String.t) :: Query.t
   def get_users(service_name) do
@@ -74,11 +93,20 @@ defmodule ExOvh.Ovh.V1.Cloud.Query do
 
 
   @doc ~s"""
-  POST /cloud/project/{serviceName}/user Create user
+  Create user
+
+  ## Api Call
+
+      POST /cloud/project/{serviceName}/user
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+  - `description`: description ascribed to the new user.
 
   ## Example
 
-      ExOvh.Ovh.V1.Cloud.Query.create_user(service_name, "ex_ovh") |> ExOvh.request!()
+      ExOvh.Ovh.V1.Cloud.Query.create_user(service_name, "ex_ovh") |> ExOvh.Ovh.request!()
   """
   @spec create_user(String.t, String.t) :: Query.t
   def create_user(service_name, description) do
@@ -94,11 +122,20 @@ defmodule ExOvh.Ovh.V1.Cloud.Query do
 
 
   @doc ~s"""
-  GET /cloud/project/{serviceName}/user/{userId} Get user details
+  Get user details. Returns the user_id and username and other details.
+
+  ## Api Call
+
+      GET /cloud/project/{serviceName}/user/{userId}
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+  - `user_id`: corresponds to user_id. See `get_users/1`
 
   ## Example
 
-      ExOvh.Ovh.V1.Cloud.Query.get_user_details(service_name, user_id) |> ExOvh.request!()
+      ExOvh.Ovh.V1.Cloud.Query.get_user_details(service_name, user_id) |> ExOvh.Ovh.request!()
   """
   @spec get_user_details(String.t, String.t) :: Query.t
   def get_user_details(service_name, user_id) do
@@ -111,11 +148,20 @@ defmodule ExOvh.Ovh.V1.Cloud.Query do
 
 
   @doc ~s"""
-  DELETE /cloud/project/{serviceName}/user/{userId} Delete user
+  Delete a specific user.
+
+  ## Api Call
+
+      DELETE /cloud/project/{serviceName}/user/{userId}
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+  - `user_id`: The user_id. See `get_users/1`
 
   ## Example
 
-      ExOvh.Ovh.V1.Cloud.Query.delete_user(service_name, user_id) |> ExOvh.request!()
+      ExOvh.Ovh.V1.Cloud.Query.delete_user(service_name, user_id) |> ExOvh.Ovh.request!()
   """
   @spec delete_user(String.t, String.t) :: Query.t
   def delete_user(service_name, user_id) do
@@ -128,11 +174,22 @@ defmodule ExOvh.Ovh.V1.Cloud.Query do
 
 
   @doc ~s"""
-  GET /cloud/project/{serviceName}/user/{userId}/openrc Get RC file of OpenStack
+  Get RC file of OpenStack. This file is a bash script with much of the openstack credentials. Makes it easier for
+  setting up a swift client from the terminal.
+
+  ## Api Call
+
+      GET /cloud/project/{serviceName}/user/{userId}/openrc
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+  - `user_id`: user_id for user accessing the service.
+  - `region`: region for which the rc file will be created. Defaults to "SBG1" if left absent.
 
   ## Example
 
-      ExOvh.Ovh.V1.Cloud.Query.download_openrc_script(service_name, user_id, "SBG1") |> ExOvh.request!()
+      ExOvh.Ovh.V1.Cloud.Query.download_openrc_script(service_name, user_id, "SBG1") |> ExOvh.Ovh.request!()
   """
   @spec download_openrc_script(String.t, String.t, String.t) :: Query.t
   def download_openrc_script(service_name, user_id, region \\ "SBG1") do
@@ -147,11 +204,20 @@ defmodule ExOvh.Ovh.V1.Cloud.Query do
 
 
   @doc ~s"""
-  POST /cloud/project/{serviceName}/user/{userId}/regeneratePassword Regenerate user password
+  Regenerate user password and other credentials.
+
+  ## Api Call
+
+      POST /cloud/project/{serviceName}/user/{userId}/regeneratePassword
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+  - `user_id`: user_id for accessing the project. See `get_users/1`
 
   ## Example
 
-      ExOvh.Ovh.V1.Cloud.Query.regenerate_credentials(service_name, user_id) |> ExOvh.request!()
+      ExOvh.Ovh.V1.Cloud.Query.regenerate_credentials(service_name, user_id) |> ExOvh.Ovh.request!()
   """
   @spec regenerate_credentials(String.t, String.t) :: Query.t
   def regenerate_credentials(service_name, user_id) do
@@ -164,12 +230,21 @@ defmodule ExOvh.Ovh.V1.Cloud.Query do
 
 
   @doc ~s"""
-  POST /cloud/project/{serviceName}/user/{userId}/token  Get the token for the user (very similar to
-  keystone identity)
+  Get the token for the user (very similar to keystone identity)
+
+  ## Api Call
+
+      POST /cloud/project/{serviceName}/user/{userId}/token
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+  - `user_id`: The swift user_id to login with. See `get_users/1`.
+  - `password`: The swift password to login with. See `regenerate_credentials/2`
 
   ## Example
 
-      ExOvh.Ovh.V1.Cloud.Query.swift_identity(service_name, user_id) |> ExOvh.request!()
+      ExOvh.Ovh.V1.Cloud.Query.swift_identity(service_name, user_id) |> ExOvh.Ovh.request!()
   """
   @spec swift_identity(String.t, String.t, String.t) :: Query.t
   def swift_identity(service_name, user_id, password) do
@@ -183,6 +258,451 @@ defmodule ExOvh.Ovh.V1.Cloud.Query do
           }
   end
 
+
+  @doc ~s"""
+  Create a new Cloud Project.
+
+  ## Api Call
+
+      POST /cloud/createProject
+
+  ## Arguments
+
+  - `description`: project description
+  - `voucher`: ovh voucher code
+
+  ## Example
+
+      ExOvh.Ovh.V1.Cloud.Query.create_project(description, voucher) |> ExOvh.Ovh.request!()
+  """
+  @spec create_project(String.t, String.t) :: Query.t
+  def create_project(description, voucher) do
+    %Query{
+          method: :post,
+          uri: "/cloud/createProject",
+          params: %{
+                  "description" => description,
+                  "voucher" => voucher
+                  }
+                  |> Poison.encode!()
+          }
+  end
+
+
+  @doc ~s"""
+  Get services prices for the OVH public cloud.
+
+  ## Api Call
+
+      GET /cloud/price
+
+  ## Arguments
+
+  - `region`: prices for a particular region (optional)
+  - `flavor_id`: ovh voucher code (optional)
+
+  ## Example
+
+      ExOvh.Ovh.V1.Cloud.Query.get_prices() |> ExOvh.Ovh.request!()
+  """
+  @spec get_prices(String.t | :nil, String.t | :nil) :: Query.t
+  def get_prices(region \\ :nil, flavor_id \\ :nil) do
+    params = if region == :nil and flavor_id == :nil, do: :nil
+    params = if region != :nil and flavor_id == :nil, do: %{ "region" => region }
+    params = if region == :nil and flavor_id != :nil, do: %{ "flavorId" => flavor_id }
+    params = if region != :nil and flavor_id != :nil, do: %{ "region" => region, "flavorId" => flavor_id }
+    %Query{
+          method: :get,
+          uri: "/cloud/createProject",
+          params: params
+          }
+  end
+
+
+  @doc ~s"""
+  Get details for a given project.
+
+  ## Api Call
+
+      GET /cloud/project/{serviceName}
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+
+  ## Example
+
+      ExOvh.Ovh.V1.Cloud.Query.project_info(service_name) |> ExOvh.Ovh.request!()
+  """
+  @spec project_info(String.t) :: Query.t
+  def project_info(service_name) do
+    %Query{
+          method: :get,
+          uri: "/cloud/project/#{service_name}",
+          params: :nil
+          }
+  end
+
+
+  @doc ~s"""
+  Modify the project description for a project.
+
+  ## Api Call
+
+      PUT /cloud/project/{serviceName}
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+
+  ## Example
+
+      ExOvh.Ovh.V1.Cloud.Query.modify_project(service_name, new_description) |> ExOvh.Ovh.request!()
+  """
+  @spec modify_project(String.t, String.t) :: Query.t
+  def modify_project(service_name, new_description) do
+    %Query{
+          method: :put,
+          uri: "/cloud/project/#{service_name}",
+          params: %{
+                    "description" => new_description
+                   }
+                   |> Poison.encode!()
+          }
+  end
+
+
+  @doc ~s"""
+  Get administration information about the project
+
+  ## Api Call
+
+      GET /cloud/project/{serviceName}/serviceInfos
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+
+  ## Example
+
+      ExOvh.Ovh.V1.Cloud.Query.project_administrative_info(service_name) |> ExOvh.Ovh.request!()
+  """
+  @spec project_administrative_info(String.t) :: Query.t
+  def project_administrative_info(service_name) do
+    %Query{
+          method: :get,
+          uri: "/cloud/project/#{service_name}/serviceInfos",
+          params: :nil
+          }
+  end
+
+
+  @doc ~s"""
+  Get project quotas.
+
+  ## Api Call
+
+      GET /cloud/project/{serviceName}/quota
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+
+  ## Example
+
+      ExOvh.Ovh.V1.Cloud.Query.project_quotas(service_name) |> ExOvh.Ovh.request!()
+  """
+  @spec project_quotas(String.t) :: Query.t
+  def project_quotas(service_name) do
+    %Query{
+          method: :get,
+          uri: "/cloud/project/#{service_name}/quota",
+          params: :nil
+          }
+  end
+
+
+  @doc ~s"""
+  Get project regions.
+
+  ## Api Call
+
+      GET /cloud/project/{serviceName}/region
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+
+  ## Example
+
+      ExOvh.Ovh.V1.Cloud.Query.project_regions(service_name) |> ExOvh.Ovh.request!()
+  """
+  @spec project_regions(String.t) :: Query.t
+  def project_regions(service_name) do
+    %Query{
+          method: :get,
+          uri: "/cloud/project/#{service_name}/region",
+          params: :nil
+          }
+  end
+
+
+  @doc ~s"""
+  Get project details about a project region.
+
+  ## Api Call
+
+      GET /cloud/project/{serviceName}/region/{regionName}
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+
+  ## Example
+
+      ExOvh.Ovh.V1.Cloud.Query.project_region_info(service_name) |> ExOvh.Ovh.request!()
+  """
+  @spec project_region_info(String.t, String.t) :: Query.t
+  def project_region_info(service_name, region_name) do
+    %Query{
+          method: :get,
+          uri: "/cloud/project/#{service_name}/region/#{region_name}",
+          params: :nil
+          }
+  end
+
+
+  @doc ~s"""
+  Get project details about a project consumption.
+
+  *Note:* Will only allow for up to one month of data to be returned.
+
+  ## Api Call
+
+      GET /cloud/project/{serviceName}/consumption
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+  - `date_from`: starting date in `ISO 8601` format. defaults to 4 weeks/28 days ago (UTC time) if left absent.
+  - `date_to`: end date in `ISO 8601` format. defaults to now (UTC time) if left absent.
+
+  ## Example
+
+      ExOvh.Ovh.V1.Cloud.Query.project_consumption(service_name) |> ExOvh.Ovh.request!()
+  """
+  @spec project_consumption(String.t, String.t, String.t) :: Query.t
+  def project_consumption(service_name, date_from \\ :nil, date_to \\ :nil) do
+    date_from = if date_from == :nil, do: Calendar.DateTime.now_utc!() |> Calendar.DateTime.add!(-(60*60*24*28)) |> Calendar.DateTime.Format.rfc3339(), else: date_from
+    date_to = if date_from == :nil, do: Calendar.DateTime.now_utc!() |> Calendar.DateTime.Format.rfc3339(), else: date_from
+    %Query{
+          method: :get,
+          uri: "/cloud/project/#{service_name}/consumption",
+          params: %{from: date_from, to: date_to}
+          }
+  end
+
+
+  @doc ~s"""
+  Get project details about a project bills.
+
+  ## Api Call
+
+      GET /cloud/project/{serviceName}/bill
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+  - `date_from`: starting date in `ISO 8601` format. defaults to 4 weeks/28 days ago (UTC time) if left absent.
+  - `date_to`: end date in `ISO 8601` format. defaults to now (UTC time) if left absent.
+
+  ## Example
+
+      ExOvh.Ovh.V1.Cloud.Query.project_bills(service_name) |> ExOvh.Ovh.request!()
+  """
+  @spec project_bills(String.t, String.t, String.t) :: Query.t
+  def project_bills(service_name, date_from \\ :nil, date_to \\ :nil) do
+    date_from = if date_from == :nil, do: Calendar.DateTime.now_utc!() |> Calendar.DateTime.add!(-(60*60*24*28)) |> Calendar.DateTime.Format.rfc3339(), else: date_from
+    date_to = if date_from == :nil, do: Calendar.DateTime.now_utc!() |> Calendar.DateTime.Format.rfc3339(), else: date_from
+    %Query{
+          method: :get,
+          uri: "/cloud/project/#{service_name}/bill",
+          params: %{from: date_from, to: date_to}
+          }
+  end
+
+
+  @doc ~s"""
+  Get a list of project alert ids. These project alert ids can then be looked up in a separate query for more information.
+
+  ## Api Call
+
+      GET /cloud/project/{serviceName}/alerting
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+
+  ## Example
+
+      ExOvh.Ovh.V1.Cloud.Query.get_project_alerts(service_name) |> ExOvh.Ovh.request!()
+  """
+  @spec get_project_alerts(String.t) :: Query.t
+  def get_project_alerts(service_name) do
+    %Query{
+          method: :get,
+          uri: "/cloud/project/#{service_name}/alerting",
+          params: :nil
+          }
+  end
+
+
+  @doc ~s"""
+  Create a new project alert.
+
+  *Notes:*
+  It seems only one alert is allowed per project. To create a new one alter the old one or delete the old one and add a new one.
+  Once the monthly threshold in the given currency is exceeded, then the alert email is sent.
+
+  ## Api Call
+
+      POST /cloud/project/{serviceName}/alerting
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+  - `delay`: The delay between each alert in seconds. This has to be selected from an enumerable (a list). 3600 is the lowest. defaults to 3600. (1 hour)
+  - `email`: The email to send the alert to.
+  - `monthlyThreshold`: The maximum monetary (cash) usage allowed in one month. This is an integer value. Ask OVH about how the currency is chosen.
+
+  ## Example
+
+      ExOvh.Ovh.V1.Cloud.Query.create_project_alert(service_name, "email_address@email.email", 5) |> ExOvh.Ovh.request!()
+  """
+  @spec create_project_alert(String.t, String.t, integer, String.t) :: Query.t | no_return
+  def create_project_alert(service_name, email, monthly_threshold, delay \\ "3600") do
+    unless is_integer(monthly_threshold), do: Og.log_return(__ENV__,  "monthly_threshold should be an integer!", :error) |> raise()
+    %Query{
+          method: :post,
+          uri: "/cloud/project/#{service_name}/alerting",
+          params: %{
+                  "delay" => delay,
+                  "email" => email,
+                  "monthlyThreshold" => monthly_threshold
+                  } |> Poison.encode!()
+          }
+  end
+
+
+  @doc ~s"""
+  Get detailed information about a project alert.
+
+  ## Api Call
+
+      GET /cloud/project/{serviceName}/alerting/{id}
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+  - `alert_id`: The id of the project alert. See `get_project_alerts/1`
+
+  ## Example
+
+      ExOvh.Ovh.V1.Cloud.Query.get_project_alert_info(service_name, alert_id) |> ExOvh.Ovh.request!()
+  """
+  @spec get_project_alert_info(String.t, String.t) :: Query.t
+  def get_project_alert_info(service_name, alert_id) do
+    %Query{
+          method: :get,
+          uri: "/cloud/project/#{service_name}/alerting/#{alert_id}",
+          params: :nil
+          }
+  end
+
+
+  @doc ~s"""
+  Modify an existing project alert.
+
+  ## Api Call
+
+      PUT /cloud/project/{serviceName}/alerting/{id}
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+  - `alert_id`: The alert to be modified.
+  - `delay`: The delay between each alert in seconds. This has to be selected from an enumerable (a list). 3600 is the lowest. defaults to 3600. (1 hour)
+  - `email`: The email to send the alert to.
+  - `monthlyThreshold`: The maximum monetary (cash) usage allowed in one month. This is an integer value. Ask OVH about how the currency is chosen.
+
+  ## Example
+
+      ExOvh.Ovh.V1.Cloud.Query.modify_project_alert(service_name, alert_id, "email_address@email.email", 5) |> ExOvh.Ovh.request!()
+  """
+  @spec modify_project_alert(String.t, String.t, String.t, integer, String.t) :: Query.t
+  def modify_project_alert(service_name, alert_id, email, monthly_threshold, delay \\ "3600") do
+    unless is_integer(monthly_threshold), do: Og.log_return(__ENV__,  "monthly_threshold should be an integer!", :error) |> raise()
+    %Query{
+          method: :put,
+          uri: "/cloud/project/#{service_name}/alerting/#{alert_id}",
+          params: %{
+                  "delay" => delay,
+                  "email" => email,
+                  "monthlyThreshold" => monthly_threshold
+                  } |> Poison.encode!()
+          }
+  end
+
+
+  @doc ~s"""
+  Delete a project alert.
+
+  ## Api Call
+
+      DELETE /cloud/project/{serviceName}/alerting/{id}
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+  - `alert_id`: The id of the project alert. See `get_project_alerts/1`
+
+  ## Example
+
+      ExOvh.Ovh.V1.Cloud.Query.get_project_alert_info(service_name, alert_id) |> ExOvh.Ovh.request!()
+  """
+  @spec delete_project_alert(String.t, String.t) :: Query.t
+  def delete_project_alert(service_name, alert_id) do
+    %Query{
+          method: :delete,
+          uri: "/cloud/project/#{service_name}/alerting/#{alert_id}",
+          params: :nil
+          }
+  end
+
+
+  @doc ~s"""
+  Terminate a cloud project.
+
+  ## Api Call
+
+      POST /cloud/project/{serviceName}/terminate
+
+  ## Arguments
+
+  - `service_name`: corresponds to project_id or tenant_id. See `list_services/0`
+
+  ## Example
+
+      ExOvh.Ovh.V1.Cloud.Query.terminate_project(service_name) |> ExOvh.Ovh.request!()
+  """
+  @spec terminate_project(String.t) :: Query.t
+  def terminate_project(service_name) do
+    %Query{
+          method: :post,
+          uri: "/cloud/project/#{service_name}/terminate",
+          params: :nil
+          }
+  end
 
 
 
