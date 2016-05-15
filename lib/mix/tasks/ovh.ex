@@ -1,5 +1,5 @@
 defmodule Mix.Tasks.Ovh do
-  @shortdoc "Create a new app and new credentials for accessing ovh api"
+  @shortdoc "Create a new application and new credentials for accessing ovh api"
   @moduledoc ~S"""
   A mix task that generates the ex_ovh application secrets on the user's behalf.
 
@@ -31,13 +31,12 @@ defmodule Mix.Tasks.Ovh do
           api_version: System.get_env("EX_OVH_API_VERSION") || "1.0"
         ]
 
-  See `README.md` for more advanced usage of the mix ovh task.
+  See the [mix task basic](https://hexdocs.pm/ex_ovh/doc/mix_task_basic.md.html) or
+  [mix task advanced](https://hexdocs.pm/ex_ovh/doc/mix_task_advanced.md.html) for practical steps involved in running the hubic mix task.
   """
   use Mix.Task
   alias ExOvh.Utils
   alias ExOvh.Ovh.Defaults
-
-
   @default_headers [{"Content-Type", "application/json; charset=utf-8"}]
   @default_options [ timeout: 30000, recv_timeout: (60000 * 1) ]
 

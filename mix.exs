@@ -13,11 +13,7 @@ defmodule ExOvh.Mixfile do
       description: description(),
       package: package(),
       deps: deps(),
-      docs: [
-        main: "README.md",
-        extra_section: "Readme",
-        extras: ["README.md": [path: "README.md", title: "Readme"]]
-      ]
+      docs: docs()
      ]
   end
 
@@ -49,13 +45,25 @@ defmodule ExOvh.Mixfile do
   end
 
 
-  defp package do
+  defp package() do
     %{
       licenses: ["MIT"],
       maintainers: ["Stephen Moloney"],
       links: %{ "GitHub" => "https://github.com/stephenmoloney/ex_ovh"},
       files: ~w(lib priv mix.exs README* LICENSE* CHANGELOG*)
      }
+  end
+
+  defp docs() do
+    [
+    main: "api-reference",
+    extras: [
+             "docs/getting_started_basic.md": [path: "getting_started_basic.md", title: "Getting Started (Basic)"],
+             "docs/getting_started_advanced.md": [path: "getting_started_advanced.md", title: "Getting Started (Advanced)"],
+             "docs/mix_task_basic.md": [path: "mix_task_basic.md", title: "Basic Mix Task (Optional)"],
+             "docs/mix_task_advanced.md": [path: "mix_task_advanced.md", title: "Advanced Mix Task (Optional)"]
+            ]
+    ]
   end
 
 end
