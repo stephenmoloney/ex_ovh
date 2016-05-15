@@ -64,10 +64,9 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
     create_ets_table(swift_client)
     config = swift_client.config()
     identity = create_identity({ovh_client, swift_client}, config, config[:type])
-    Og.context(__ENV__, :debug)
-
     identity = Map.put(identity, :lock, :false)
     :ets.insert(ets_tablename(swift_client), {:identity, identity})
+    try_to_set_temp_url_key(swift_client)
     expiry = to_seconds(identity)
     Task.start_link(fn -> monitor_expiry(expiry) end)
     {:ok, {swift_client, identity}}
@@ -121,6 +120,24 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
   defp create_identity({ovh_client, swift_client}, config, type) do
     Og.context(__ENV__, :debug)
     raise "create_identity/3 is only supported for the :webstorage and :cloudstorage types, #{inspect(type)}"
+  end
+
+
+  defp try_to_set_temp_url_key(swift_client) do
+    if Keyword.has_key?(swift_client.config(), :temp_url_key) do
+      temp_key = Keyword.get(swift_client.config() |> Og.log_return(__ENV__), :temp_url_key, :nil)
+      |> Og.log_return(__ENV__)
+      account = swift_client.account()
+      if temp_key != :nil do
+        resp = Openstex.Swift.V1.Query.account_info(account) |> swift_client.request!()
+        unless Map.has_key?(resp.headers, "X-Account-Meta-Temp-Url-Key") do
+          %Openstex.Openstack.Swift.Query{method: :post, uri: account, params: :nil}
+          |> swift_client.prepare_request()
+          |> Openstex.Utils.put_http_headers(%{"X-Account-Meta-Temp-URL-Key" => temp_key})
+          |> swift_client.request!()
+        end
+      end
+    end
   end
 
 

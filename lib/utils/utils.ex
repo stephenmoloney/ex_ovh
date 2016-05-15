@@ -24,16 +24,6 @@ defmodule ExOvh.Utils do
   end
 
   @doc """
-  Changes the timeout option for a http_query.
-  """
-  @spec change_http_query_timeout(Openstex.HttpQuery.t, integer) :: Openstex.HttpQuery.t
-  def change_http_query_timeout(%Openstex.HttpQuery{options: options} = http_query, new_timeout) do
-    new_options = Map.merge(options, Map.put(options, :timeout, new_timeout))
-    Map.put(http_query, :options, new_options)
-  end
-
-
-  @doc """
   Returns a string with the formatted date
   """
   @spec formatted_date() :: String.t

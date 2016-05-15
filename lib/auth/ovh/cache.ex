@@ -25,19 +25,17 @@ defmodule ExOvh.Auth.Ovh.Cache do
   def init(client) do
     Og.context(__ENV__, :debug)
     diff = calculate_diff(client)
-    |> Og.log_return(:error)
     {:ok, diff}
   end
 
   def handle_call(:get_diff, _from, diff) do
     Og.context(__ENV__, :debug)
     {:reply, diff, diff}
-    |> Og.log_return(__ENV__, :warn)
   end
 
   def terminate(:shutdown, state) do
     Og.context(__ENV__, :warn)
-    Og.log_return("gen_server #{__MODULE__} shutting down", :warn)
+    Og.log_return(__ENV__, "gen_server #{__MODULE__} shutting down", :warn)
     :ok
   end
 
@@ -64,7 +62,6 @@ defmodule ExOvh.Auth.Ovh.Cache do
     client |> Og.log_return(__ENV__)
     httpoison_opts = client.httpoison_config()
     options = httpoison_opts
-    {method, uri, body, headers, options} |> Og.log_return(__ENV__, :warn)
     resp = HTTPoison.request!(method, uri, body, headers, options)
     api_time = Poison.decode!(resp.body)
   end
