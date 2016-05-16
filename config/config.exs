@@ -14,4 +14,7 @@ if Mix.env == :prod do
 end
 
 
-import_config "#{Mix.env}.exs"
+unless Mix.env == :test do
+  import_config "#{Mix.env}.exs"
+end
+

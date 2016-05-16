@@ -1,9 +1,6 @@
 use Mix.Config
 
 
-config :ex_doc, :markdown_processor, ExDoc.Markdown.Hoedown
-
-
 config :logger,
   backends: [:console],
   compile_time_purge_level: :debug
