@@ -21,32 +21,17 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
 
   # Pulic Opestex.Cache callbacks (public 'interface' to the Cache module)
 
-  def get_swift_account(swift_client) do
+  def get_swift_public_url(swift_client) do
     public_url = get_identity(swift_client)
     |> Map.get(:service_catalog)
     |> Enum.find(fn(%Identity.Service{} = service) ->  service.name == "swift" end)
     |> Map.get(:endpoints)
     |> Enum.find(fn(%Identity.Endpoint{} = endpoint) ->  endpoint.region == swift_client.config()[:region] end)
     |> Map.get(:public_url)
-
-    path = URI.parse(public_url) |> Map.get(:path)
-    {version, account} = String.split_at(path, 4)
-    account
   end
 
-  def get_swift_endpoint(swift_client) do
-    public_url = get_identity(swift_client)
-    |> Map.get(:service_catalog)
-    |> Enum.find(fn(%Identity.Service{} = service) ->  service.name == "swift" end)
-    |> Map.get(:endpoints)
-    |> Enum.find(fn(%Identity.Endpoint{} = endpoint) ->  endpoint.region == swift_client.config()[:region] end)
-    |> Map.get(:public_url)
-
-    path = URI.parse(public_url) |> Map.get(:path)
-    {version, account} = String.split_at(path, 4)
-    endpoint = String.split(public_url, account) |> List.first()
-    endpoint
-  end
+  # get_swift_endpoint/1-- use default implementation for `use Openstex.Cache`.
+  # get_swift_account/1 -- use default implementation for `use Openstex.Cache`.
 
   def get_xauth_token(swift_client) do
     get_identity(swift_client) |> Map.get(:token) |> Map.get(:id)
