@@ -31,7 +31,7 @@ defmodule ExOvh.Mixfile do
       {:calendar, "~> 0.13.2"},
       {:og, "~> 0.1"},
       {:morph, "~> 0.1.0"},
-      {:openstex, github: "stephenmoloney/openstex", branch: "master"},
+      {:openstex, github: "stephenmoloney/openstex", tag: "v0.0.1"},
 
       {:markdown, github: "devinus/markdown", only: :dev},
       {:ex_doc,  "~> 0.11", only: :dev}
