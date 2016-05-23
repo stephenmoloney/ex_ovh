@@ -35,7 +35,7 @@ defmodule ExOvh.Auth.Ovh.Cache do
 
   def terminate(:shutdown, _state) do
     Og.context(__ENV__, :warn)
-    Og.log_return(__ENV__, "gen_server #{__MODULE__} shutting down", :warn)
+    Og.log_return("gen_server #{__MODULE__} shutting down", __ENV__, :warn)
     :ok
   end
 
