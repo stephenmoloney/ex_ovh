@@ -168,7 +168,6 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
     {:reply, :ok, _identity} = GenServer.call(self(), :add_lock)
     {:reply, :ok, _identity} = GenServer.call(self(), :update_identity)
     {:reply, :ok, identity} = GenServer.call(self(), :remove_lock)
-    identity |> Og.log_return(__ENV__, :debug)
     expires = to_seconds(identity.token.expires)
     monitor_expiry(expires)
   end
@@ -191,7 +190,6 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
 
 
   defp to_seconds(identity) do
-    identity |> Og.log_return(__ENV__, :debug)
     iso_time = identity.token.expires
     {:ok, expiry_ndt, offset} = Calendar.NaiveDateTime.Parse.iso8601(iso_time)
     offset =

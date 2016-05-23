@@ -53,13 +53,11 @@ defmodule ExOvh.Auth.Ovh.Cache do
 
   defp api_time_request(client) do
     Og.context(__ENV__, :debug)
-    client |> Og.log_return(__ENV__)
-    ovh_config = client.config() |> Og.log_return(__ENV__)
+    ovh_config = client.config()
     method = :get
     uri = ovh_config[:endpoint] <> ovh_config[:api_version] <> "/auth/time"
     body = ""
     headers = [{"Content-Type", "application/json; charset=utf-8"}]
-    client |> Og.log_return(__ENV__)
     httpoison_opts = client.httpoison_config()
     options = httpoison_opts
     resp = HTTPoison.request!(method, uri, body, headers, options)

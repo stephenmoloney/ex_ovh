@@ -14,9 +14,7 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache.Webstorage do
     Og.context(__ENV__, :debug)
 
     properties = ExOvh.Ovh.V1.Webstorage.Query.get_service(cdn_name) |> ovh_client.request!() |> Map.fetch!(:body)
-    |> Og.log_return(__ENV__, :debug)
     credentials = ExOvh.Ovh.V1.Webstorage.Query.get_credentials(cdn_name) |> ovh_client.request!() |> Map.fetch!(:body)
-    |> Og.log_return(__ENV__, :debug)
 
     webstorage =
     %{

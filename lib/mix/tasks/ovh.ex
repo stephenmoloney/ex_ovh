@@ -296,7 +296,6 @@ defmodule Mix.Tasks.Ovh do
 
     method = :post
     uri = Defaults.endpoints()[opts_map[:endpoint]] <> opts_map[:api_version] <> Defaults.consumer_key_suffix()
-    |> Og.log_return(__ENV__)
     body = %{ accessRules: access_rules, redirection: redirect_uri } |> Poison.encode!()
     headers = Map.merge(Enum.into(@default_headers, %{}), Enum.into([{"X-Ovh-Application", opts_map[:application_key]}], %{})) |> Enum.into([])
     options = @default_options
@@ -386,8 +385,6 @@ defmodule Mix.Tasks.Ovh do
     headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
     options = @default_options
     resp = HTTPoison.request!(method, uri, body, headers, options)
-
-    resp |> Og.log_return(__ENV__)
 
     error_msg1 = "Failed to bind the consumer token to the application. Please try to validate the consumer token manually at #{validation_url}"
     error_msg2 = "Invalid validity period entered for the consumer token. Please try to validate the consumer token manually at #{validation_url}"

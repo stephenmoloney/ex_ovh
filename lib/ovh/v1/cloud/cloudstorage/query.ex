@@ -194,7 +194,7 @@ defmodule ExOvh.Ovh.V1.Cloud.Cloudstorage.Query do
 
   ## Example
 
-      ExOvh.Ovh.V1.Cloud.Cloudstorage.Query.modify_container_cors(service_name, container_id, "http://localhost:4001/") |> ExOvh.Ovh.prepare_request() |> Og.log_return() |> ExOvh.Ovh.request!()
+      ExOvh.Ovh.V1.Cloud.Cloudstorage.Query.modify_container_cors(service_name, container_id, "http://localhost:4001/") |> ExOvh.Ovh.prepare_request() |> ExOvh.Ovh.request!()
 
   ## Notes
 
@@ -239,7 +239,7 @@ defmodule ExOvh.Ovh.V1.Cloud.Cloudstorage.Query do
 
   ## Example
 
-      ExOvh.Ovh.V1.Cloud.Cloudstorage.Query.modify_container_cors(service_name, container_id, "http://localhost:4001/") |> ExOvh.Ovh.prepare_request() |> Og.log_return() |> ExOvh.Ovh.request!()
+      ExOvh.Ovh.V1.Cloud.Cloudstorage.Query.modify_container_cors(service_name, container_id, "http://localhost:4001/") |> ExOvh.Ovh.prepare_request() |> ExOvh.Ovh.request!()
 
   ## Notes
 
