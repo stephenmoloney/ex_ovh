@@ -30,12 +30,16 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
     |> Map.get(:public_url)
   end
 
-  # get_swift_endpoint/1-- use default implementation for `use Openstex.Cache`.
-  # get_swift_account/1 -- use default implementation for `use Openstex.Cache`.
-
   def get_xauth_token(swift_client) do
     get_identity(swift_client) |> Map.get(:token) |> Map.get(:id)
   end
+
+  def get_account_tempurl_key(swift_client) do
+    swift_client.config() |> Keyword.fetch!(:account_temp_url_key)
+  end
+
+  # get_swift_endpoint/1-- use default implementation for `use Openstex.Cache`.
+  # get_swift_account/1 -- use default implementation for `use Openstex.Cache`.
 
 
   # Genserver Callbacks
@@ -109,9 +113,8 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
 
 
   defp try_to_set_temp_url_key(swift_client) do
-    if Keyword.has_key?(swift_client.config(), :temp_url_key) do
-      temp_key = Keyword.get(swift_client.config() |> Og.log_return(__ENV__), :temp_url_key, :nil)
-      |> Og.log_return(__ENV__)
+    if Keyword.has_key?(swift_client.config(), :account_temp_url_key) do
+      temp_key = Keyword.get(swift_client.config(), :account_temp_url_key, :nil)
       account = swift_client.account()
       if temp_key != :nil do
         resp = Openstex.Swift.V1.Query.account_info(account) |> swift_client.request!()
