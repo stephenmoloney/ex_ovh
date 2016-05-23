@@ -4,7 +4,6 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
   use Openstex.Cache
   alias ExOvh.Auth.Openstack.Swift.Cache.Cloudstorage
   alias ExOvh.Auth.Openstack.Swift.Cache.Webstorage
-  alias Openstex.Keystone.V2.Helpers, as: Keystone
   alias Openstex.Keystone.V2.Helpers.Identity
   import ExOvh.Utils, only: [ets_tablename: 1]
   @get_identity_retries 5
@@ -22,7 +21,7 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
   # Pulic Opestex.Cache callbacks (public 'interface' to the Cache module)
 
   def get_swift_public_url(swift_client) do
-    public_url = get_identity(swift_client)
+    get_identity(swift_client)
     |> Map.get(:service_catalog)
     |> Enum.find(fn(%Identity.Service{} = service) ->  service.name == "swift" end)
     |> Map.get(:endpoints)
@@ -88,7 +87,7 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
     {:stop, :shutdown, :ok, state}
   end
 
-  def terminate(:shutdown, {swift_client, identity}) do
+  def terminate(:shutdown, {swift_client, _identity}) do
     Og.context(__ENV__, :debug)
     :ets.delete(ets_tablename(swift_client)) # explicilty remove
     :ok
@@ -106,7 +105,7 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
     Og.context(__ENV__, :debug)
     Cloudstorage.create_identity({ovh_client, swift_client}, config)
   end
-  defp create_identity({ovh_client, swift_client}, config, type) do
+  defp create_identity({_ovh_client, _swift_client}, _config, type) do
     Og.context(__ENV__, :debug)
     raise "create_identity/3 is only supported for the :webstorage and :cloudstorage types, #{inspect(type)}"
   end

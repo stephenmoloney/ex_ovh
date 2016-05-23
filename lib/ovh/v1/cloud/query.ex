@@ -307,10 +307,13 @@ defmodule ExOvh.Ovh.V1.Cloud.Query do
   """
   @spec get_prices(String.t | :nil, String.t | :nil) :: Query.t
   def get_prices(region \\ :nil, flavor_id \\ :nil) do
-    params = if region == :nil and flavor_id == :nil, do: :nil
-    params = if region != :nil and flavor_id == :nil, do: %{ "region" => region }
-    params = if region == :nil and flavor_id != :nil, do: %{ "flavorId" => flavor_id }
-    params = if region != :nil and flavor_id != :nil, do: %{ "region" => region, "flavorId" => flavor_id }
+    params =
+    cond do
+      region == :nil and flavor_id == :nil -> :nil
+      region != :nil and flavor_id == :nil -> %{"region" => region}
+      region == :nil and flavor_id != :nil -> %{"flavorId" => flavor_id}
+      region != :nil and flavor_id != :nil -> %{ "region" => region, "flavorId" => flavor_id }
+    end
     %Query{
           method: :get,
           uri: "/cloud/createProject",
@@ -494,7 +497,7 @@ defmodule ExOvh.Ovh.V1.Cloud.Query do
   @spec project_consumption(String.t, String.t, String.t) :: Query.t
   def project_consumption(service_name, date_from \\ :nil, date_to \\ :nil) do
     date_from = if date_from == :nil, do: Calendar.DateTime.now_utc!() |> Calendar.DateTime.add!(-(60*60*24*28)) |> Calendar.DateTime.Format.rfc3339(), else: date_from
-    date_to = if date_from == :nil, do: Calendar.DateTime.now_utc!() |> Calendar.DateTime.Format.rfc3339(), else: date_from
+    date_to = if date_to == :nil, do: Calendar.DateTime.now_utc!() |> Calendar.DateTime.Format.rfc3339(), else: date_to
     %Query{
           method: :get,
           uri: "/cloud/project/#{service_name}/consumption",
@@ -523,7 +526,7 @@ defmodule ExOvh.Ovh.V1.Cloud.Query do
   @spec project_bills(String.t, String.t, String.t) :: Query.t
   def project_bills(service_name, date_from \\ :nil, date_to \\ :nil) do
     date_from = if date_from == :nil, do: Calendar.DateTime.now_utc!() |> Calendar.DateTime.add!(-(60*60*24*28)) |> Calendar.DateTime.Format.rfc3339(), else: date_from
-    date_to = if date_from == :nil, do: Calendar.DateTime.now_utc!() |> Calendar.DateTime.Format.rfc3339(), else: date_from
+    date_to = if date_to == :nil, do: Calendar.DateTime.now_utc!() |> Calendar.DateTime.Format.rfc3339(), else: date_to
     %Query{
           method: :get,
           uri: "/cloud/project/#{service_name}/bill",

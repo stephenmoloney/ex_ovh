@@ -11,7 +11,7 @@ defmodule ExOvh.Supervisor do
   #  Public
 
 
-  def start_link(client, opts) do
+  def start_link(client, _opts) do
     Og.context(__ENV__, :debug)
     Supervisor.start_link(__MODULE__, client, [name: client])
   end
@@ -38,7 +38,7 @@ defmodule ExOvh.Supervisor do
       :nil ->
         Og.log("No webstorage config found. Skipping initiation of OVH webstorage cdn service", :debug)
         sup_tree
-      webstorage_config ->
+      _webstorage_config ->
         webstorage_client = Module.concat(client, Swift.Webstorage)
         sup_tree ++
         [{webstorage_client, {SwiftCache, :start_link, [{ovh_client, webstorage_client}]}, :permanent, 10_000, :worker, [SwiftCache]}]
@@ -49,7 +49,7 @@ defmodule ExOvh.Supervisor do
       :nil ->
         Og.log("No cloudstorage config found. Skipping initiation of OVH cloudstorage service", :debug)
         sup_tree
-      cloudstorage_config ->
+      _cloudstorage_config ->
         cloudstorage_client = Module.concat(client, Swift.Cloudstorage)
         sup_tree ++
         [{cloudstorage_client, {SwiftCache, :start_link, [{ovh_client, cloudstorage_client}]}, :permanent, 10_000, :worker, [SwiftCache]}]

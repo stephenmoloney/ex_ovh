@@ -1,9 +1,5 @@
 defmodule ExOvh.Utils do
   @moduledoc false
-  alias ExOvh.Auth.Ovh.Cache, as: OvhCache
-  alias ExOvh.Auth.Openstack.Swift.Cache, as: SwiftCache
-  alias ExOvh.Ovh.Defaults
-
 
   @doc """
   For naming an ets table to incorporate the name of the client.

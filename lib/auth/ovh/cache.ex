@@ -33,7 +33,7 @@ defmodule ExOvh.Auth.Ovh.Cache do
     {:reply, diff, diff}
   end
 
-  def terminate(:shutdown, state) do
+  def terminate(:shutdown, _state) do
     Og.context(__ENV__, :warn)
     Og.log_return(__ENV__, "gen_server #{__MODULE__} shutting down", :warn)
     :ok
@@ -63,7 +63,7 @@ defmodule ExOvh.Auth.Ovh.Cache do
     httpoison_opts = client.httpoison_config()
     options = httpoison_opts
     resp = HTTPoison.request!(method, uri, body, headers, options)
-    api_time = Poison.decode!(resp.body)
+    Poison.decode!(resp.body)
   end
 
 

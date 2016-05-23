@@ -67,6 +67,7 @@ defmodule ExOvh.Client do
                 cloudstorage: [
                                 tenant_id: System.get_env("MY_APP_MY_CLIENT_CLOUDSTORAGE_TENANT_ID"), # mandatory, corresponds to a project id
                                 user_id: System.get_env("MY_APP_MY_CLIENT_CLOUDSTORAGE_USER_ID"), # optional, if absent a user will be created using the ovh api.
+                                account_temp_url_key: System.get_env("MY_APP_MY_CLIENT_CLOUDSTORAGE_TEMP_URL_KEY"), # defaults to :nil if absent and won't be added if == :nil.
                                 keystone_endpoint: "https://auth.cloud.ovh.net/v2.0", # default endpoint for keystone (identity) auth
                                 region: :nil, # defaults to "SBG1" if set to :nil
                                 type: :cloudstorage
@@ -129,30 +130,39 @@ defmodule ExOvh.Client do
       defmodule Swift.Webstorage do
         @moduledoc ExOvh.Client.swift_docs()
         use Openstex.Client, client: __MODULE__
+        use Openstex.Swift.V1.Helpers, client: __MODULE__
+
+        @doc :false
         def cache(), do: ExOvh.Auth.Openstack.Swift.Cache
+
         @doc :false
         def config(), do: List.last(__ENV__.context_modules).config() |> Keyword.fetch!(:swift) |> Keyword.fetch!(:webstorage)
-        use Openstex.Swift.V1.Helpers, client: __MODULE__
+
         @doc "Returns the swift account string."
         @spec account() :: String.t
         def account(), do: __MODULE__.cache().get_swift_account(__MODULE__)
+
       end
 
       defmodule Swift.Cloudstorage do
         @moduledoc ExOvh.Client.swift_docs()
         use Openstex.Client, client: __MODULE__
+        use Openstex.Swift.V1.Helpers, client: __MODULE__
+
+        @doc :false
         def cache(), do: ExOvh.Auth.Openstack.Swift.Cache
+
         @doc :false
         def config() do
           List.last(__ENV__.context_modules).config() |> Keyword.fetch!(:swift) |> Keyword.fetch!(:cloudstorage)
           |> Keyword.merge(Defaults.cloudstorage(), fn(_k, v1, v2) -> if v1 == :nil, do: v2, else: v1 end)
         end
-        use Openstex.Swift.V1.Helpers, client: __MODULE__
+
         @doc "Returns the swift account string."
         @spec account() :: String.t
         def account(), do: __MODULE__.cache().get_swift_account(__MODULE__)
-      end
 
+      end
 
     end
   end

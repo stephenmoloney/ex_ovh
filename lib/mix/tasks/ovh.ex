@@ -35,7 +35,6 @@ defmodule Mix.Tasks.Ovh do
   [mix task advanced](https://hexdocs.pm/ex_ovh/doc/mix_task_advanced.md.html) for practical steps involved in running the hubic mix task.
   """
   use Mix.Task
-  alias ExOvh.Utils
   alias ExOvh.Ovh.Defaults
   @default_headers [{"Content-Type", "application/json; charset=utf-8"}]
   @default_options [ timeout: 30000, recv_timeout: (60000 * 1) ]
@@ -77,7 +76,7 @@ defmodule Mix.Tasks.Ovh do
 
   defp parse_args(args) do
     {opts, _, _} = OptionParser.parse(args)
-    {opts, opts_map } = opts
+    {_opts, opts_map} = opts
     |> has_required_args()
     |> parsers_login()
     |> parsers_password()
@@ -112,7 +111,7 @@ defmodule Mix.Tasks.Ovh do
 
   defp parsers_login({opts, acc}), do: {opts, Map.merge(acc, %{login: Keyword.fetch!(opts, :login)}) }
   defp parsers_password({opts, acc}), do: {opts, Map.merge(acc, %{ password: Keyword.fetch!(opts, :password)}) }
-  defp parsers_app_name({opts, acc}), do: {opts, Map.merge(acc, %{ application_name: Keyword.fetch!(opts, :appname)}) }
+  # defp parsers_app_name({opts, acc}), do: {opts, Map.merge(acc, %{ application_name: Keyword.fetch!(opts, :appname)}) }
   defp parsers_endpoint({opts, acc}) do
     endpoint = Keyword.get(opts, :endpoint, :nil)
     endpoint =
@@ -331,7 +330,7 @@ defmodule Mix.Tasks.Ovh do
     inputs = Floki.find(resp_body, "form input") ++
     Floki.find(resp_body, "form select")
     |> List.flatten()
-    |> Enum.filter(fn({type, input, options}) ->
+    |> Enum.filter(fn({_type, input, _options}) ->
       :proplists.get_value("name", input) !== "identifiant"
     end)
     if Enum.any?(inputs, fn(input) -> input === [] end), do: raise "Inputs should not be empty"
@@ -339,11 +338,11 @@ defmodule Mix.Tasks.Ovh do
   end
 
 
-  defp build_ck_binding_request(inputs, %{login: login, password: password} = opts_map) do
+  defp build_ck_binding_request(inputs, %{login: login, password: password} = _opts_map) do
     Og.context(__ENV__, :debug)
 
     {acc, _index, _max} =
-    Enum.reduce(inputs, {"", 1, Enum.count(inputs)}, fn({type, input, options}, acc) ->
+    Enum.reduce(inputs, {"", 1, Enum.count(inputs)}, fn({type, input, _options}, acc) ->
       {name_val, value} =
       cond do
         type == "input" &&  {"name", "credentialToken"} in input ->

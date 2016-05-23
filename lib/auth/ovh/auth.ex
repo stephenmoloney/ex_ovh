@@ -1,7 +1,6 @@
 defimpl Openstex.Auth, for: ExOvh.Ovh.Query do
   @moduledoc :false
 
-  alias ExOvh.Utils
   alias ExOvh.Ovh.Query
   alias ExOvh.Auth.Ovh.Cache
   @default_headers [{"Content-Type", "application/json; charset=utf-8"}]
@@ -40,7 +39,7 @@ defimpl Openstex.Auth, for: ExOvh.Ovh.Query do
   # Private
 
 
-  defp headers([app_secret, app_key, consumer_key, method, uri, body] = opts, client) do
+  defp headers([app_secret, app_key, consumer_key, method, uri, body] = _opts, client) do
     time = :os.system_time(:seconds) + Cache.get_time_diff(client)
     headers = [
                 {"X-Ovh-Application", app_key},
@@ -53,7 +52,7 @@ defimpl Openstex.Auth, for: ExOvh.Ovh.Query do
   end
 
 
-  defp sign_request([app_secret, consumer_key, method, uri, body, time] = opts) do
+  defp sign_request([_app_secret, _consumer_key, _method, _uri, _body, _time] = opts) do
     pre_hash = Enum.join(opts, "+")
     post_hash = :crypto.hash(:sha, pre_hash) |> Base.encode16(case: :lower)
     "$1$" <> post_hash

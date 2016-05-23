@@ -20,33 +20,30 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache.Webstorage do
 
     webstorage =
     %{
-      "domain" => domain,
-      "storageLimit" => storage_limit,
-      "server" => server,
-      "endpoint" => endpoint,
+      "domain" => _domain,
+      "storageLimit" => _storage_limit,
+      "server" => _server,
+      "endpoint" => _endpoint,
       "login" => username,
-      "password" => password,
+      "password" => _password,
       "tenant" => tenant_name
     } = Map.merge(properties, credentials)
     webstorage = webstorage
     |> Map.delete("tenant") |> Map.delete("login")
     |> Map.put("username", username) |> Map.put("tenantName", tenant_name)
-    webstorage = __MODULE__.new(webstorage)
+    __MODULE__.new(webstorage)
   end
 
 
   @doc :false
   @spec create_identity({atom, atom}, Keyword.t) :: Identity.t | no_return
-  def create_identity({ovh_client, swift_client}, config) do
+  def create_identity({ovh_client, _swift_client}, config) do
     Og.context(__ENV__, :debug)
 
     cdn_name = Keyword.fetch!(config, :cdn_name)
     webstorage = webstorage(ovh_client, cdn_name)
-    |> Og.log_return(__ENV__, :debug)
     %{endpoint: endpoint, username: username, password: password, tenant_name: tenant_name} = webstorage
-    |> Og.log_return(__ENV__, :debug)
-    identity = Keystone.authenticate!(endpoint, username, password, [tenant_name: tenant_name])
-    |> Og.log_return(__ENV__, :debug)
+    Keystone.authenticate!(endpoint, username, password, [tenant_name: tenant_name])
   end
 
 

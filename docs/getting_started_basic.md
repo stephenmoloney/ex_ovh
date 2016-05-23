@@ -72,6 +72,7 @@ config :ex_ovh,
         cloudstorage: [
                         tenant_id: System.get_env("EX_OVH_CLOUDSTORAGE_TENANT_ID"), # mandatory, corresponds to a project id
                         user_id: System.get_env("EX_OVH_CLOUDSTORAGE_USER_ID"), # optional, if absent a user will be created using the ovh api.
+                        account_temp_url_key: System.get_env("EX_OVH_CLOUDSTORAGE_TEMP_URL_KEY"), # defaults to :nil if absent and won't be added if == :nil.
                         keystone_endpoint: "https://auth.cloud.ovh.net/v2.0", # default endpoint for keystone (identity) auth
                         region: :nil, # defaults to "SBG1" if set to :nil
                         type: :cloudstorage
