@@ -36,7 +36,7 @@ defmodule ExOvh.Supervisor do
     sup_tree =
     case webstorage_config do
       :nil ->
-        Og.log(__ENV__, "No webstorage config found. Skipping initiation of OVH webstorage cdn service", :debug)
+        Og.log("No webstorage config found. Skipping initiation of OVH webstorage cdn service", __ENV__, :debug)
         sup_tree
       _webstorage_config ->
         webstorage_client = Module.concat(client, Swift.Webstorage)
@@ -47,7 +47,7 @@ defmodule ExOvh.Supervisor do
     sup_tree =
     case cloudstorage_config do
       :nil ->
-        Og.log(__ENV__, "No cloudstorage config found. Skipping initiation of OVH cloudstorage service", :debug)
+        Og.log("No cloudstorage config found. Skipping initiation of OVH cloudstorage service", __ENV__, :debug)
         sup_tree
       _cloudstorage_config ->
         cloudstorage_client = Module.concat(client, Swift.Cloudstorage)
