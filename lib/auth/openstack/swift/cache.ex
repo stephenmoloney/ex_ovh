@@ -118,7 +118,7 @@ defmodule ExOvh.Auth.Openstack.Swift.Cache do
       if temp_key != :nil do
         resp = Openstex.Swift.V1.Query.account_info(account) |> swift_client.request!()
         unless Map.has_key?(resp.headers, "X-Account-Meta-Temp-Url-Key") do
-          %Openstex.Openstack.Swift.Query{method: :post, uri: account, params: :nil}
+          %Openstex.Openstack.Swift.Query{method: :post, uri: account, params: %{}}
           |> swift_client.prepare_request()
           |> Openstex.Utils.put_http_headers(%{"X-Account-Meta-Temp-URL-Key" => temp_key})
           |> swift_client.request!()
