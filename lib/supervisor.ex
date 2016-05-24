@@ -26,7 +26,11 @@ defmodule ExOvh.Supervisor do
 
     webstorage_config = Keyword.get(client.config(), :swift, []) |> Keyword.get(:webstorage, :nil)
     cloudstorage_config = Keyword.get(client.config(), :swift, []) |> Keyword.get(:cloudstorage, :nil)
-                          |> Keyword.merge(Defaults.cloudstorage(), fn(_k, v1, v2) -> if v1 == :nil, do: v2, else: v1 end)
+    cloudstorage_config =
+    case cloudstorage_config do
+      :nil -> :nil
+      _ -> Keyword.merge(cloudstorage_config, Defaults.cloudstorage(), fn(_k, v1, v2) -> if v1 == :nil, do: v2, else: v1 end)
+    end
 
     ovh_client = Module.concat(client, Ovh)
     sup_tree = [

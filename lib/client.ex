@@ -108,7 +108,9 @@ defmodule ExOvh.Client do
         ExOvh.Supervisor.start_link(__MODULE__, sup_opts)
       end
 
+
       # client definitions
+
 
       defmodule Ovh do
         @moduledoc ExOvh.Client.ovh_docs()
@@ -127,6 +129,7 @@ defmodule ExOvh.Client do
         end
       end
 
+
       defmodule Swift.Webstorage do
         @moduledoc ExOvh.Client.swift_docs()
         use Openstex.Client, client: __MODULE__
@@ -141,8 +144,8 @@ defmodule ExOvh.Client do
         @doc "Returns the swift account string."
         @spec account() :: String.t
         def account(), do: __MODULE__.cache().get_swift_account(__MODULE__)
-
       end
+
 
       defmodule Swift.Cloudstorage do
         @moduledoc ExOvh.Client.swift_docs()
@@ -161,8 +164,8 @@ defmodule ExOvh.Client do
         @doc "Returns the swift account string."
         @spec account() :: String.t
         def account(), do: __MODULE__.cache().get_swift_account(__MODULE__)
-
       end
+
 
     end
   end

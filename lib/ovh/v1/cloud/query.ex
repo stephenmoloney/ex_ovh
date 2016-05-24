@@ -584,7 +584,7 @@ defmodule ExOvh.Ovh.V1.Cloud.Query do
   """
   @spec create_project_alert(String.t, String.t, integer, String.t) :: Query.t | no_return
   def create_project_alert(service_name, email, monthly_threshold, delay \\ "3600") do
-    unless is_integer(monthly_threshold), do: Og.log_return(__ENV__,  "monthly_threshold should be an integer!", :error) |> raise()
+    unless is_integer(monthly_threshold), do: Og.log_return("monthly_threshold should be an integer!", __ENV__, :error) |> raise()
     %Query{
           method: :post,
           uri: "/cloud/project/#{service_name}/alerting",
@@ -644,7 +644,7 @@ defmodule ExOvh.Ovh.V1.Cloud.Query do
   """
   @spec modify_project_alert(String.t, String.t, String.t, integer, String.t) :: Query.t
   def modify_project_alert(service_name, alert_id, email, monthly_threshold, delay \\ "3600") do
-    unless is_integer(monthly_threshold), do: Og.log_return(__ENV__,  "monthly_threshold should be an integer!", :error) |> raise()
+    unless is_integer(monthly_threshold), do: Og.log_return("monthly_threshold should be an integer!", __ENV__, :error) |> raise()
     %Query{
           method: :put,
           uri: "/cloud/project/#{service_name}/alerting/#{alert_id}",

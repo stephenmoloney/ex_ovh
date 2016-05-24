@@ -93,3 +93,12 @@ config :openstex,
               receive_timeout: (60000 * 30) # 30 minutes
              ]
 ```
+
+- Add the client to your project.
+
+```elixir
+defmodule MyApp.OvhClient do
+  @moduledoc :false
+  use ExOvh.Client, otp_app: :my_app
+end
+```
