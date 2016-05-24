@@ -1,23 +1,6 @@
-defmodule ExOvh.Ovh.V1.Webstorage.Query do
-  @moduledoc ~s"""
-  Helper functions for building `queries directed at the `/cdn/webstorage` part of the custom ovh api.
-
-  ## Functions Summary
-
-  | Function | Description | OVH API call |
-  |---|---|---|
-  | `get_services/0` | <small>Get a list of all webstorage cdn services.</small> | <sub><sup>GET /v1/​cdn/webstorage</sup></sub> |
-  | `get_service/1` | <small>Get the domain, server and storage limits for a specific webstorage cdn service</small> | <sub><sup>GET /v1/​cdn/webstorage​/{serviceName}</sup></sub> |
-  | `get_service_info/1` | <small>Get a administrative details for a specific webstorage cdn service</small> | <sub><sup>GET /v1/​cdn/webstorage​/{serviceName}/serviceInfos</sup></sub> |
-  | `get_service_stats/2`  | <small>Get statistics for a specific webstorage cdn service</small> | <sub><sup>GET /v1/​cdn/webstorage​/{serviceName}/statistics</sup></sub> |
-  | `get_credentials/1` | <small>Get credentials for using the swift compliant api</small> | <sub><sup>GET /v1/​cdn/webstorage​/{serviceName}/statistics</sup></sub> |
-
-
-  ## Example
-
-      ExOvh.Ovh.V1.Webstorage.Query.get_all_webstorage() |> ExOvh.Ovh.request()
-  """
-  alias ExOvh.Ovh.Query
+defmodule ExOvh.Services.V1.Webstorage.Query do
+  @moduledoc Module.concat(__MODULE__, Docs).moduledoc()
+  alias ExOvh.Query
 
 
 
@@ -30,7 +13,7 @@ defmodule ExOvh.Ovh.V1.Webstorage.Query do
 
   ## Example
 
-      ExOvh.Ovh.V1.Webstorage.Query. get_services() |> ExOvh.Ovh.request()
+      ExOvh.Services.V1.Webstorage.Query. get_services() |> ExOvh.Ovh.request()
   """
   @spec get_services() :: Query.t
   def get_services() do
@@ -56,7 +39,7 @@ defmodule ExOvh.Ovh.V1.Webstorage.Query do
 
   ## Example
 
-      alias ExOvh.Ovh.V1.Webstorage.Query
+      alias ExOvh.Services.V1.Webstorage.Query
       service_name = "cdnwebstorage-????"
       query = Query.get_service(service_name)
       {:ok, resp} = ExOvh.Ovh.request(query)
@@ -90,7 +73,7 @@ defmodule ExOvh.Ovh.V1.Webstorage.Query do
 
   ## Example
 
-      alias ExOvh.Ovh.V1.Webstorage.Query
+      alias ExOvh.Services.V1.Webstorage.Query
       service_name = "cdnwebstorage-????"
       Query.get_service_info(service_name)
       {:ok, resp} = ExOvh.Ovh.request(query)
@@ -122,7 +105,7 @@ defmodule ExOvh.Ovh.V1.Webstorage.Query do
 
   ## Example
 
-      alias ExOvh.Ovh.V1.Webstorage.Query
+      alias ExOvh.Services.V1.Webstorage.Query
       service_name = "cdnwebstorage-????"
       query = Query.get_service_stats(service_name, [period: "month", type: "backend"])
       {:ok, resp} = ExOvh.Ovh.request(query)
@@ -153,7 +136,7 @@ defmodule ExOvh.Ovh.V1.Webstorage.Query do
 
   ## Example
 
-      alias ExOvh.Ovh.V1.Webstorage.Query
+      alias ExOvh.Services.V1.Webstorage.Query
       service_name = "cdnwebstorage-????"
       query = Query.get_webstorage_credentials(service_name)
       {:ok, resp} = ExOvh.Ovh.request(query)

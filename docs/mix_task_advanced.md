@@ -31,7 +31,7 @@ for the application in the OVH servers.
   `'Client'` then the config file will be `config :my_app, MyApp.Client`. Also, the client in application code can be referred
   to as `MyApp.Client.function_name`.
 - `appdescription`: A description for the application saved to OVH.
-- `endpoint`: OVH endpoint to be used. May vary depending on the OVH service. See `ExOvh.Ovh.Defaults`.
+- `endpoint`: OVH endpoint to be used. May vary depending on the OVH service. See `ExOvh.Defaults`.
 - `apiversion`: version of the api to use. Only one version available currently.
 - `redirecturi`: redirect url for oauth authentication. Should be https.
 - `accessrules`: restrictions can be added to the access rules. In this example, `get` requests to all endpoints are allowed,
@@ -47,8 +47,8 @@ config :my_app, MyApp.OvhClient,
       application_key: System.get_env("MY_APP_OVH_CLIENT_APPLICATION_KEY"),
       application_secret: System.get_env("MY_APP_OVH_CLIENT_APPLICATION_SECRET"),
       consumer_key: System.get_env("MY_APP_OVH_CLIENT_CONSUMER_KEY"),
-      endpoint: System.get_env("MY_APP_OVH_CLIENT_ENDPOINT"),
-      api_version: System.get_env("MY_APP_OVH_CLIENT_API_VERSION") || "1.0"
+      endpoint: "ovh-eu",
+      api_version: "1.0"
     ]
 ```
 
@@ -58,8 +58,6 @@ Terms explained:
 - `MY_APP_OVH_CLIENT_APPLICATION_KEY`: The system environment variable name for the application key.
 - `MY_APP_OVH_CLIENT_APPLICATION_SECRET`: The system environment variable name for the application secret.
 - `MY_APP_OVH_CLIENT_CONSUMER_KEY`: The system environment variable name for the consumer key.
-- `MY_APP_OVH_CLIENT_ENDPOINT`: The system environment variable name for the ovh endpoint.
-- `MY_APP_OVH_CLIENT_API_VERSION`: The system environment variable name for the api version.
 
 
 - Copy the configuration outputted by the commandline to `config.exs`.

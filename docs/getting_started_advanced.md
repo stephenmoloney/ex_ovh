@@ -41,57 +41,13 @@ config :my_app, MyApp.OvhClient,
      application_key: System.get_env("MY_APP_OVH_CLIENT_APPLICATION_KEY"),
      application_secret: System.get_env("MY_APP_OVH_CLIENT_APPLICATION_SECRET"),
      consumer_key: System.get_env("MY_APP_OVH_CLIENT_CONSUMER_KEY"),
-     endpoint: System.get_env("MY_APP_OVH_CLIENT_ENDPOINT"),
-     api_version: System.get_env("MY_APP_OVH_CLIENT_API_VERSION") || "1.0"
+     endpoint: "ovh-eu",
+     api_version: "1.0"
+   ],
+   httpoison: [ # optional
+     connect_timeout: 20000,
+     receive_timeout: 100000
    ]
-```
-
-- Make further configurations if necessary, depending on which OVH services are being used.
-
-- Configuration for [webstorage cdn service](https://www.ovh.ie/cdn/webstorage/)
-
-In the example below, `MY_APP_OVH_CLIENT_WEBSTORAGE_CDN_NAME` is added to the environment variables.
-
-```elixir
-config :ex_ovh,
-  ovh: [],
-  swift: [
-        webstorage: [
-                      cdn_name: System.get_env("MY_APP_OVH_CLIENT_WEBSTORAGE_CDN_NAME"),
-                      type: :webstorage
-                    ]
-       ]
-```
-
-- Configuration for public cloud storage service](https://www.ovh.ie/cloud/storage/)
-
-In the example below, `MY_APP_OVH_CLIENT_CLOUDSTORAGE_TENANT_ID` and `MY_APP_OVH_CLIENT_CLOUDSTORAGE_USER_ID` are
-added to the environment variables.
-
-```elixir
-config :ex_ovh,
-  ovh: [],
-  swift: [
-        cloudstorage: [
-                        tenant_id: System.get_env("MY_APP_OVH_CLIENT_CLOUDSTORAGE_TENANT_ID"), # mandatory, corresponds to a project id
-                        user_id: System.get_env("MY_APP_OVH_CLIENT_CLOUDSTORAGE_USER_ID"), # optional, if absent a user will be created using the ovh api.
-                        account_temp_url_key: System.get_env("MY_APP_OVH_CLIENT_CLOUDSTORAGE_TEMP_URL_KEY"), # defaults to :nil if absent and won't be added if == :nil.
-                        keystone_endpoint: "https://auth.cloud.ovh.net/v2.0", # default endpoint for keystone (identity) auth
-                        region: :nil, # defaults to "SBG1" if set to :nil
-                        type: :cloudstorage
-                      ]
-       ]
-```
-
-- Optionally configure `:openstex` which allows customization of [httpoison opts](https://github.com/edgurgel/httpoison/blob/master/lib/httpoison/base.ex#L127)
-for each request. Example configuration for custom [httpoison opts](https://github.com/edgurgel/httpoison/blob/master/lib/httpoison/base.ex#L127) (optional):
-
-```elixir
-config :openstex,
-  httpoison: [
-              connect_timeout: 30000, # 30 seconds
-              receive_timeout: (60000 * 30) # 30 minutes
-             ]
 ```
 
 - Add the client to your project.

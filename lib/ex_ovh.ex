@@ -1,4 +1,3 @@
 defmodule ExOvh do
-  @moduledoc :false
-  use ExOvh.Client, otp_app: :ex_ovh
+  use ExOvh.Client, otp_app: :ex_ovh, client: __MODULE__
 end

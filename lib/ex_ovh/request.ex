@@ -1,19 +1,15 @@
-defimpl Openstex.Request, for: ExOvh.Ovh.Query do
+defmodule ExOvh.Request do
   @moduledoc :false
-
-  alias Openstex.{Auth, Response}
-  alias ExOvh.Ovh.Query
+  alias ExOvh.{Transformation, Query, Response}
 
 
   # Public
 
 
   @spec request(Query.t, Keyword.t, atom) :: {:ok, Response.t} | {:error, Response.t}
-  def request(query, httpoison_opts, client) do
+  def request(%Query{} = query, httpoison_opts, client) do
     Og.context(__ENV__, :debug)
-
-    q = Auth.prepare_request(query, httpoison_opts, client) |> Map.from_struct()
-
+    q = Transformation.prepare_request(query, httpoison_opts, client) |> Map.from_struct()
     options = Keyword.merge(q.options, httpoison_opts)
     case HTTPoison.request(q.method, q.uri, q.body, q.headers, options) do
       {:ok, resp} ->

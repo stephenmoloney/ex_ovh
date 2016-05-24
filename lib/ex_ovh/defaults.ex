@@ -1,4 +1,4 @@
-defmodule ExOvh.Ovh.Defaults do
+defmodule ExOvh.Defaults do
   @moduledoc :false
 
 

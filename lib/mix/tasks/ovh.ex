@@ -1,41 +1,8 @@
 defmodule Mix.Tasks.Ovh do
   @shortdoc "Create a new application and new credentials for accessing ovh api"
-  @moduledoc ~S"""
-  A mix task that generates the ex_ovh application secrets on the user's behalf.
-
-  ## Steps
-
-  - The user needs to set up an ovh account at https://www.ovh.co.uk/ and retrieve a username (nic-handle) and password.
-
-  - Then the user is prompted to do some activations.
-
-  - Upon completion of activations, the user needs to create an application in the ovh website.
-
-  - Then the user can create an application at `https://eu.api.ovh.com/createApp/` or
-    alternatively the user can use this mix task to generate the application:
-
-  ## Example
-
-  Create an app with access to all apis:
-
-      mix ovh --login=<username-ovh> --password=<password> --appname='ex_ovh'
-
-  Output:
-
-      config :ex_ovh,
-        ovh: [
-          application_key: System.get_env("EX_OVH_APPLICATION_KEY"),
-          application_secret: System.get_env("EX_OVH_APPLICATION_SECRET"),
-          consumer_key: System.get_env("EX_OVH_CONSUMER_KEY"),
-          endpoint: System.get_env("EX_OVH_ENDPOINT"),
-          api_version: System.get_env("EX_OVH_API_VERSION") || "1.0"
-        ]
-
-  See the [mix task basic](https://hexdocs.pm/ex_ovh/doc/mix_task_basic.md.html) or
-  [mix task advanced](https://hexdocs.pm/ex_ovh/doc/mix_task_advanced.md.html) for practical steps involved in running the hubic mix task.
-  """
+  @moduledoc Module.concat(__MODULE__, Docs).moduledoc()
   use Mix.Task
-  alias ExOvh.Ovh.Defaults
+  alias ExOvh.Defaults
   @default_headers [{"Content-Type", "application/json; charset=utf-8"}]
   @default_options [ timeout: 30000, recv_timeout: (60000 * 1) ]
 
@@ -456,16 +423,13 @@ defmodule Mix.Tasks.Ovh do
     File.touch!(env_path)
     existing = File.read!(env_path)
     {_config_header, mod_client_name} = config_names(options.application_name, options.client_name)
-    format_date = ExOvh.Utils.formatted_date()
     new = existing <>
     ~s"""
 
-    # updated on #{format_date}
+    # updated on #{formatted_date()}
     export #{mod_client_name <> "APPLICATION_KEY"}=\"#{options.application_key}\"
     export #{mod_client_name <> "APPLICATION_SECRET"}="#{options.application_secret}\"
     export #{mod_client_name <> "CONSUMER_KEY"}="#{options.consumer_key}\"
-    export #{mod_client_name <> "ENDPOINT"}=\"#{options.endpoint}\"
-    export #{mod_client_name <> "API_VERSION"}=\"#{options.api_version}\"
 
     """
     {:ok, file} = File.open(env_path, [:write, :utf8])
@@ -488,10 +452,18 @@ defmodule Mix.Tasks.Ovh do
           application_key: System.get_env(\"#{mod_client_name <> "APPLICATION_KEY"}\"),
           application_secret: System.get_env(\"#{mod_client_name <> "APPLICATION_SECRET"}\"),
           consumer_key: System.get_env(\"#{mod_client_name <> "CONSUMER_KEY"}\"),
-          endpoint: System.get_env(\"#{mod_client_name <> "ENDPOINT"}\"),
-          api_version: System.get_env(\"#{mod_client_name <> "API_VERSION"}\") || "1.0"
+          endpoint: \"#{options.endpoint}\",
+          api_version: \"#{options.api_version}\"
         ]
     """
+  end
+
+
+  defp formatted_date() do
+    {year, month, date} = :erlang.date()
+    Integer.to_string(date) <> "." <>
+    Integer.to_string(month) <> "." <>
+    Integer.to_string(year)
   end
 
 

@@ -1,6 +1,5 @@
-defmodule ExOvh.Auth.Ovh.Cache do
-  # Stores the time diff in state of the gen_server - later used in authentication headers for every request
-  @moduledoc :false
+defmodule ExOvh.Cache do
+  @moduledoc :false # Stores the time diff in state of the gen_server - later used in authentication headers for every request
   use GenServer
 
 
@@ -23,18 +22,15 @@ defmodule ExOvh.Auth.Ovh.Cache do
 
 
   def init(client) do
-    Og.context(__ENV__, :debug)
     diff = calculate_diff(client)
     {:ok, diff}
   end
 
   def handle_call(:get_diff, _from, diff) do
-    Og.context(__ENV__, :debug)
     {:reply, diff, diff}
   end
 
   def terminate(:shutdown, _state) do
-    Og.context(__ENV__, :warn)
     Og.log_return("gen_server #{__MODULE__} shutting down", __ENV__, :warn)
     :ok
   end
@@ -44,7 +40,6 @@ defmodule ExOvh.Auth.Ovh.Cache do
 
 
   defp calculate_diff(client) do
-    Og.context(__ENV__, :debug)
     api_time = api_time_request(client)
     os_t = :os.system_time(:seconds)
     os_t - api_time
@@ -52,12 +47,12 @@ defmodule ExOvh.Auth.Ovh.Cache do
 
 
   defp api_time_request(client) do
-    Og.context(__ENV__, :debug)
-    ovh_config = client.config()
+    ovh_config = client.ovh_config()
     method = :get
     uri = ovh_config[:endpoint] <> ovh_config[:api_version] <> "/auth/time"
     body = ""
     headers = [{"Content-Type", "application/json; charset=utf-8"}]
+    client
     httpoison_opts = client.httpoison_config()
     options = httpoison_opts
     resp = HTTPoison.request!(method, uri, body, headers, options)

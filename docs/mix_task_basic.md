@@ -43,8 +43,8 @@ config :ex_ovh,
     application_key: System.get_env("EX_OVH_APPLICATION_KEY"),
     application_secret: System.get_env("EX_OVH_APPLICATION_SECRET"),
     consumer_key: System.get_env("EX_OVH_CONSUMER_KEY"),
-    endpoint: System.get_env("EX_OVH_ENDPOINT"),
-    api_version: System.get_env("EX_OVH_API_VERSION") || "1.0"
+    endpoint: "ovh-eu",
+    api_version: "1.0"
   ]
 ```
 
@@ -53,8 +53,6 @@ Terms explained:
 - `EX_OVH_APPLICATION_KEY`: The system environment variable name for the application key.
 - `EX_OVH_APPLICATION_SECRET`: The system environment variable name for the application secret.
 - `EX_OVH_CONSUMER_KEY`: The system environment variable name for the consumer key.
-- `EX_OVH_ENDPOINT`: The system environment variable name for the ovh endpoint.
-- `EX_OVH_API_VERSION`: The system environment variable name for the api version.
 
 
 - Copy the configuration outputted by the commandline to `config.exs`.
