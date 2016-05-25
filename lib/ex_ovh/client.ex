@@ -16,6 +16,7 @@ defmodule ExOvh.Client do
         ExOvh.Supervisor.start_link(client, sup_opts)
       end
 
+
       @doc "Gets all the application configuration settings"
       @spec config() :: Keyword.t
       def config() do
@@ -26,10 +27,10 @@ defmodule ExOvh.Client do
           _ ->
             case Application.get_env(otp_app, client) do
               :nil ->
-                temp_client = Module.split(client) |> List.delete_at(-1) |> Enum.join()
+                temp_client = Module.split(client) |> List.delete_at(-1) |> Enum.join(".") |> String.to_atom()
                 temp_client = Module.concat(Elixir, temp_client)
                 Application.get_env(otp_app, temp_client)
-              config -> config
+              config -> Application.get_env(otp_app, client)
             end
         end
       end
