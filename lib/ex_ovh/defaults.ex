@@ -10,14 +10,6 @@ defmodule ExOvh.Defaults do
   end
 
 
-  def cloudstorage() do
-    [
-     keystone_endpoint: "https://auth.cloud.ovh.net/v2.0", # default endpoint for keystone (identity) auth
-     region: "SBG1"
-    ]
-  end
-
-
   def endpoints() do
     %{
       "ovh-eu"        => "https://eu.api.ovh.com/",

@@ -23,7 +23,7 @@ defmodule ExOvh.Services.V1.Cloud.Cloudstorage.Query.Docs do
 
     ## Example
 
-        ExOvh.Services.V1.Cloud.Cloudstorage.Query.get_containers(service_name) |> ExOvh.Ovh.request!()
+        ExOvh.Services.V1.Cloud.Cloudstorage.Query.get_containers(service_name) |> ExOvh.request!()
     """
   end
 

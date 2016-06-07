@@ -16,7 +16,7 @@ defmodule ExOvh.Services.V1.Cloud.Cloudstorage.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Cloudstorage.Query.get_containers(service_name) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Cloudstorage.Query.get_containers(service_name) |> ExOvh.request!()
   """
   @spec get_containers(String.t) :: Query.t
   def get_containers(service_name) do
@@ -45,7 +45,7 @@ defmodule ExOvh.Services.V1.Cloud.Cloudstorage.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Cloudstorage.Query.create_container(service_name, "test_container") |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Cloudstorage.Query.create_container(service_name, "test_container") |> ExOvh.request!()
   """
   @spec create_container(String.t, String.t, String.t) :: Query.t
   def create_container(service_name, container_name, region \\ "SBG1") do
@@ -76,7 +76,7 @@ defmodule ExOvh.Services.V1.Cloud.Cloudstorage.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Cloudstorage.Query.get_access(service_name) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Cloudstorage.Query.get_access(service_name) |> ExOvh.request!()
   """
   @spec get_access(String.t) :: Query.t
   def get_access(service_name) do
@@ -107,7 +107,7 @@ defmodule ExOvh.Services.V1.Cloud.Cloudstorage.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Cloudstorage.Query.container_info(service_name, container_id) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Cloudstorage.Query.container_info(service_name, container_id) |> ExOvh.request!()
   """
   @spec container_info(String.t, String.t) :: Query.t
   def container_info(service_name, container_id) do
@@ -135,7 +135,7 @@ defmodule ExOvh.Services.V1.Cloud.Cloudstorage.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Cloudstorage.Query.delete_container(service_name, container_id) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Cloudstorage.Query.delete_container(service_name, container_id) |> ExOvh.request!()
   """
   @spec delete_container(String.t, String.t) :: Query.t
   def delete_container(service_name, container_id) do
@@ -173,7 +173,7 @@ defmodule ExOvh.Services.V1.Cloud.Cloudstorage.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Cloudstorage.Query.modify_container_cors(service_name, container_id, "http://localhost:4001/") |> ExOvh.Ovh.prepare_request() |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Cloudstorage.Query.modify_container_cors(service_name, container_id, "http://localhost:4001/") |> ExOvh.Ovh.prepare_request() |> ExOvh.request!()
 
   ## Notes
 
@@ -218,7 +218,7 @@ defmodule ExOvh.Services.V1.Cloud.Cloudstorage.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Cloudstorage.Query.modify_container_cors(service_name, container_id, "http://localhost:4001/") |> ExOvh.Ovh.prepare_request() |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Cloudstorage.Query.modify_container_cors(service_name, container_id, "http://localhost:4001/") |> ExOvh.Ovh.prepare_request() |> ExOvh.request!()
 
   ## Notes
 

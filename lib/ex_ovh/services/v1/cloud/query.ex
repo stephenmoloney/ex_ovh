@@ -12,13 +12,13 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.list_services() |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.list_services() |> ExOvh.request!()
   """
   @spec list_services() :: Query.t
   def list_services() do
     %Query{
           method: :get,
-          uri: "/cloud/services",
+          uri: "/cloud/project",
           params: :nil
           }
   end
@@ -37,7 +37,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.get_users(service_name) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.get_users(service_name) |> ExOvh.request!()
   """
   @spec get_users(String.t) :: Query.t
   def get_users(service_name) do
@@ -63,7 +63,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.create_user(service_name, "ex_ovh") |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.create_user(service_name, "ex_ovh") |> ExOvh.request!()
   """
   @spec create_user(String.t, String.t) :: Query.t
   def create_user(service_name, description) do
@@ -92,7 +92,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.get_user_details(service_name, user_id) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.get_user_details(service_name, user_id) |> ExOvh.request!()
   """
   @spec get_user_details(String.t, String.t) :: Query.t
   def get_user_details(service_name, user_id) do
@@ -118,7 +118,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.delete_user(service_name, user_id) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.delete_user(service_name, user_id) |> ExOvh.request!()
   """
   @spec delete_user(String.t, String.t) :: Query.t
   def delete_user(service_name, user_id) do
@@ -146,7 +146,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.download_openrc_script(service_name, user_id, "SBG1") |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.download_openrc_script(service_name, user_id, "SBG1") |> ExOvh.request!()
   """
   @spec download_openrc_script(String.t, String.t, String.t) :: Query.t
   def download_openrc_script(service_name, user_id, region \\ "SBG1") do
@@ -174,7 +174,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.regenerate_credentials(service_name, user_id) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.regenerate_credentials(service_name, user_id) |> ExOvh.request!()
   """
   @spec regenerate_credentials(String.t, String.t) :: Query.t
   def regenerate_credentials(service_name, user_id) do
@@ -201,7 +201,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.swift_identity(service_name, user_id) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.swift_identity(service_name, user_id) |> ExOvh.request!()
   """
   @spec swift_identity(String.t, String.t, String.t) :: Query.t
   def swift_identity(service_name, user_id, password) do
@@ -230,7 +230,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.create_project(description, voucher) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.create_project(description, voucher) |> ExOvh.request!()
   """
   @spec create_project(String.t, String.t) :: Query.t
   def create_project(description, voucher) do
@@ -260,7 +260,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.get_prices() |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.get_prices() |> ExOvh.request!()
   """
   @spec get_prices(String.t | :nil, String.t | :nil) :: Query.t
   def get_prices(region \\ :nil, flavor_id \\ :nil) do
@@ -292,7 +292,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.project_info(service_name) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.project_info(service_name) |> ExOvh.request!()
   """
   @spec project_info(String.t) :: Query.t
   def project_info(service_name) do
@@ -317,7 +317,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.modify_project(service_name, new_description) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.modify_project(service_name, new_description) |> ExOvh.request!()
   """
   @spec modify_project(String.t, String.t) :: Query.t
   def modify_project(service_name, new_description) do
@@ -345,7 +345,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.project_administrative_info(service_name) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.project_administrative_info(service_name) |> ExOvh.request!()
   """
   @spec project_administrative_info(String.t) :: Query.t
   def project_administrative_info(service_name) do
@@ -370,7 +370,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.project_quotas(service_name) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.project_quotas(service_name) |> ExOvh.request!()
   """
   @spec project_quotas(String.t) :: Query.t
   def project_quotas(service_name) do
@@ -395,7 +395,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.project_regions(service_name) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.project_regions(service_name) |> ExOvh.request!()
   """
   @spec project_regions(String.t) :: Query.t
   def project_regions(service_name) do
@@ -420,7 +420,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.project_region_info(service_name) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.project_region_info(service_name) |> ExOvh.request!()
   """
   @spec project_region_info(String.t, String.t) :: Query.t
   def project_region_info(service_name, region_name) do
@@ -449,7 +449,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.project_consumption(service_name) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.project_consumption(service_name) |> ExOvh.request!()
   """
   @spec project_consumption(String.t, String.t, String.t) :: Query.t
   def project_consumption(service_name, date_from \\ :nil, date_to \\ :nil) do
@@ -478,7 +478,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.project_bills(service_name) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.project_bills(service_name) |> ExOvh.request!()
   """
   @spec project_bills(String.t, String.t, String.t) :: Query.t
   def project_bills(service_name, date_from \\ :nil, date_to \\ :nil) do
@@ -505,7 +505,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.get_project_alerts(service_name) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.get_project_alerts(service_name) |> ExOvh.request!()
   """
   @spec get_project_alerts(String.t) :: Query.t
   def get_project_alerts(service_name) do
@@ -537,7 +537,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.create_project_alert(service_name, "email_address@email.email", 5) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.create_project_alert(service_name, "email_address@email.email", 5) |> ExOvh.request!()
   """
   @spec create_project_alert(String.t, String.t, integer, String.t) :: Query.t | no_return
   def create_project_alert(service_name, email, monthly_threshold, delay \\ "3600") do
@@ -568,7 +568,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.get_project_alert_info(service_name, alert_id) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.get_project_alert_info(service_name, alert_id) |> ExOvh.request!()
   """
   @spec get_project_alert_info(String.t, String.t) :: Query.t
   def get_project_alert_info(service_name, alert_id) do
@@ -597,7 +597,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.modify_project_alert(service_name, alert_id, "email_address@email.email", 5) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.modify_project_alert(service_name, alert_id, "email_address@email.email", 5) |> ExOvh.request!()
   """
   @spec modify_project_alert(String.t, String.t, String.t, integer, String.t) :: Query.t
   def modify_project_alert(service_name, alert_id, email, monthly_threshold, delay \\ "3600") do
@@ -628,7 +628,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.get_project_alert_info(service_name, alert_id) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.get_project_alert_info(service_name, alert_id) |> ExOvh.request!()
   """
   @spec delete_project_alert(String.t, String.t) :: Query.t
   def delete_project_alert(service_name, alert_id) do
@@ -653,7 +653,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Cloud.Query.terminate_project(service_name) |> ExOvh.Ovh.request!()
+      ExOvh.Services.V1.Cloud.Query.terminate_project(service_name) |> ExOvh.request!()
   """
   @spec terminate_project(String.t) :: Query.t
   def terminate_project(service_name) do

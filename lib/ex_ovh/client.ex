@@ -13,56 +13,25 @@ defmodule ExOvh.Client do
       @doc "Starts the client supervision tree"
       def start_link(sup_opts \\ []) do
         client = unquote(opts) |> Keyword.fetch!(:client)
-        ExOvh.Supervisor.start_link(client, sup_opts)
+        otp_app = unquote(opts) |> Keyword.fetch!(:otp_app)
+        ExOvh.Supervisor.start_link(client, [otp_app: otp_app])
       end
-
 
       @doc "Gets all the application configuration settings"
       @spec config() :: Keyword.t
       def config() do
-        otp_app = unquote(opts) |> Keyword.fetch!(:otp_app)
         client = unquote(opts) |> Keyword.fetch!(:client)
-        case otp_app do
-          :ex_ovh -> Application.get_all_env(otp_app)
-          _ ->
-            case Application.get_env(otp_app, client) do
-              :nil ->
-                temp_client = Module.split(client) |> List.delete_at(-1) |> Enum.join(".") |> String.to_atom()
-                temp_client = Module.concat(Elixir, temp_client)
-                Application.get_env(otp_app, temp_client)
-              config -> Application.get_env(otp_app, client)
-            end
-        end
+        unless agent_exists?(client), do: __MODULE__.start_link([])
+        ExOvh.Config.config(client)
       end
-
 
       @doc "Gets all the `:ovh` configuration settings"
       @spec ovh_config() :: Keyword.t
-      def ovh_config() do
-        config()
-        |> Keyword.fetch!(:ovh)
-        |> Keyword.merge(Defaults.ovh(), fn(k, v1, v2) ->
-          case {k, v1} do
-            {_, :nil} -> v2
-            {:endpoint, v1} -> Defaults.endpoints()[v1]
-            _ -> v1
-          end
-        end)
-      end
-
+      def ovh_config(), do: config() |> Keyword.fetch!(:ovh)
 
       @doc "Gets all the `:httpoison` configuration settings"
       @spec httpoison_config() :: Keyword.t
-      def httpoison_config() do
-        default_opts = [connect_timeout: 30000, receive_timeout: (60000 * 30)]
-        httpoison = Keyword.get(config(), :httpoison, default_opts)
-        httpoison
-        |> Keyword.put(:timeout, httpoison[:connect_timeout])
-        |> Keyword.put(:recv_timeout, httpoison[:receive_timeout])
-        |> Keyword.delete(:connect_timeout)
-        |> Keyword.delete(:receive_timeout)
-      end
-
+      def httpoison_config(), do: config() |> Keyword.fetch!(:httpoison)
 
       @doc "Prepares a request prior to sending by adding metadata such as authorization headers."
       @spec prepare_request(Query.t, Keyword.t) :: {:ok, Response.t} | {:error, Response.t}
@@ -87,48 +56,23 @@ defmodule ExOvh.Client do
         end
       end
 
-#      defoverridable [
-#                ovh_config: 0,
-#                httpoison_config: 0,
-#                start_link: 0, start_link: 1,
-#                request: 1, request: 2,
-#                request!: 1, request!: 2,
-#                prepare_request: 1, prepare_request: 2
-#               ]
+      defp agent_name(client) do
+        Module.concat(ExOvh.Config, client)
+      end
 
-      defoverridable [
-                ovh_config: 0,
-                httpoison_config: 0,
-                start_link: 1,
-                request: 2,
-                request!: 2,
-                prepare_request: 2
-               ]
-
+      defp agent_exists?(client) do
+        agent_name(client) in Process.registered()
+      end
 
     end
   end
 
-
-#  @callback start_link() :: {:ok, pid} | {:error, atom}
-#  @callback start_link(sup_opts :: list) :: {:ok, pid} | {:error, atom}
-#  @callback ovh_config() :: Keyword.t
-#  @callback httpoison_config() :: Keyword.t
-#  @callback prepare_request(query :: Query.t) :: Query.t | no_return
-#  @callback prepare_request(query :: Query.t, httpoison_opts :: Keyword.t) :: Query.t | no_return
-#  @callback request(query :: Query.t | HttpQuery.t) :: {:ok, Response.t} | {:error, Response.t}
-#  @callback request(query :: Query.t | HttpQuery.t, httpoison_opts :: Keyword.t) :: {:ok, Response.t} | {:error, Response.t}
-#  @callback request!(query :: Query.t | HttpQuery.t) :: {:ok, Response.t} | no_return
-#  @callback request!(query :: Query.t | HttpQuery.t, httpoison_opts :: Keyword.t) :: {:ok, Response.t} | no_return
-
-
   @callback start_link(sup_opts :: list) :: {:ok, pid} | {:error, atom}
+  @callback config() :: Keyword.t
   @callback ovh_config() :: Keyword.t
   @callback httpoison_config() :: Keyword.t
   @callback prepare_request(query :: Query.t, httpoison_opts :: Keyword.t) :: Query.t | no_return
   @callback request(query :: Query.t | HttpQuery.t, httpoison_opts :: Keyword.t) :: {:ok, Response.t} | {:error, Response.t}
   @callback request!(query :: Query.t | HttpQuery.t, httpoison_opts :: Keyword.t) :: {:ok, Response.t} | no_return
-
-
 
 end
