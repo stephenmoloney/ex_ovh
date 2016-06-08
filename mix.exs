@@ -39,7 +39,7 @@ defmodule ExOvh.Mixfile do
 
   defp description() do
     ~s"""
-    An elixir client library for easier use of the [OVH API](https://api.ovh.com/console/).
+    An elixir client library for the OVH API.
     """
   end
 

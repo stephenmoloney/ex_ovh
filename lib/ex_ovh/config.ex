@@ -78,9 +78,18 @@ defmodule ExOvh.Config do
     diff = calculate_diff(client, otp_app)
     ovh_config = get_ovh_config_from_env(client, otp_app)
     |> Keyword.put(:diff, diff)
+
+    httpoison_config = get_httpoison_config_from_env(client, otp_app)
+    connect_timeout = httpoison_config[:connect_timeout] || 30000 # 30 seconds
+    receive_timeout = httpoison_config[:receive_timeout] || (60000 * 30) # 30 minutes
+
     [
     ovh: ovh_config,
-    httpoison: get_httpoison_config_from_env(client, otp_app)
+    httpoison:
+            [
+            timeout: connect_timeout,
+            recv_timeout: receive_timeout,
+            ]
     ]
   end
 
