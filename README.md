@@ -5,8 +5,9 @@ ExOvh is an helper library in the [elixir language](http://elixir-lang.org/) for
 
 ## Project Features
 
-- Cache modules (genservers) running in the background which store frequently accessed authentication information.
-- Query modules for making calls to the OVH API.
+- Config supervised Agent running in the background which stores frequently accessed authentication information.
+- Query modules for making building requests to the [Ovh Api](https://api.ovh.com/).
+- `request` functions to send Queries to the [Ovh Api](https://api.ovh.com/).
 
 
 ## Documentation
@@ -52,4 +53,4 @@ This is an unofficial client to the OVH api and is not maintained by OVH.
 
 ## Licence 
 
-MIT
+[MIT Licence](LICENSE.txt)

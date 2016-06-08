@@ -5,7 +5,7 @@ defmodule ExOvh.Mixfile do
     [
       app: :ex_ovh,
       name: "ExOvh",
-      version: "0.0.2",
+      version: "0.1.0",
       source_url: "https://github.com/stephenmoloney/ex_ovh",
       elixir: "~> 1.2",
       build_embedded: Mix.env == :prod,
@@ -25,13 +25,12 @@ defmodule ExOvh.Mixfile do
 
   defp deps() do
     [
-      {:secure_random, "~> 0.2"},
-      {:floki, "~> 0.7.1"},
       {:calendar, "~> 0.13.2"},
       {:og, "~> 0.1"},
       {:morph, "~> 0.1.0"},
       {:poison, "~> 1.5 or ~> 2.0"},
       {:httpoison, "~> 0.8.0"},
+      {:floki, "~> 0.7.1", optional: :true},
 
       {:markdown, github: "devinus/markdown", only: :dev},
       {:ex_doc,  "~> 0.11", only: :dev}
