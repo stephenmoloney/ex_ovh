@@ -9,15 +9,6 @@ defmodule ExOvh.Transformation do
 
   @spec prepare_request(Query.t, Keyword.t, atom) :: HttpQuery.t
   def prepare_request(%Query{method: method, uri: uri, params: params, headers: headers}, httpoison_opts, client) do
-#    uri = if params !== :nil and params !== "" and is_map(params) and method in [:get, :head, :delete], do: uri <> "?" <> URI.encode_query(params), else: uri
-#    uri = if params !== :nil and params !== "" and is_map(params) === :false and method in [:get, :head, :delete], do: uri <> URI.encode_www_form(params), else: uri
-#    params =
-#    case params !== "" and params !== :nil and is_map(params) and method in [:put, :post] do
-#      :true -> Poison.encode!(params)
-#      :false -> params
-#    end
-#    ovh_config = client.ovh_config()
-#    uri = ovh_config[:endpoint] <> ovh_config[:api_version] <> uri
     ovh_config = client.ovh_config()
     uri = ovh_config[:endpoint] <> ovh_config[:api_version] <> uri
     uri =

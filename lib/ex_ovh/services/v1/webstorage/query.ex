@@ -13,7 +13,7 @@ defmodule ExOvh.Services.V1.Webstorage.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Webstorage.Query. get_services() |> ExOvh.Ovh.request()
+      ExOvh.Services.V1.Webstorage.Query.get_services() |> ExOvh.Ovh.request()
   """
   @spec get_services() :: Query.t
   def get_services() do
@@ -53,8 +53,8 @@ defmodule ExOvh.Services.V1.Webstorage.Query do
   def get_service(service_name) do
    %Query{
           method: :get,
-          uri: "/cdn/webstorage/",
-          params: service_name
+          uri: "/cdn/webstorage/#{service_name}",
+          params: %{}
           }
   end
 
@@ -117,7 +117,12 @@ defmodule ExOvh.Services.V1.Webstorage.Query do
     %Query{
           method: :get,
           uri: "/cdn/webstorage/#{service_name}/statistics",
-          params: %{"period" => period, "type" => type}
+          params: %{
+                    query_string: %{
+                                    "period" => period,
+                                    "type" => type
+                                  }
+                    }
           }
   end
 
