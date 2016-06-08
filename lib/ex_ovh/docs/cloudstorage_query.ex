@@ -4,7 +4,7 @@ defmodule ExOvh.Services.V1.Cloud.Cloudstorage.Query.Docs do
   @doc :false
   def moduledoc() do
     ~s"""
-    Helper functions for building queries directed at the cloudstorage related parts of the `/cloud` requests.
+    Helper functions for building queries directed at the cloudstorage related parts of the `/cloud` part of the [OVH API](https://api.ovh.com/console/).
 
     See `ExOvh.Services.V1.Cloud.Query` for generic cloud requests.
 
@@ -20,6 +20,9 @@ defmodule ExOvh.Services.V1.Cloud.Cloudstorage.Query.Docs do
     | `modify_container_cors/3` | <small>Modify the CORS settings for a container. See [swift docs](http://docs.openstack.org/developer/swift/cors.html)</small> | <sub><sup>POST /cloud/project/{serviceName}/storage/{containerId}/cors Add CORS support on your container</sup></sub> |
     | `deploy_container_as_static_website/2` | <small>Deploy the container files as a static web site.</small> | <sub><sup>POST /cloud/project/{serviceName}/storage/{containerId}/static</sup></sub> |
 
+    ## Notes
+
+    - `service_name` or `serviceName` corresponds to the Openstack `tenant_id`
 
     ## Example
 

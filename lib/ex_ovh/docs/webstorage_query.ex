@@ -4,7 +4,7 @@ defmodule ExOvh.Services.V1.Webstorage.Query.Docs do
   @doc :false
   def moduledoc() do
     ~s"""
-    Helper functions for building `queries directed at the `/cdn/webstorage` part of the custom ovh api.
+    Helper functions for building queries directed at the `/cdn/webstorage` part of the [OVH API](https://api.ovh.com/console/).
 
     ## Functions Summary
 
@@ -19,7 +19,7 @@ defmodule ExOvh.Services.V1.Webstorage.Query.Docs do
 
     ## Example
 
-        ExOvh.Services.V1.Webstorage.Query.get_all_webstorage() |> ExOvh.request()
+        ExOvh.Services.V1.Webstorage.Query.get_services() |> ExOvh.request()
     """
   end
 

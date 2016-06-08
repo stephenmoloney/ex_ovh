@@ -8,9 +8,7 @@ config :ex_ovh,
   ovh: [
     application_key: System.get_env("EX_OVH_APPLICATION_KEY"),
     application_secret: System.get_env("EX_OVH_APPLICATION_SECRET"),
-    consumer_key: System.get_env("EX_OVH_CONSUMER_KEY"),
-    endpoint: "ovh-eu",
-    api_version: "1.0"
+    consumer_key: System.get_env("EX_OVH_CONSUMER_KEY")
   ],
   httpoison: [
     connect_timeout: 20000,

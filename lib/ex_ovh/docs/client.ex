@@ -12,7 +12,7 @@ defmodule ExOvh.Client.Docs do
 
         defmodule ExOvh do
           @moduledoc :false
-          use ExOvh.Client, otp_app: :ex_ovh
+          use ExOvh.Client, otp_app: :ex_ovh, client: __MODULE__
         end
 
     Configuring a client:
@@ -32,10 +32,10 @@ defmodule ExOvh.Client.Docs do
 
     ## Example using the `ExOvh` client
 
-        %ExOvh.Query{ method: :get, uri: "/me", params: :nil} |> ExOvh.request!()
-        %ExOvh.Query{ method: :get, uri: "/cloud/project", params: :nil} |> ExOvh.request!()
+        %ExOvh.Query{ method: :get, uri: "/me", params: %{}} |> ExOvh.request!()
+        %ExOvh.Query{ method: :get, uri: "/cloud/project", params: %{}} |> ExOvh.request!()
 
-    ## Example (2): Setting up an additional MyApp.MyClient.Ovh` client.
+    ## Example (2): Setting up an additional `MyApp.MyClient` client.
 
     Defining the `MyApp.MyClient`
 
@@ -50,9 +50,9 @@ defmodule ExOvh.Client.Docs do
           ovh: [
              application_key: System.get_env("MY_APP_MY_CLIENT_APPLICATION_KEY"),
              application_secret: System.get_env("MY_APP_MY_CLIENT_APPLICATION_SECRET"),
-             consumer_key: System.get_env("MY_APP_MY_CLIENT_CONSUMER_KEY"),
-             endpoint: "ovh-eu",
-             api_version: "1.0"
+             consumer_key: System.get_env("MY_APP_MY_CLIENT_CONSUMER_KEY")
+             # if left out, :endpoint will default to "ovh-eu"
+             # if left out, :api_version will default to "1.0"
           ],
           httpoison: [ # optional
              connect_timeout: 20000,
@@ -61,8 +61,8 @@ defmodule ExOvh.Client.Docs do
 
     ## Example using the `MyApp.MyClient` client
 
-        %ExOvh.Query{ method: :get, uri: "/me", params: :nil} |> MyApp.MyClient.request!()
-        %ExOvh.Query{ method: :get, uri: "/cloud/project", params: :nil} |> MyApp.MyClient.request!()
+        %ExOvh.Query{ method: :get, uri: "/me", params: %{}} |> MyApp.MyClient.request!()
+        %ExOvh.Query{ method: :get, uri: "/cloud/project", params: %{}} |> MyApp.MyClient.request!()
     """
   end
 
@@ -72,7 +72,7 @@ defmodule ExOvh.Client.Docs do
     ~s"""
     A default client for sending requests to the [OVH API](https://api.ovh.com/console/).
 
-    `ExOvh` is the default client. Additional clients such as `MyApp.MyClient.Ovh` can be created - see docs.
+    `ExOvh` is the default client. Additional clients such as `MyApp.MyClient.Ovh` can be created - see `PAGES`.
     """
   end
 

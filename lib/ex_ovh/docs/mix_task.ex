@@ -1,4 +1,5 @@
 defmodule Mix.Tasks.Ovh.Docs do
+  @moduledoc :false
 
   @doc :false
   def moduledoc() do

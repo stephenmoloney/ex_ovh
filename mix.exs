@@ -5,7 +5,7 @@ defmodule ExOvh.Mixfile do
     [
       app: :ex_ovh,
       name: "ExOvh",
-      version: "0.0.1",
+      version: "0.0.2",
       source_url: "https://github.com/stephenmoloney/ex_ovh",
       elixir: "~> 1.2",
       build_embedded: Mix.env == :prod,
@@ -30,7 +30,7 @@ defmodule ExOvh.Mixfile do
       {:calendar, "~> 0.13.2"},
       {:og, "~> 0.1"},
       {:morph, "~> 0.1.0"},
-      {:poison, "~> 1.5 or  ~> 2.0"},
+      {:poison, "~> 1.5 or ~> 2.0"},
       {:httpoison, "~> 0.8.0"},
 
       {:markdown, github: "devinus/markdown", only: :dev},
@@ -40,7 +40,7 @@ defmodule ExOvh.Mixfile do
 
   defp description() do
     ~s"""
-    An elixir client library for easier use of the Ovh api.
+    An elixir client library for easier use of the [OVH API](https://api.ovh.com/console/).
     """
   end
 

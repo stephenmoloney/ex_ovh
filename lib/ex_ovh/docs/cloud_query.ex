@@ -4,7 +4,7 @@ defmodule ExOvh.Services.V1.Cloud.Query.Docs do
   @doc :false
   def moduledoc() do
     ~s"""
-    Helper functions for building queries directed at the `/cloud` part of the ovh api.
+    Helper functions for building queries directed at the `/cloud` part of the [OVH API](https://api.ovh.com/console/).
 
     ## Functions Summary
 
@@ -41,6 +41,10 @@ defmodule ExOvh.Services.V1.Cloud.Query.Docs do
         POST /cloud/project/{serviceName}/acl
         GET /cloud/project/{serviceName}/acl/{accountId}
         DELETE /cloud/project/{serviceName}/acl/{accountId}
+
+    ## Notes
+
+    - `service_name` or `serviceName` corresponds to the Openstack `tenant_id`
 
 
     ## Example

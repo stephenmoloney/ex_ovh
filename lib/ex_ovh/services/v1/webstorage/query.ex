@@ -13,7 +13,7 @@ defmodule ExOvh.Services.V1.Webstorage.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Webstorage.Query.get_services() |> ExOvh.Ovh.request()
+      ExOvh.Services.V1.Webstorage.Query.get_services() |> ExOvh.request()
   """
   @spec get_services() :: Query.t
   def get_services() do

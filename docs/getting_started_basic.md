@@ -1,5 +1,8 @@
 # Getting Started (Basic)
 
+The basic installation is intended for use cases where only a single client is required
+on a given server.
+
 ## Installation 
 
 - Add `:ex_ovh` to the dependencies.
@@ -9,9 +12,6 @@ defp deps() do
   [{:ex_ovh, "~> 0.0.1"}]
 end
 ```
-  
-
-
 
 ## Configuration
 
@@ -40,10 +40,32 @@ config :ex_ovh,
   ]
 ```
 
-- Start `ExOvh` application which in makes `ExOvh` client ready for use.
+- Start the `ExOvh` application.
 
 ```elixir
 def application do
  [applications: [:ex_ovh]]
 end
 ```
+
+- Add the client to your project.
+
+```elixir
+defmodule ExOvh do
+  @moduledoc :false
+  use ExOvh.Client, otp_app: :my_app, client: __MODULE__
+end
+```
+
+- Add the `ExOvh` client to the supervision tree of your application.
+
+```elixir
+def start(_type, _args) do
+  import Supervisor.Spec, warn: false
+  spec1 = [supervisor(MyApp.Endpoint, [])]
+  spec2 = [supervisor(ExOvh, [])]
+  opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+  Supervisor.start_link(spec1 ++ spec2, opts)
+end
+```
+
