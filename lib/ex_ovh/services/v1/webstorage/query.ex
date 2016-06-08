@@ -20,7 +20,7 @@ defmodule ExOvh.Services.V1.Webstorage.Query do
     %Query{
           method: :get,
           uri: "/cdn/webstorage",
-          params: :nil
+          params: %{}
           }
   end
 
@@ -83,7 +83,7 @@ defmodule ExOvh.Services.V1.Webstorage.Query do
     %Query{
       method: :get,
       uri: "/cdn/webstorage/#{service_name}/serviceInfos",
-      params: :nil
+      params: %{}
       }
   end
 
@@ -146,7 +146,7 @@ defmodule ExOvh.Services.V1.Webstorage.Query do
     %Query{
           method: :get,
           uri: "/cdn/webstorage/#{service_name}/credentials",
-          params: :nil
+          params: %{}
           }
   end
 

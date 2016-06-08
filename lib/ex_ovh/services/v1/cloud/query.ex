@@ -19,7 +19,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
     %Query{
           method: :get,
           uri: "/cloud/project",
-          params: :nil
+          params: %{}
           }
   end
 
@@ -44,7 +44,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
     %Query{
           method: :get,
           uri: "/cloud/project/#{service_name}/user",
-          params: :nil
+          params: %{}
           }
   end
 
@@ -71,9 +71,10 @@ defmodule ExOvh.Services.V1.Cloud.Query do
           method: :get,
           uri: "/cloud/project/#{service_name}/user",
           params: %{
-                    "description" => description
+                    binary: %{
+                              "description" => description
+                            } |> Poison.encode!()
                   }
-                  |> Poison.encode!()
           }
   end
 
@@ -99,7 +100,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
     %Query{
           method: :get,
           uri: "/cloud/project/#{service_name}/user/#{user_id}",
-          params: :nil
+          params: %{}
           }
   end
 
@@ -125,7 +126,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
     %Query{
           method: :delete,
           uri: "/cloud/project/#{service_name}/user/#{user_id}",
-          params: :nil
+          params: %{}
           }
   end
 
@@ -154,7 +155,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
           method: :get,
           uri: "/cloud/project/#{service_name}/user/#{user_id}/openrc",
           params: %{
-                    region: region
+                    query_string: %{region: region}
                   }
           }
   end
@@ -181,7 +182,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
     %Query{
           method: :post,
           uri: "/cloud/project/#{service_name}/user/#{user_id}/regeneratePassword",
-          params: :nil
+          params: %{}
           }
   end
 
@@ -209,9 +210,10 @@ defmodule ExOvh.Services.V1.Cloud.Query do
           method: :post,
           uri: "/cloud/project/#{service_name}/user/#{user_id}/token",
           params: %{
-                  "password" => password
+                    binary: %{
+                              "password" => password
+                            } |> Poison.encode!()
                   }
-                  |> Poison.encode!()
           }
   end
 
@@ -238,10 +240,11 @@ defmodule ExOvh.Services.V1.Cloud.Query do
           method: :post,
           uri: "/cloud/createProject",
           params: %{
-                  "description" => description,
-                  "voucher" => voucher
+                    binary: %{
+                              "description" => description,
+                              "voucher" => voucher
+                            } |> Poison.encode!()
                   }
-                  |> Poison.encode!()
           }
   end
 
@@ -266,7 +269,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
   def get_prices(region \\ :nil, flavor_id \\ :nil) do
     params =
     cond do
-      region == :nil and flavor_id == :nil -> :nil
+      region == :nil and flavor_id == :nil -> %{}
       region != :nil and flavor_id == :nil -> %{"region" => region}
       region == :nil and flavor_id != :nil -> %{"flavorId" => flavor_id}
       region != :nil and flavor_id != :nil -> %{ "region" => region, "flavorId" => flavor_id }
@@ -274,7 +277,9 @@ defmodule ExOvh.Services.V1.Cloud.Query do
     %Query{
           method: :get,
           uri: "/cloud/createProject",
-          params: params
+          params: %{
+                    binary: params |> Poison.encode!()
+                   }
           }
   end
 
@@ -299,7 +304,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
     %Query{
           method: :get,
           uri: "/cloud/project/#{service_name}",
-          params: :nil
+          params: %{}
           }
   end
 
@@ -325,9 +330,10 @@ defmodule ExOvh.Services.V1.Cloud.Query do
           method: :put,
           uri: "/cloud/project/#{service_name}",
           params: %{
-                    "description" => new_description
-                   }
-                   |> Poison.encode!()
+                    binary: %{
+                              "description" => new_description
+                            } |> Poison.encode!()
+                  }
           }
   end
 
@@ -352,7 +358,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
     %Query{
           method: :get,
           uri: "/cloud/project/#{service_name}/serviceInfos",
-          params: :nil
+          params: %{}
           }
   end
 
@@ -377,7 +383,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
     %Query{
           method: :get,
           uri: "/cloud/project/#{service_name}/quota",
-          params: :nil
+          params: %{}
           }
   end
 
@@ -402,7 +408,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
     %Query{
           method: :get,
           uri: "/cloud/project/#{service_name}/region",
-          params: :nil
+          params: %{}
           }
   end
 
@@ -427,7 +433,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
     %Query{
           method: :get,
           uri: "/cloud/project/#{service_name}/region/#{region_name}",
-          params: :nil
+          params: %{}
           }
   end
 
@@ -458,7 +464,12 @@ defmodule ExOvh.Services.V1.Cloud.Query do
     %Query{
           method: :get,
           uri: "/cloud/project/#{service_name}/consumption",
-          params: %{from: date_from, to: date_to}
+          params: %{
+                    query_string: %{
+                                    from: date_from,
+                                    to: date_to
+                                  }
+                  }
           }
   end
 
@@ -487,7 +498,12 @@ defmodule ExOvh.Services.V1.Cloud.Query do
     %Query{
           method: :get,
           uri: "/cloud/project/#{service_name}/bill",
-          params: %{from: date_from, to: date_to}
+          params: %{
+                    query_string: %{
+                                    from: date_from,
+                                    to: date_to
+                                  }
+                  }
           }
   end
 
@@ -512,7 +528,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
     %Query{
           method: :get,
           uri: "/cloud/project/#{service_name}/alerting",
-          params: :nil
+          params: %{}
           }
   end
 
@@ -546,10 +562,12 @@ defmodule ExOvh.Services.V1.Cloud.Query do
           method: :post,
           uri: "/cloud/project/#{service_name}/alerting",
           params: %{
-                  "delay" => delay,
-                  "email" => email,
-                  "monthlyThreshold" => monthly_threshold
-                  } |> Poison.encode!()
+                    binary: %{
+                              "delay" => delay,
+                              "email" => email,
+                              "monthlyThreshold" => monthly_threshold
+                            } |> Poison.encode!()
+                  }
           }
   end
 
@@ -575,7 +593,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
     %Query{
           method: :get,
           uri: "/cloud/project/#{service_name}/alerting/#{alert_id}",
-          params: :nil
+          params: %{}
           }
   end
 
@@ -606,10 +624,12 @@ defmodule ExOvh.Services.V1.Cloud.Query do
           method: :put,
           uri: "/cloud/project/#{service_name}/alerting/#{alert_id}",
           params: %{
-                  "delay" => delay,
-                  "email" => email,
-                  "monthlyThreshold" => monthly_threshold
-                  } |> Poison.encode!()
+                    binary: %{
+                              "delay" => delay,
+                              "email" => email,
+                              "monthlyThreshold" => monthly_threshold
+                            } |> Poison.encode!()
+                  }
           }
   end
 
@@ -635,7 +655,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
     %Query{
           method: :delete,
           uri: "/cloud/project/#{service_name}/alerting/#{alert_id}",
-          params: :nil
+          params: %{}
           }
   end
 
@@ -660,7 +680,7 @@ defmodule ExOvh.Services.V1.Cloud.Query do
     %Query{
           method: :post,
           uri: "/cloud/project/#{service_name}/terminate",
-          params: :nil
+          params: %{}
           }
   end
 

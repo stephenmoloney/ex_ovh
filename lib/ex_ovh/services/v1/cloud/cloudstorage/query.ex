@@ -23,7 +23,7 @@ defmodule ExOvh.Services.V1.Cloud.Cloudstorage.Query do
     %Query{
           method: :get,
           uri: "/cloud/project/#{service_name}/storage",
-          params: :nil
+          params: %{}
           }
   end
 
@@ -83,7 +83,7 @@ defmodule ExOvh.Services.V1.Cloud.Cloudstorage.Query do
     %Query{
           method: :get,
           uri: "/cloud/project/#{service_name}/storage/access",
-          params: :nil
+          params: %{}
           }
   end
 
@@ -114,7 +114,7 @@ defmodule ExOvh.Services.V1.Cloud.Cloudstorage.Query do
     %Query{
           method: :get,
           uri: "/cloud/project/#{service_name}/storage/#{container_id}",
-          params: :nil
+          params: %{}
           }
   end
 
@@ -142,7 +142,7 @@ defmodule ExOvh.Services.V1.Cloud.Cloudstorage.Query do
     %Query{
           method: :delete,
           uri: "/cloud/project/#{service_name}/storage/#{container_id}",
-          params: :nil
+          params: %{}
           }
   end
 
@@ -235,7 +235,7 @@ defmodule ExOvh.Services.V1.Cloud.Cloudstorage.Query do
     %Query{
           method: :post,
           uri: "/cloud/project/#{service_name}/storage/#{container_id}/static",
-          params: :nil
+          params: %{}
           }
   end
 

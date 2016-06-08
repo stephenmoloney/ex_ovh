@@ -1,6 +1,6 @@
 defmodule ExOvh.Client do
   @moduledoc Module.concat(__MODULE__, Docs).moduledoc()
-  alias ExOvh.{HttpQuery, Query, Response}
+  alias ExOvh.{HttpQuery, Query, Response, Transformation}
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do

@@ -9,16 +9,24 @@ defmodule ExOvh.Transformation do
 
   @spec prepare_request(Query.t, Keyword.t, atom) :: HttpQuery.t
   def prepare_request(%Query{method: method, uri: uri, params: params, headers: headers}, httpoison_opts, client) do
-    uri = if params !== :nil and params !== "" and is_map(params) and method in [:get, :head, :delete], do: uri <> "?" <> URI.encode_query(params), else: uri
-    uri = if params !== :nil and params !== "" and is_map(params) === :false and method in [:get, :head, :delete], do: uri <> URI.encode_www_form(params), else: uri
-    params =
-    case params !== "" and params !== :nil and is_map(params) and method in [:put, :post] do
-      :true -> Poison.encode!(params)
-      :false -> params
-    end
+#    uri = if params !== :nil and params !== "" and is_map(params) and method in [:get, :head, :delete], do: uri <> "?" <> URI.encode_query(params), else: uri
+#    uri = if params !== :nil and params !== "" and is_map(params) === :false and method in [:get, :head, :delete], do: uri <> URI.encode_www_form(params), else: uri
+#    params =
+#    case params !== "" and params !== :nil and is_map(params) and method in [:put, :post] do
+#      :true -> Poison.encode!(params)
+#      :false -> params
+#    end
+#    ovh_config = client.ovh_config()
+#    uri = ovh_config[:endpoint] <> ovh_config[:api_version] <> uri
     ovh_config = client.ovh_config()
     uri = ovh_config[:endpoint] <> ovh_config[:api_version] <> uri
-    body = params || ""
+    uri =
+    cond do
+      params == %{} -> uri
+      Map.get(params, :query_string, :nil) != :nil -> uri <> "?" <> (Map.fetch!(params, :query_string) |> URI.encode_query())
+      :true -> uri
+    end
+    body = if Map.has_key?(params, :binary), do: Map.get(params, :binary), else: ""
     headers = headers ++ headers([ovh_config[:application_secret], ovh_config[:application_key], ovh_config[:consumer_key], Atom.to_string(method), uri, ""], client)
     default_httpoison_opts = client.httpoison_config()
     options = merge_options(default_httpoison_opts, httpoison_opts)
