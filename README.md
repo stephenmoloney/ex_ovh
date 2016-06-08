@@ -2,6 +2,8 @@
 
 ExOvh is an helper library in the [elixir language](http://elixir-lang.org/) for the [Ovh Api](https://api.ovh.com/).
 
+To use the Openstack components of the OVH API, see [Openstex](https://github.com/stephenmoloney/openstex)
+
 
 ## Project Features
 
