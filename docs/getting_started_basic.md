@@ -9,7 +9,7 @@ on a given server.
 
 ```elixir
 defp deps() do
-  [{:ex_ovh, "~> 0.0.1"}]
+  [{:ex_ovh, "~> 0.1.0"}]
 end
 ```
 
@@ -20,7 +20,7 @@ end
 - Create an OVH account at [OVH](https://www.ovh.com/us/)
 
 - Create an API application at the [OVH API page](https://eu.api.ovh.com/createApp/). Follow the
-  steps outlined by OVH there. Alternatively, there is a [mix task](https://hexdocs.pm/ex_hubic/doc/mix_task_advanced.md.html) which can help 
+  steps outlined by OVH there. Alternatively, there is a [mix task](https://github.com/stephenmoloney/ex_ovh/docs/mix_task_basic.md) which can help
   generate the OVH application.
   
 - Add the configuration settings for the OVH application to your project `config.exs`.

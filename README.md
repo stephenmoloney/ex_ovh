@@ -1,6 +1,6 @@
 # ExOvh [![Build Status](https://travis-ci.org/stephenmoloney/ex_ovh.svg)](https://travis-ci.org/stephenmoloney/ex_ovh) [![Hex Version](http://img.shields.io/hexpm/v/ex_ovh.svg?style=flat)](https://hex.pm/packages/ex_ovh) [![Hex docs](http://img.shields.io/badge/hex.pm-docs-green.svg?style=flat)](https://hexdocs.pm/ex_ovh)
 
-ExOvh is an helper library in the [elixir language](http://elixir-lang.org/) for the [Ovh Api](https://api.ovh.com/).
+ExOvh is an helper library for the [elixir language](http://elixir-lang.org/) for the [Ovh Api](https://api.ovh.com/).
 
 To use the Openstack components of the OVH API, see [Openstex](https://github.com/stephenmoloney/openstex)
 
@@ -9,23 +9,31 @@ To use the Openstack components of the OVH API, see [Openstex](https://github.co
 
 - Config supervised Agent running in the background which stores frequently accessed authentication information.
 - Query modules for making building requests to the [Ovh Api](https://api.ovh.com/).
-- `request` functions to send Queries to the [Ovh Api](https://api.ovh.com/).
+- request functions to send Queries to the [Ovh Api](https://api.ovh.com/).
 
 
 ## Documentation
 
-- [hex package manager](https://hexdocs.pm/ex_hubic/api-reference.html).
+- [See Hex Docs](https://hexdocs.pm/ex_ovh)
 
 ## Getting started
-  
-- For setting a single `ExOvh` client, see [getting started basic](https://github.com/stephenmoloney/ex_ovh/docs/getting_started_basic.md.html)
-and [mix_task_basic.md](https://github.com/stephenmoloney/ex_ovh/docs/getting_started_basic.md).
-- For setting up multiple clients, see [getting started advanced](https://hexdocs.pm/ex_ovh/doc/getting_started_advanced.md) and
-[mix_task_advanced.md](https://github.com/stephenmoloney/ex_ovh/docs/getting_started_advanced.md).
 
-## Examples
+#### Example (1)
 
-- to be added
+| Step 1: Generating the OVH application | Step 2: Setup |
+|---|---|
+| [Mix Task](https://github.com/stephenmoloney/ex_ovh/docs/mix_task_basic.md) (optional) | [Setting up the Client](https://github.com/stephenmoloney/ex_ovh/docs/getting_started_basic.md) |
+
+#### Example (2) - Recommended way of getting started
+
+| Step 1: Generating the OVH application | Step 2: Setup |
+|---|---|
+| [Mix Task](https://github.com/stephenmoloney/ex_ovh/docs/mix_task_advanced.md) (optional) | [Setting up Clients](https://hexdocs.pm/ex_ovh/doc/getting_started_advanced.md) |
+
+
+## Usage
+
+- To be added
 
 
 ## Issues, Bug Reports, Feature Requests, Suggestions, Guidance, etc
