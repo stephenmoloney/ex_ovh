@@ -14,7 +14,7 @@ To use the Openstack components of the OVH API, see [Openstex](https://github.co
 
 ## Documentation
 
-- [See Hex Docs](https://hexdocs.pm/ex_ovh)
+- [See Hex Docs](https://hexdocs.pm/ex_ovh/0.1.1/api-reference.html)
 
 ## Getting started
 
