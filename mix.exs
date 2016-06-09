@@ -1,11 +1,12 @@
 defmodule ExOvh.Mixfile do
   use Mix.Project
+  @version "0.1.1"
 
   def project do
     [
       app: :ex_ovh,
       name: "ExOvh",
-      version: "0.1.1",
+      version: @version,
       source_url: "https://github.com/stephenmoloney/ex_ovh",
       elixir: "~> 1.2",
       build_embedded: Mix.env == :prod,
@@ -55,7 +56,7 @@ defmodule ExOvh.Mixfile do
 
   defp docs() do
     [
-    main: "api-reference",
+    main: @version <> "/api-reference.html",
     extras: [
              "docs/mix_task_advanced.md": [path: "mix_task_advanced.md", title: "Step 1: Generating the OVH application (Optional)"],
              "docs/getting_started_advanced.md": [path: "getting_started_advanced.md", title: "Step 2: Setting up client(s)"]
