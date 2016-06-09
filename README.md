@@ -22,13 +22,13 @@ To use the Openstack components of the OVH API, see [Openstex](https://github.co
 
 | Step 1: Generating the OVH application | Step 2: Setup |
 |---|---|
-| [Mix Task](https://github.com/stephenmoloney/ex_ovh/docs/mix_task_basic.md) (optional) | [Setting up the Client](https://github.com/stephenmoloney/ex_ovh/docs/getting_started_basic.md) |
+| [Mix Task](https://github.com/stephenmoloney/ex_ovh/blob/master/docs/mix_task_basic.md) (optional) | [Setting up the Client](https://github.com/stephenmoloney/ex_ovh/blob/master/docs/getting_started_basic.md) |
 
 #### Example (2) - Recommended way of getting started
 
 | Step 1: Generating the OVH application | Step 2: Setup |
 |---|---|
-| [Mix Task](https://github.com/stephenmoloney/ex_ovh/docs/mix_task_advanced.md) (optional) | [Setting up Clients](https://hexdocs.pm/ex_ovh/doc/getting_started_advanced.md) |
+| [Mix Task](https://github.com/stephenmoloney/ex_ovh/blob/master/docs/mix_task_advanced.md) (optional) | [Setting up Clients](https://hexdocs.pm/ex_ovh/blob/master/docs/getting_started_advanced.md) |
 
 
 ## Usage

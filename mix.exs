@@ -5,7 +5,7 @@ defmodule ExOvh.Mixfile do
     [
       app: :ex_ovh,
       name: "ExOvh",
-      version: "0.1.0",
+      version: "0.1.1",
       source_url: "https://github.com/stephenmoloney/ex_ovh",
       elixir: "~> 1.2",
       build_embedded: Mix.env == :prod,
@@ -30,7 +30,7 @@ defmodule ExOvh.Mixfile do
       {:morph, "~> 0.1.0"},
       {:poison, "~> 1.5 or ~> 2.0"},
       {:httpoison, "~> 0.8.0"},
-      {:floki, "~> 0.7.1", optional: :true},
+      {:floki, "~> 0.7.1"},
 
       {:markdown, github: "devinus/markdown", only: :dev},
       {:ex_doc,  "~> 0.11", only: :dev}
@@ -57,10 +57,8 @@ defmodule ExOvh.Mixfile do
     [
     main: "api-reference",
     extras: [
-             "docs/getting_started_basic.md": [path: "getting_started_basic.md", title: "Getting Started (Basic)"],
-             "docs/getting_started_advanced.md": [path: "getting_started_advanced.md", title: "Getting Started (Advanced)"],
-             "docs/mix_task_basic.md": [path: "mix_task_basic.md", title: "Basic Mix Task (Optional)"],
-             "docs/mix_task_advanced.md": [path: "mix_task_advanced.md", title: "Advanced Mix Task (Optional)"]
+             "docs/mix_task_advanced.md": [path: "mix_task_advanced.md", title: "Step 1: Generating the OVH application (Optional)"],
+             "docs/getting_started_advanced.md": [path: "getting_started_advanced.md", title: "Step 2: Setting up client(s)"]
             ]
     ]
   end

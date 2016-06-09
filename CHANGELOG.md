@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.1
+
+- No changes to source code. Only documentation changes.
+
+
 ## v0.1.0
 
 - Decouple the `Openstack` component into the `Openstex` repository.
