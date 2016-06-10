@@ -56,7 +56,7 @@ defmodule ExOvh.Mixfile do
 
   defp docs() do
     [
-    main: "api-reference",
+    main: "ExOvh",
     extras: [
              "docs/mix_task_advanced.md": [path: "mix_task_advanced.md", title: "Step 1: Generating the OVH application (Optional)"],
              "docs/getting_started_advanced.md": [path: "getting_started_advanced.md", title: "Step 2: Setting up client(s)"]

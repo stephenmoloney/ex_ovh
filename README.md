@@ -1,4 +1,5 @@
-# ExOvh [![Build Status](https://travis-ci.org/stephenmoloney/ex_ovh.svg)](https://travis-ci.org/stephenmoloney/ex_ovh) [![Hex Version](http://img.shields.io/hexpm/v/ex_ovh.svg?style=flat)](https://hex.pm/packages/ex_ovh) [![Hex docs](http://img.shields.io/badge/hex.pm-docs-green.svg?style=flat)](https://hexdocs.pm/ex_ovh)
+# ExOvh [![Build Status](https://travis-ci.org/stephenmoloney/ex_ovh.svg)](https://travis-ci.org/stephenmoloney/ex_ovh) [![Hex Version](http://img.shields.io/hexpm/v/ex_ovh.svg?style=flat)](https://hex.pm/packages/ex_ovh) [![Hex docs](http://img.shields.io/badge/hex.pm-docs-green.svg?style=flat)](https://hexdocs.pm/ex_ovh) [![Deps Status](https://beta.hexfaktor.org/badge/prod/github/stephenmoloney/ex_ovh.svg)](https://beta.hexfaktor.org/github/stephenmoloney/ex_ovh)
+
 
 ExOvh is an helper library for the [elixir language](http://elixir-lang.org/) for the [Ovh Api](https://api.ovh.com/).
 
@@ -36,17 +37,13 @@ To use the Openstack components of the OVH API, see [Openstex](https://github.co
 - To be added
 
 
-## Issues, Bug Reports, Feature Requests, Suggestions, Guidance, etc
-- Create [issues here](https://github.com/stephenmoloney/ex_ovh/issues/new) to communicate your ideas to me. Thanks. 
-
-
 ## Contributing
 - Pull requests welcome.
 
 
 ## Tests
 
-- Tests against the OVH portion of the library have not been written yet.
+- Tests have not been written yet.
 
 
 ## TODO
