@@ -319,7 +319,7 @@ defmodule Mix.Tasks.Ovh do
           name_val = :proplists.get_value("name", input)
           value = password
           {name_val, value}
-        type == "input" && {"type", "text"} in input && {"placeholder", "Account ID"} in input ->
+        type == "input" && {"type", "text"} in input && {"placeholder", "Account ID or email address"} in input ->
           name_val = :proplists.get_value("name", input)
           value = login
           {name_val, value}

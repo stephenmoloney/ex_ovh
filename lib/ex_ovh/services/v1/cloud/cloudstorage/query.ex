@@ -54,9 +54,11 @@ defmodule ExOvh.Services.V1.Cloud.Cloudstorage.Query do
           method: :post,
           uri: "/cloud/project/#{service_name}/storage",
           params: %{
-                    "containerName" => container_name,
-                    "region" => region
-                  } |> Poison.encode!()
+                    binary: %{
+                              "containerName" => container_name,
+                              "region" => region
+                            } |> Poison.encode!()
+                    }
           }
   end
 
@@ -191,8 +193,10 @@ defmodule ExOvh.Services.V1.Cloud.Cloudstorage.Query do
           method: :post,
           uri: "/cloud/project/#{service_name}/storage/#{container_id}/cors",
           params: %{
-                  "origin" => origin
-                  }  |> Poison.encode!()
+                    binary: %{
+                              "origin" => origin
+                            } |> Poison.encode!()
+                   }
           }
   end
 
