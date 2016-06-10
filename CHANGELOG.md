@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.2
+
+- Fix `mix ovh` task.
+- Fix some of the `/cloud` queries (binary key was missing due to missed earlier change)
+
+
 ## v0.1.1
 
 - No changes to source code. Only documentation changes.
