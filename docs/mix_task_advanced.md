@@ -25,7 +25,7 @@ mix ovh \
 --endpoint='ovh-eu' \
 --apiversion='1.0' \
 --redirecturi='http://localhost:4000/' \
---accessrules='get-[/*]::put-[/me,/cdn]::post-[/me,/cdn]::delete-[]' \
+--accessrules='get-[/*]::put-[/me,/me/*,/cdn/webstorage,/cdn/webstorage/*]::post-[/me,/cdn/webstorage,/cdn/webstorage/*]::delete-[/cdn/webstorage,/cdn/webstorage/*]' \
 --appname='my_app' \
 --clientname='OvhClient'
 ```
