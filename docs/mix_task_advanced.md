@@ -26,7 +26,7 @@ mix ovh \
 --apiversion='1.0' \
 --redirecturi='http://localhost:4000/' \
 --accessrules='get-[/*]::put-[/me,/cdn]::post-[/me,/cdn]::delete-[]' \
---appname='my_app'
+--appname='my_app' \
 --clientname='OvhClient'
 ```
 

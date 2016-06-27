@@ -60,4 +60,4 @@ This is an unofficial client to the OVH api and is not maintained by OVH.
 
 ## Licence 
 
-[MIT Licence](LICENSE.txt)
+[MIT Licence](LICENCE.md)
