@@ -60,16 +60,16 @@ defmodule Mix.Tasks.Ovh do
 
   defp has_required_args(opts) do
     login = Keyword.get(opts, :login, :nil)
-    if login === :nil do
+    if login == :nil do
       raise "Task requires login argument"
     end
     password = Keyword.get(opts, :password, :nil)
-    if password === :nil do
+    if password == :nil do
       raise "Task requires password argument"
     end
     {opts, %{}}
     application_name = Keyword.get(opts, :appname, :ex_ovh)
-    if application_name === :nil do
+    if application_name == :nil do
       raise "Task requires appname argument"
     end
     {opts, %{}}
@@ -126,7 +126,7 @@ defmodule Mix.Tasks.Ovh do
   defp parsers_access_rules({opts, acc}) do
     access_rules = Keyword.get(opts, :accessrules, :nil)
     access_rules =
-    if access_rules === :nil do
+    if access_rules == :nil do
       Defaults.access_rules()
     else
       String.split(access_rules, "::")
@@ -173,7 +173,7 @@ defmodule Mix.Tasks.Ovh do
 
     inputs = Floki.find(resp_body, "form input")
     |> List.flatten()
-    if Enum.any?(inputs, fn(input) -> input === [] end), do: raise "Empty input found"
+    if Enum.any?(inputs, fn(input) -> input == [] end), do: raise "Empty input found"
     inputs
   end
 
@@ -199,7 +199,7 @@ defmodule Mix.Tasks.Ovh do
       end
       param =  name <> "=" <> value
       {acc, index, max} = acc
-      if index === max do
+      if index == max do
         acc = acc <> param
       else
         acc = acc <> param <> "&"
@@ -299,7 +299,7 @@ defmodule Mix.Tasks.Ovh do
     |> Enum.filter(fn({_type, input, _options}) ->
       :proplists.get_value("name", input) !== "identifiant"
     end)
-    if Enum.any?(inputs, fn(input) -> input === [] end), do: raise "Inputs should not be empty"
+    if Enum.any?(inputs, fn(input) -> input == [] end), do: raise "Inputs should not be empty"
     inputs
   end
 
@@ -332,7 +332,7 @@ defmodule Mix.Tasks.Ovh do
       end
       param =  name_val <> "=" <> value
       {acc, index, max} = acc
-      if index === max do
+      if index == max do
         acc = acc <> param
       else
         acc = acc <> param <> "&"

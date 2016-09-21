@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.3
+
+- Improve the `mix ovh` docs to better illustrate how to create an application and setup access rules.
+
 ## v0.1.2
 
 - Fix `mix ovh` task.

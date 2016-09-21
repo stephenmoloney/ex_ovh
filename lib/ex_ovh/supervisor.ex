@@ -21,7 +21,7 @@ defmodule ExOvh.Supervisor do
     [
     {client, {ExOvh.Config, :start_agent, [client, opts]}, :permanent, 10_000, :worker, [ExOvh.Config]}
     ]
-    supervise(sup_tree, strategy: :one_for_one, max_restarts: 30)
+    supervise(sup_tree, strategy: :one_for_one, max_restarts: 3, max_seconds: 60) # max restarts 3 in one minute
   end
 
 
