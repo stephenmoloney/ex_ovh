@@ -5,7 +5,9 @@ defmodule Mix.Tasks.Ovh do
   alias ExOvh.Defaults
   @default_headers [{"Content-Type", "application/json; charset=utf-8"}]
   @default_options [ timeout: 30000, recv_timeout: (60000 * 1) ]
-
+  @default_name "ex_ovh"
+  @default_description "ex_ovh application"
+  @default_redirect_uri ""
 
   # Public
 
@@ -98,7 +100,7 @@ defmodule Mix.Tasks.Ovh do
     {opts, Map.merge(acc, %{ api_version: api_version }) }
   end
   defp parsers_redirect_uri({opts, acc}) do
-    redirect_uri = Keyword.get(opts, :redirecturi, "")
+    redirect_uri = Keyword.get(opts, :redirecturi, @default_redirect_uri)
     {opts, Map.merge(acc, %{ redirect_uri: redirect_uri }) }
   end
   defp parsers_client_name({opts, acc}) do
@@ -106,7 +108,7 @@ defmodule Mix.Tasks.Ovh do
     {opts, Map.merge(acc, %{ client_name: client_name }) }
   end
   defp parsers_app_name({opts, acc}) do
-    application_name = Keyword.get(opts, :appname, :nil)
+    application_name = Keyword.get(opts, :appname, @default_name)
     application_name =
     case application_name do
       :nil -> "ex_ovh"
@@ -118,7 +120,7 @@ defmodule Mix.Tasks.Ovh do
     application_description = Keyword.get(opts, :appdescription, :nil)
     application_description =
     case application_description do
-      :nil -> "ex_ovh"
+      :nil -> Keyword.get(opts, :appname, @default_description)
       _ -> application_description
     end
     {opts, Map.merge(acc, %{ application_description: application_description }) }
@@ -307,11 +309,10 @@ defmodule Mix.Tasks.Ovh do
   defp build_ck_binding_request(inputs, %{login: login, password: password} = _opts_map) do
     Og.context(__ENV__, :debug)
 
-    {acc, _index, _max} =
-    Enum.reduce(inputs, {"", 1, Enum.count(inputs)}, fn({type, input, _options}, acc) ->
+    Enum.reduce(inputs, "", fn({type, input, _options}, acc) ->
       {name_val, value} =
-      cond do
-        type == "input" &&  {"name", "credentialToken"} in input ->
+     cond do
+        type == "input" && {"name", "credentialToken"} in input ->
           name_val = :proplists.get_value("name", input)
           value = :proplists.get_value("value", input)
           {name_val, value}
@@ -328,18 +329,16 @@ defmodule Mix.Tasks.Ovh do
           value = "0"
           {name_val, value}
         true ->
-          raise "Unexpected input"
+          # raise "Unexpected input"
+          Og.log("Ignoring unexpected input " <> inspect(input), __ENV__, :warn)
+          {:no_name, :no_val}
       end
-      param =  name_val <> "=" <> value
-      {acc, index, max} = acc
-      if index == max do
-        acc = acc <> param
-      else
-        acc = acc <> param <> "&"
+      case {name_val, value} do
+        {:no_name, :no_val} -> acc
+        {name_val, value} -> acc <> name_val <> "=" <> value  <> "&"
       end
-      {acc, index + 1, max}
     end)
-    acc
+    |> String.trim_trailing("&")
   end
 
 
@@ -356,20 +355,14 @@ defmodule Mix.Tasks.Ovh do
     error_msg1 = "Failed to bind the consumer token to the application. Please try to validate the consumer token manually at #{validation_url}"
     error_msg2 = "Invalid validity period entered for the consumer token. Please try to validate the consumer token manually at #{validation_url}"
     cond do
-     String.contains?(resp.body, "Invalid validity") ->
-      raise error_msg2
-     String.contains?(resp.body, "The token is now valid, it can be used in the application") ->
-      ck
-    String.contains?(resp.body, "Your token is now valid, you can use it in your application") ->
-      ck
-    String.contains?(resp.body, "token is now valid") ->
-      ck
-     resp.status_code == 302 && (resp.headers |> Enum.into(%{}) |> Map.has_key?("Location")) ->
-      ck  # presume the validation was successful if redirected to redirect uri
-     true ->
-      raise error_msg1
+      String.contains?(resp.body, "Invalid validity") -> raise error_msg2
+      String.contains?(resp.body, "The token is now valid, it can be used in the application") -> ck
+      String.contains?(resp.body, "Your token is now valid, you can use it in your application") -> ck
+      String.contains?(resp.body, "token is now valid") -> ck
+      # presume the validation was successful if redirected to redirect uri
+      resp.status_code == 302 && (resp.headers |> Enum.into(%{}) |> Map.has_key?("Location")) -> ck
+      true -> raise error_msg1
     end
-
   end
 
 
@@ -420,9 +413,14 @@ defmodule Mix.Tasks.Ovh do
 
   defp create_or_update_env_file(options) do
     env_path = ".env"
-    File.touch!(env_path)
+    File.exists?(env_path) || File.touch!(env_path)
     existing = File.read!(env_path)
     {_config_header, mod_client_name} = config_names(options.application_name, options.client_name)
+    existing =
+    case existing do
+      "" -> "#!/usr/bin/env bash\n"
+      _ -> existing
+    end
     new = existing <>
     ~s"""
 
