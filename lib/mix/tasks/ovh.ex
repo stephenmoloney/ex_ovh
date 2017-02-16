@@ -15,6 +15,9 @@ defmodule Mix.Tasks.Ovh do
   def run(args) do
     opts_map = parse_args(args)
     IO.inspect(opts_map, pretty: :true)
+
+    elixir_app_name = Mix.Project.config()[:app]
+
     Mix.Shell.IO.info("")
     Mix.Shell.IO.info("The details in the map above will be used to create the ovh application.")
     Mix.Shell.IO.info("")
@@ -24,8 +27,8 @@ defmodule Mix.Tasks.Ovh do
 
       message = get_credentials(opts_map)
       |> remove_private()
-      |> create_or_update_env_file()
-      |> print_config()
+      |> create_or_update_env_file(elixir_app_name)
+      |> print_config(elixir_app_name)
 
       Mix.Shell.IO.info(message)
       Mix.Shell.IO.info("")
@@ -158,7 +161,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_app_create_page(opts_map) do
-    Og.context(__ENV__, :debug)
+#    Og.context(__ENV__, :debug)
 
     method = :get
     uri = Defaults.endpoints()[opts_map[:endpoint]] <> Defaults.create_app_uri_suffix()
@@ -171,7 +174,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_create_app_inputs(resp_body) do
-    Og.context(__ENV__, :debug)
+#    Og.context(__ENV__, :debug)
 
     inputs = Floki.find(resp_body, "form input")
     |> List.flatten()
@@ -181,7 +184,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp build_app_request(inputs, %{login: login, password: password} = opts_map) do
-    Og.context(__ENV__, :debug)
+#    Og.context(__ENV__, :debug)
 
     {acc, _index, _max} =
     Enum.reduce(inputs, {"", 1, Enum.count(inputs)}, fn({"input", input, _}, acc) ->
@@ -209,7 +212,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp send_app_request(req_body, opts_map) do
-    Og.context(__ENV__, :debug)
+#    Og.context(__ENV__, :debug)
 
     method = :post
     uri = Defaults.endpoints()[opts_map[:endpoint]] <> Defaults.create_app_uri_suffix()
@@ -257,7 +260,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_consumer_key(%{access_rules: access_rules, redirect_uri: redirect_uri} = opts_map) do
-    Og.context(__ENV__, :debug)
+#    Og.context(__ENV__, :debug)
 
     method = :post
     uri = Defaults.endpoints()[opts_map[:endpoint]] <> opts_map[:api_version] <> Defaults.consumer_key_suffix()
@@ -272,7 +275,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp bind_consumer_key_to_app({ck, validation_url}, opts_map) do
-    Og.context(__ENV__, :debug)
+#    Og.context(__ENV__, :debug)
 
     method = :get
     uri = validation_url
@@ -289,7 +292,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_bind_ck_to_app_inputs(resp_body) do
-    Og.context(__ENV__, :debug)
+#    Og.context(__ENV__, :debug)
 
     inputs = Floki.find(resp_body, "form input") ++
     Floki.find(resp_body, "form select")
@@ -303,7 +306,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp build_ck_binding_request(inputs, %{login: login, password: password} = _opts_map) do
-    Og.context(__ENV__, :debug)
+#    Og.context(__ENV__, :debug)
 
     Enum.reduce(inputs, "", fn({type, input, _options}, acc) ->
       {name_val, value} =
@@ -326,7 +329,7 @@ defmodule Mix.Tasks.Ovh do
           {name_val, value}
         true ->
           # raise "Unexpected input"
-          Og.log("Ignoring unexpected input " <> inspect(input), __ENV__, :warn)
+#          Og.log("Ignoring unexpected input " <> inspect(input), __ENV__, :warn)
           {:no_name, :no_val}
       end
       case {name_val, value} do
@@ -339,7 +342,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp send_ck_binding_request(req_body, validation_url, ck) do
-    Og.context(__ENV__, :debug)
+#    Og.context(__ENV__, :debug)
 
     method = :post
     uri = validation_url
@@ -356,7 +359,7 @@ defmodule Mix.Tasks.Ovh do
   end
 
   def check_for_successful_binding(resp, validation_url, ck) do
-    Og.context(__ENV__, :debug)
+#    Og.context(__ENV__, :debug)
 
     error_msg1 = "Failed to bind the consumer token to the application. Please try to validate the consumer token manually at #{validation_url}"
     error_msg2 = "Invalid validity period entered for the consumer token. Please try to validate the consumer token manually at #{validation_url}"
@@ -374,7 +377,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp build_2fa_request(resp_body) do
-    Og.context(__ENV__, :debug)
+#    Og.context(__ENV__, :debug)
 
     Mix.Shell.IO.info("You have activated 2FA on your OVH account, you need to verify your account via 2FA")
 
@@ -403,7 +406,7 @@ defmodule Mix.Tasks.Ovh do
           {name_val, value}
         true ->
           # raise "Unexpected input"
-          Og.log("Ignoring unexpected input " <> inspect(input), __ENV__, :warn)
+#          Og.log("Ignoring unexpected input " <> inspect(input), __ENV__, :warn)
           {:no_name, :no_val}
       end
       case {name_val, value} do
@@ -416,7 +419,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp handle_2fa(resp_body, validation_url, ck) do
-    Og.context(__ENV__, :debug)
+#    Og.context(__ENV__, :debug)
 
     method = :post
     uri = validation_url
@@ -435,7 +438,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_credentials(opts_map) do
-    Og.context(__ENV__, :debug)
+#    Og.context(__ENV__, :debug)
 
     create_app_body = get_app_create_page(opts_map) |> get_create_app_inputs() |> build_app_request(opts_map) |> send_app_request(opts_map)
     opts_map = Map.merge(opts_map, %{
@@ -455,8 +458,11 @@ defmodule Mix.Tasks.Ovh do
   end
 
 
+  defp config_names(app_name, client_name) when is_atom(app_name) do
+    config_names(Atom.to_string(app_name), client_name)
+  end
   defp config_names(app_name, client_name) do
-    Og.context(__ENV__, :debug)
+#    Og.context(__ENV__, :debug)
 
     {config_header, mod_client_name} =
     case app_name do
@@ -479,11 +485,12 @@ defmodule Mix.Tasks.Ovh do
     {config_header, mod_client_name}
   end
 
-  defp create_or_update_env_file(options) do
+  defp create_or_update_env_file(options, elixir_app_name) do
     env_path = ".env"
     File.exists?(env_path) || File.touch!(env_path)
     existing = File.read!(env_path)
-    {_config_header, mod_client_name} = config_names(options.application_name, options.client_name)
+    app_name = elixir_app_name || options.application_name
+    {_config_header, mod_client_name} = config_names(app_name, options.client_name)
     existing =
     case existing do
       "" -> "#!/usr/bin/env bash\n"
@@ -505,9 +512,11 @@ defmodule Mix.Tasks.Ovh do
   end
 
 
-  defp print_config(options) do
-    Og.context(__ENV__, :debug)
-    {config_header, mod_client_name} = config_names(options.application_name, options.client_name)
+  defp print_config(options, elixir_app_name) do
+#    Og.context(__ENV__, :debug)
+
+    app_name = elixir_app_name || options.application_name
+    {config_header, mod_client_name} = config_names(app_name, options.client_name)
 
     ~s"""
 
