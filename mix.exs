@@ -50,7 +50,7 @@ defmodule ExOvh.Mixfile do
       licenses: ["MIT"],
       maintainers: ["Stephen Moloney"],
       links: %{ "GitHub" => "https://github.com/stephenmoloney/ex_ovh"},
-      files: ~w(lib priv mix.exs README* LICENCE* CHANGELOG*)
+      files: ~w(docs lib mix.exs README* LICENCE* CHANGELOG*)
      }
   end
 
