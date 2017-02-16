@@ -29,9 +29,9 @@ defmodule Mix.Tasks.Ovh do
 
       Mix.Shell.IO.info(message)
       Mix.Shell.IO.info("")
-      Mix.Shell.IO.info("Update the environment variables and all is done here.")
+      Mix.Shell.IO.info("Update the environment variables and you're done''")
       Mix.Shell.IO.info("")
-      Mix.Shell.IO.info("For example: ")
+      Mix.Shell.IO.info("One way to update the environment variables is to run the command: ")
       Mix.Shell.IO.info("")
       Mix.Shell.IO.info("source .env")
     end
