@@ -29,17 +29,10 @@ defmodule Mix.Tasks.Ovh.Docs do
           ovh: [
             application_key: System.get_env("EX_OVH_APPLICATION_KEY"),
             application_secret: System.get_env("EX_OVH_APPLICATION_SECRET"),
-            consumer_key: System.get_env("EX_OVH_CONSUMER_KEY"),
-            endpoint: "ovh-eu",
-            api_version: "1.0"
-          ],
-          httpoison: [ # optional
-            connect_timeout: 20000,
-            receive_timeout: 100000
+            consumer_key: System.get_env("EX_OVH_CONSUMER_KEY")
           ]
 
-    See the [mix task basic](https://hexdocs.pm/ex_ovh/doc/mix_task_basic.md.html) or
-    [mix task advanced](https://hexdocs.pm/ex_ovh/doc/mix_task_advanced.md.html) for practical steps involved in running the hubic mix task.
+    See the [mix task documentation]((https://github.com/stephenmoloney/ex_ovh/blob/master/docs/mix_task.md).
     """
   end
 

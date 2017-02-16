@@ -26,7 +26,8 @@ defmodule ExOvh.Mixfile do
 
   defp deps() do
     [
-      {:calendar, "~> 0.13.2"},
+#    {:calendar, "~> 0.13.2"},
+      {:calendar, "~> 0.14.0"},
       {:og, "~> 0.1"},
       {:morph, "~> 0.1.0"},
       {:poison, "~> 1.5 or ~> 2.0"},
@@ -58,8 +59,8 @@ defmodule ExOvh.Mixfile do
     [
     main: "ExOvh",
     extras: [
-             "docs/mix_task_advanced.md": [path: "mix_task_advanced.md", title: "Step 1: Generating the OVH application (Optional)"],
-             "docs/getting_started_advanced.md": [path: "getting_started_advanced.md", title: "Step 2: Setting up client(s)"]
+             "docs/mix_task.md": [path: "mix_task.md", title: "Step 1: Generating the OVH application"],
+             "docs/getting_started.md": [path: "getting_started.md", title: "Step 2: Setting up client"]
             ]
     ]
   end

@@ -2,62 +2,65 @@
 
 
 ExOvh is an helper library for the [elixir language](http://elixir-lang.org/) for the [Ovh Api](https://api.ovh.com/).
-
 To use the Openstack components of the OVH API, see [Openstex](https://github.com/stephenmoloney/openstex)
 
 
-## Project Features
+#### Project Features
 
-- Config supervised Agent running in the background which stores frequently accessed authentication information.
+- Config supervised agent running in the background which stores frequently accessed authentication information.
 - Query modules for making building requests to the [Ovh Api](https://api.ovh.com/).
-- request functions to send Queries to the [Ovh Api](https://api.ovh.com/).
+- Request functions to send Queries to the [Ovh Api](https://api.ovh.com/).
 
 
-## Documentation
-
-- [See Hex Docs](https://hexdocs.pm/ex_ovh/0.1.1/api-reference.html)
-
-## Getting started
-
-#### Example (1)
-
-| Step 1: Generating the OVH application | Step 2: Setup |
-|---|---|
-| [Mix Task](https://github.com/stephenmoloney/ex_ovh/blob/master/docs/mix_task_basic.md) (optional) | [Setting up the Client](https://github.com/stephenmoloney/ex_ovh/blob/master/docs/getting_started_basic.md) |
-
-#### Example (2) - Recommended way of getting started
-
-| Step 1: Generating the OVH application | Step 2: Setup |
-|---|---|
-| [Mix Task](https://github.com/stephenmoloney/ex_ovh/blob/master/docs/mix_task_advanced.md) (optional) | [Setting up Clients](https://hexdocs.pm/ex_ovh/blob/master/docs/getting_started_advanced.md) |
 
 
-## Usage
+#### Getting started - Step 1: Generating the OVH `application key`, `application secret` and `consumer key`.
 
-- To be added
+- This may be done manually by going to `https://eu.api.ovh.com/createApp/` and following the directions outlined by `OVH` ath
+[their first steps guide](https://api.ovh.com/g934.first_step_with_api).
+
+- Alternatively, this may be achieved by running a mix task. This saves me a lot of time when generating a new application.
+ [Documentation here](https://github.com/stephenmoloney/ex_ovh/blob/master/docs/mix_task.md)
 
 
-## Contributing
+#### Getting Started - Step 2: Generating the OVH client module for your elixir application
+
+- The client module (eg `AwesomeApp.OvhClient`) is the interface for accessing the
+functions of the ***ex_ovh*** `API`.
+
+- [Documentation here](https://github.com/stephenmoloney/ex_ovh/blob/master/docs/getting_started.md)
+
+
+#### Usage
+
+- Basic examples to be added to readme.
+
+[See Hex Docs](https://hexdocs.pm/ex_ovh/0.2/api-reference.html)
+
+
+#### Contributing
 - Pull requests welcome.
 
 
-## Tests
+#### Tests
 
 - Tests have not been written yet.
 
 
-## TODO
+#### TODO
 
 - [ ] Tests for OVH portion of library
 - [ ] Option to set the application ttl when running ovh mix task.
 - [ ] Add queries for the remainder of the OVH API. (Webstorage CDN and Cloud are the only ones covered so far)
+- [ ] Basic examples to be added to readme of usage of the api.
+- [ ] Add macro for building queries.
 
 
-## Note 
+#### Note 
 
 This is an unofficial client to the OVH api and is not maintained by OVH.
 
 
-## Licence 
+#### Licence 
 
 [MIT Licence](LICENCE.md)
