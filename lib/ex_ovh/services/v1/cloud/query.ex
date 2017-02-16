@@ -459,8 +459,8 @@ defmodule ExOvh.Services.V1.Cloud.Query do
   """
   @spec project_consumption(String.t, String.t, String.t) :: Query.t
   def project_consumption(service_name, date_from \\ :nil, date_to \\ :nil) do
-    date_from = if date_from == :nil, do: Calendar.DateTime.now_utc!() |> Calendar.DateTime.add!(-(60*60*24*28)) |> Calendar.DateTime.Format.rfc3339(), else: date_from
-    date_to = if date_to == :nil, do: Calendar.DateTime.now_utc!() |> Calendar.DateTime.Format.rfc3339(), else: date_to
+    date_from = if date_from == :nil, do: Calendar.DateTime.now!("Etc/UTC") |> Calendar.DateTime.add!(-(60*60*24*28)) |> Calendar.DateTime.Format.rfc3339(), else: date_from
+    date_to = if date_to == :nil, do: Calendar.DateTime.now!("Etc/UTC") |> Calendar.DateTime.Format.rfc3339(), else: date_to
     %Query{
           method: :get,
           uri: "/cloud/project/#{service_name}/consumption",
@@ -493,8 +493,8 @@ defmodule ExOvh.Services.V1.Cloud.Query do
   """
   @spec project_bills(String.t, String.t, String.t) :: Query.t
   def project_bills(service_name, date_from \\ :nil, date_to \\ :nil) do
-    date_from = if date_from == :nil, do: Calendar.DateTime.now_utc!() |> Calendar.DateTime.add!(-(60*60*24*28)) |> Calendar.DateTime.Format.rfc3339(), else: date_from
-    date_to = if date_to == :nil, do: Calendar.DateTime.now_utc!() |> Calendar.DateTime.Format.rfc3339(), else: date_to
+    date_from = if date_from == :nil, do: Calendar.DateTime.now!("Etc/UTC") |> Calendar.DateTime.add!(-(60*60*24*28)) |> Calendar.DateTime.Format.rfc3339(), else: date_from
+    date_to = if date_to == :nil, do: Calendar.DateTime.now!("Etc/UTC") |> Calendar.DateTime.Format.rfc3339(), else: date_to
     %Query{
           method: :get,
           uri: "/cloud/project/#{service_name}/bill",
