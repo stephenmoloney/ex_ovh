@@ -388,7 +388,7 @@ defmodule Mix.Tasks.Ovh do
     end
   end
 
-  def check_for_successful_binding(resp, validation_url, ck) do
+  defp check_for_successful_binding(resp, validation_url, ck) do
 #    Og.context(__ENV__, :debug)
 
     error_msg1 = "Failed to bind the consumer token to the application. Please try to validate the consumer token manually at #{validation_url}"
