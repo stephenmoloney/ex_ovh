@@ -168,4 +168,4 @@ ExOvh.Services.V1.Cloud.Cloudstorage.Query.get_containers(service_name) \
 
 #### Usage guide
 
-- For more usage examples see the usage guide or the [hex documentation]((https://github.com/stephenmoloney/ex_ovh/blob/master/docs/mix_task.md)
+- For more usage examples see the usage guide or the [hex documentation](https://github.com/stephenmoloney/ex_ovh/blob/master/docs/mix_task.md)
