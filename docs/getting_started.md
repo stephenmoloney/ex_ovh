@@ -51,6 +51,7 @@ export MY_APP_OVH_CLIENT_CONSUMER_KEY="<application_consumer_key>"
 ***NOTE:*** Matching naming between `MyApp.OvhClient` and `MY_APP_OVH_CLIENT_APPLICATION_KEY` variables is expected.
 
 - Basic settings
+
   ```elixir
   config :my_app, MyApp.OvhClient,
      ovh: [
@@ -61,6 +62,7 @@ export MY_APP_OVH_CLIENT_CONSUMER_KEY="<application_consumer_key>"
   ```
 
 - More elaborate settings
+
   ```elixir
   config :my_app, MyApp.OvhClient,
      ovh: [
@@ -127,18 +129,21 @@ end
 
 
 - `GET /me`
+
 ```
 %ExOvh.Query{headers: [], method: :get, params: %{}, service: :ovh, uri: "/me"} \
 |> MyApp.OvhClient.request!()
 ```
 
 - `GET /me/api/application`
+
 ```
 %ExOvh.Query{headers: [], method: :get, params: %{}, service: :ovh, uri: "/me/api/application"} \
 |> MyApp.OvhClient.request!()
 ```
 
 - `GET /me/api/application/#{app_id}`
+
 ```
 app_id = "0"
 %ExOvh.Query{headers: [], method: :get, params: %{}, service: :ovh, uri: "/me/api/application/#{app_id}"} \
@@ -146,6 +151,7 @@ app_id = "0"
 ```
 
 - `GET /cloud/project/{serviceName}/storage`
+
 ```
 service_name = "service_name" \
 %ExOvh.Query{headers: [], method: :get, params: %{}, service: :ovh, uri: "/cloud/project/#{service_name}/storage"} \
@@ -161,6 +167,7 @@ using *Method 1* as above. Pull requests for helper functions for other parts of
 *Eventually, I would like to write a macro to create the queries.*
 
 - `GET /cloud/project/{serviceName}/storage`
+
 ```
 ExOvh.Services.V1.Cloud.Cloudstorage.Query.get_containers(service_name) \
 |> ExOvh.request!()
