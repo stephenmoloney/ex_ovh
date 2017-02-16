@@ -186,25 +186,21 @@ defmodule Mix.Tasks.Ovh do
     {acc, _index, _max} =
     Enum.reduce(inputs, {"", 1, Enum.count(inputs)}, fn({"input", input, _}, acc) ->
       name = :proplists.get_value("name", input)
-      value = ""
+      value =
       case name do
-        "nic" ->
-          value = login
-        "password" ->
-          value = password
-        "applicationName" ->
-          value = opts_map.application_name
-         "applicationDescription" ->
-          value = opts_map.application_description
-        _ ->
-          raise "Unexpected input"
+        "nic" -> login
+        "password" -> password
+        "applicationName" -> opts_map.application_name
+        "applicationDescription" -> opts_map.application_description
+        _ -> raise "Unexpected input"
       end
       param =  name <> "=" <> value
       {acc, index, max} = acc
+      acc =
       if index == max do
-        acc = acc <> param
+        acc <> param
       else
-        acc = acc <> param <> "&"
+        acc <> param <> "&"
       end
       {acc, index + 1, max}
     end)
