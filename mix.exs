@@ -1,6 +1,6 @@
 defmodule ExOvh.Mixfile do
   use Mix.Project
-  @version "0.2"
+  @version "0.2.0"
 
   def project do
     [
@@ -26,13 +26,12 @@ defmodule ExOvh.Mixfile do
 
   defp deps() do
     [
-#    {:calendar, "~> 0.13.2"},
-      {:calendar, "~> 0.14.0"},
+      {:calendar, "~> 0.17"},
       {:og, "~> 0.1"},
-      {:morph, "~> 0.1.0"},
+      {:morph, "~> 0.1"},
       {:poison, "~> 1.5 or ~> 2.0"},
       {:httpoison, "~> 0.8.0"},
-      {:floki, "~> 0.7.1"},
+      {:floki, "~> 0.14.0"},
 
       {:markdown, github: "devinus/markdown", only: :dev},
       {:ex_doc,  "~> 0.11", only: :dev}
