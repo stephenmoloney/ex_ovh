@@ -54,6 +54,7 @@ functions of the ***ex_ovh*** `API`.
 - [ ] Add queries for the remainder of the OVH API. (Webstorage CDN and Cloud are the only ones covered so far)
 - [ ] Basic examples to be added to readme of usage of the api.
 - [ ] Add macro for building queries.
+- [ ] Write the usage guide - more examples of using the API.
 
 
 #### Note 

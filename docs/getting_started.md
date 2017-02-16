@@ -117,13 +117,55 @@ end
 
 #### Example usages
 
-- First start the application `iex -S mix`
+- First start the application with the system environment variables available `source .env && iex -S mix`
 
 - Then try running some requests against the `API`
 
 
+#### Examples - Method 1 - Building the queries manually and sending the request (my preferred way)
 
-#### Some useful requests in the `OVH console` to see applications
 
-- `GET /me/api/application` -- returns a list of application ids.
-- `GET /me/api/application/{applicationId}` -- returns json with application key.
+- `GET /me`
+```
+%ExOvh.Query{headers: [], method: :get, params: %{}, service: :ovh, uri: "/me"} \
+|> MyApp.OvhClient.request!()
+```
+
+- `GET /me/api/application`
+```
+%ExOvh.Query{headers: [], method: :get, params: %{}, service: :ovh, uri: "/me/api/application"} \
+|> MyApp.OvhClient.request!()
+```
+
+- `GET /me/api/application/#{app_id}`
+```
+app_id = "0"
+%ExOvh.Query{headers: [], method: :get, params: %{}, service: :ovh, uri: "/me/api/application/#{app_id}"} \
+|> MyApp.OvhClient.request!()
+```
+
+- `GET /cloud/project/{serviceName}/storage`
+```
+service_name = "service_name" \
+%ExOvh.Query{headers: [], method: :get, params: %{}, service: :ovh, uri: "/cloud/project/#{service_name}/storage"} \
+MyApp.OvhClient.request!()
+```
+
+
+#### Examples - Method 2 - Build the query using provided helper functions and sending the request
+
+***Note:*** The Helper functions are listed under `Services`. Helper functions are only available currently for the
+`/Cloud` portion of the OVH API. Where other parts of the api need to be queried, just build the query manually
+using *Method 1* as above. Pull requests for helper functions for other parts of the OVH API are welcome.
+*Eventually, I would like to write a macro to create the queries.*
+
+- `GET /cloud/project/{serviceName}/storage`
+```
+ExOvh.Services.V1.Cloud.Cloudstorage.Query.get_containers(service_name) \
+|> ExOvh.request!()
+```
+
+
+#### Usage guide
+
+- For more usage examples see the usage guide or the [hex documentation]((https://github.com/stephenmoloney/ex_ovh/blob/master/docs/mix_task.md)
