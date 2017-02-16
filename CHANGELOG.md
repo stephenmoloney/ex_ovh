@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.2
+
+[enhancements]
+- Update some dependencies
+- Update mix task so that it will handle activated 2FA on OVH accounts
+- Simplify the readme documentation
+
+[bug fixes]
+- Fix bug in mix task causing it to fail
+- Fix bug in ex_ovh config file where list could not be printed inside "#{}" - causing application to crash
+
 ## v0.1.3
 
 - Improve the `mix ovh` docs to better illustrate how to create an application and setup access rules.
