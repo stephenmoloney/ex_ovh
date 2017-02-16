@@ -32,6 +32,7 @@ environment variables should be set:
 echo '.env' >> .gitignore` for the git repository to ensure it doesn't get added to source control.
 
 The `.env` file will be similar to as follows:
+
 ```
 #!/usr/bin/env bash
 
