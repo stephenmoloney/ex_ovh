@@ -49,7 +49,7 @@ defmodule ExOvh.Config do
     rescue
       _error ->
         Og.log_return("No httpoison_config was found. " <>
-                      "Falling back to default httpoison settings #{@default_httpoison_opts}", __ENV__, :warn)
+                      "Falling back to default httpoison settings #{inspect(@default_httpoison_opts)}", __ENV__, :warn)
         @default_httpoison_opts
     end
   end
