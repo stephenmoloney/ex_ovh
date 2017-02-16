@@ -9,7 +9,7 @@ on a given server.
 
 ```elixir
 defp deps() do
-  [{:ex_ovh, "~> 0.1.0"}]
+  [{:ex_ovh, "~> 0.2"}]
 end
 ```
 
