@@ -1,15 +1,14 @@
 # ExOvh [![Build Status](https://travis-ci.org/stephenmoloney/ex_ovh.svg)](https://travis-ci.org/stephenmoloney/ex_ovh) [![Hex Version](http://img.shields.io/hexpm/v/ex_ovh.svg?style=flat)](https://hex.pm/packages/ex_ovh) [![Hex docs](http://img.shields.io/badge/hex.pm-docs-green.svg?style=flat)](https://hexdocs.pm/ex_ovh) [![Deps Status](https://beta.hexfaktor.org/badge/prod/github/stephenmoloney/ex_ovh.svg)](https://beta.hexfaktor.org/github/stephenmoloney/ex_ovh)
 
-
 ExOvh is an helper library for the [elixir language](http://elixir-lang.org/) for the [Ovh Api](https://api.ovh.com/).
 To use the Openstack components of the OVH API, see [Openstex](https://github.com/stephenmoloney/openstex)
 
 
 #### Project Features
 
-- Config supervised agent running in the background which stores frequently accessed authentication information.
-- Query modules for making building requests to the [Ovh Api](https://api.ovh.com/).
-- Request functions to send Queries to the [Ovh Api](https://api.ovh.com/).
+- ***A Supervised agent*** running in the background which stores frequently accessed authentication information.
+- ***Query*** modules for making building requests to the [Ovh Api](https://api.ovh.com/).
+- ***Request*** functions to send Queries to the [Ovh Api](https://api.ovh.com/).
 
 
 #### Getting started - Step 1: Generating the OVH `application key`, `application secret` and `consumer key`.
