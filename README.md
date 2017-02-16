@@ -35,30 +35,30 @@ functions of the ***ex_ovh*** `API`.
 #### Examples - Method 1 - Building the queries manually and send the request (my preferred way)
 
 
-- `GET /me`
-```
-%ExOvh.Query{headers: [], method: :get, params: %{}, service: :ovh, uri: "/me"} \
-|> MyApp.OvhClient.request!()
-```
-
-- `GET /me/api/application`
-```
-%ExOvh.Query{headers: [], method: :get, params: %{}, service: :ovh, uri: "/me/api/application"} \
-|> MyApp.OvhClient.request!()
-```
-
 - `GET /me/api/application/#{app_id}`
 ```
 app_id = "0"
-%ExOvh.Query{headers: [], method: :get, params: %{}, service: :ovh, uri: "/me/api/application/#{app_id}"} \
+%ExOvh.Query{
+  headers: [],
+  method: :get,
+  params: %{},
+  service: :ovh,
+  uri: "/me/api/application/#{app_id}"
+}
 |> MyApp.OvhClient.request!()
 ```
 
 - `GET /cloud/project/{serviceName}/storage`
 ```
-service_name = "service_name" \
-%ExOvh.Query{headers: [], method: :get, params: %{}, service: :ovh, uri: "/cloud/project/#{service_name}/storage"} \
-MyApp.OvhClient.request!()
+service_name = "service_name"
+%ExOvh.Query{
+  headers: [],
+  method: :get,
+  params: %{},
+  service: :ovh,
+  uri: "/cloud/project/#{service_name}/storage"
+}
+|> MyApp.OvhClient.request!()
 ```
 
 
@@ -71,8 +71,8 @@ using *Method 1* as above. Pull requests for helper functions for other parts of
 
 - `GET /cloud/project/{serviceName}/storage`
 ```
-ExOvh.Services.V1.Cloud.Cloudstorage.Query.get_containers(service_name) \
-|> ExOvh.request!()
+alias ExOvh.Services.V1.Cloud.Cloudstorage
+Cloudstorage.Query.get_containers(service_name) |> ExOvh.request!()
 ```
 
 - For more information [See Hex Docs](https://hexdocs.pm/ex_ovh/0.2/api-reference.html)
