@@ -92,7 +92,7 @@ Cloudstorage.Query.get_containers(service_name) |> ExOvh.request!()
 
 - [ ] Tests for OVH portion of library
 - [ ] Option to set the application ttl when running ovh mix task.
-- [ ] Add queries for the remainder of the OVH API. (Webstorage CDN and Cloud are the only ones covered so far)
+- [ ] Add queries for the remainder of the OVH API. (~~Webstorage CDN~~ (now a deprecated service) and Cloud are the only ones covered so far)
 - [ ] Basic examples to be added to readme of usage of the api.
 - [ ] Add macro for building queries.
 - [ ] Write the usage guide - more examples of using the API.
