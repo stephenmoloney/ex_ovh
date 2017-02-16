@@ -32,7 +32,7 @@ functions of the ***ex_ovh*** `API`.
 
 #### Usage
 
-#### Examples - Method 1 - Building the queries manually and sending the request (my preferred way)
+#### Examples - Method 1 - Building the queries manually and send the request (my preferred way)
 
 
 - `GET /me`
@@ -62,7 +62,7 @@ MyApp.OvhClient.request!()
 ```
 
 
-#### Examples - Method 2 - Build the query using provided helper functions and sending the request
+#### Examples - Method 2 - Build the query using provided helper functions and send the request
 
 ***Note:*** The Helper functions are listed under `Services`. Helper functions are only available currently for the
 `/Cloud` portion of the OVH API. Where other parts of the api need to be queried, just build the query manually
