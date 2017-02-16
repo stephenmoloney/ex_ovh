@@ -11,6 +11,9 @@
 - Fix bug in mix task causing it to fail
 - Fix bug in ex_ovh config file where list could not be printed inside "#{}" - causing application to crash
 
+[neutral changes]
+- Merge docs back into the original module files
+
 ## v0.1.3
 
 - Improve the `mix ovh` docs to better illustrate how to create an application and setup access rules.
