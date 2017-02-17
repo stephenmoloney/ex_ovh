@@ -29,9 +29,9 @@ defmodule ExOvh.Mixfile do
       {:calendar, "~> 0.17"},
       {:og, "~> 0.1"},
       {:morph, "~> 0.1"},
-      {:poison, "~> 1.5 or ~> 2.0"},
-      {:httpoison, "~> 0.8.0"},
-      {:floki, "~> 0.14.0"},
+      {:poison, "~> 1.5 or ~> 2.0 or ~> 3.0"},
+      {:httpoison, "~> 0.8 or ~> 0.9 or ~> 0.10"},
+      {:floki, "~> 0.14"},
 
       {:markdown, github: "devinus/markdown", only: :dev},
       {:ex_doc,  "~> 0.11", only: :dev}

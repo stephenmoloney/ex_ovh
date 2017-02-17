@@ -1,5 +1,14 @@
 # Changelog
 
+
+## v0.2.1
+
+[neutral changes]
+- Update some dependencies
+- Relax versioning of some dependencies
+- Include `mix.lock` in version control
+
+
 ## v0.2
 
 [enhancements]
