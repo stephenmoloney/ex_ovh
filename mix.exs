@@ -30,6 +30,8 @@ defmodule ExOvh.Mixfile do
       {:og, "~> 0.1"},
       {:poison, "~> 1.5 or ~> 2.0 or ~> 3.0"},
       {:hackney, "~> 1.0"},
+      {:httpipe, "~> 0.9"},
+      {:httpipe_adapters_hackney, "~> 0.9"},
       {:floki, ">= 0.7.0"},
 
       {:markdown, github: "devinus/markdown", only: :dev},
