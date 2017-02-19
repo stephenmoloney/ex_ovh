@@ -52,7 +52,7 @@ defmodule Mix.Tasks.Ovh do
     Mix.Shell.IO.info("The details in the map above will be used to create the ovh application.")
     Mix.Shell.IO.info("")
     if Mix.Shell.IO.yes?("Proceed?") do
-      HTTPoison.start
+      :hackney.start()
       opts_map = parse_args(args)
 
       message = get_credentials(opts_map)
@@ -198,7 +198,8 @@ defmodule Mix.Tasks.Ovh do
     body = ""
     headers = []
     options = @default_options
-    resp = HTTPoison.request!(method, uri, body, headers, options)
+    {:ok, resp} = :hackney.request(method, uri, headers, body, options)
+    |> Og.log_return()
     Map.get(resp, :body)
   end
 
@@ -249,7 +250,8 @@ defmodule Mix.Tasks.Ovh do
     body = req_body
     headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
     options = @default_options
-    resp = HTTPoison.request!(method, uri, body, headers, options)
+    {:ok, resp} = :hackney.request(method, uri, headers, body, options)
+    |> Og.log_return()
 
     # Error checking
     cond do
@@ -297,7 +299,8 @@ defmodule Mix.Tasks.Ovh do
     body = %{ accessRules: access_rules, redirection: redirect_uri } |> Poison.encode!()
     headers = Map.merge(Enum.into(@default_headers, %{}), Enum.into([{"X-Ovh-Application", opts_map[:application_key]}], %{})) |> Enum.into([])
     options = @default_options
-    resp = HTTPoison.request!(method, uri, body, headers, options)
+    {:ok, resp} = :hackney.request(method, uri, headers, body, options)
+    |> Og.log_return()
 
     body = Poison.decode!(Map.get(resp, :body))
     {Map.get(body, "consumerKey"), Map.get(body, "validationUrl")}
@@ -312,7 +315,8 @@ defmodule Mix.Tasks.Ovh do
     body = ""
     headers = []
     options = @default_options
-    resp = HTTPoison.request!(method, uri, body, headers, options)
+    {:ok, resp} = :hackney.request(method, uri, headers, body, options)
+    |> Og.log_return()
 
     Map.get(resp, :body)
     |> get_bind_ck_to_app_inputs()
@@ -379,7 +383,8 @@ defmodule Mix.Tasks.Ovh do
     body = req_body
     headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
     options = @default_options
-    resp = HTTPoison.request!(method, uri, body, headers, options)
+    {:ok, resp} = :hackney.request(method, uri, headers, body, options)
+    |> Og.log_return()
 
     case check_for_successful_binding(resp, validation_url, ck) do
       {:ok, :handle_2fa} -> handle_2fa(resp.body, validation_url, ck)
@@ -456,7 +461,8 @@ defmodule Mix.Tasks.Ovh do
     body = build_2fa_request(resp_body)
     headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
     options = @default_options
-    resp = HTTPoison.request!(method, uri, body, headers, options)
+    {:ok, resp} = :hackney.request(method, uri, headers, body, options)
+    |> Og.log_return()
 
     error_msg = "function check_for_successful_binding seems to be entering an error loop"
     case check_for_successful_binding(resp, validation_url, ck) do
@@ -509,7 +515,7 @@ defmodule Mix.Tasks.Ovh do
         end
         {
           ":" <> app_name <> ", " <> Macro.camelize(app_name) <> "." <> client_name,
-          String.upcase(other) <> "_" <> Morph.to_snake_caps(client_name) <>"_"
+          String.upcase(other) <> "_" <> String.upcase(Macro.underscore(client_name)) <>"_"
         }
     end
     {config_header, mod_client_name}

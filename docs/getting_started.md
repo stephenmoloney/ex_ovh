@@ -169,7 +169,7 @@ using *Method 1* as above. Pull requests for helper functions for other parts of
 - `GET /cloud/project/{serviceName}/storage`
 
 ```
-ExOvh.Services.V1.Cloud.Cloudstorage.Query.get_containers(service_name) \
+ExOvh.Query.V1.Cloud.Cloudstorage.Query.get_containers(service_name) \
 |> ExOvh.request!()
 ```
 

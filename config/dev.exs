@@ -10,7 +10,7 @@ config :ex_ovh,
     application_secret: System.get_env("EX_OVH_APPLICATION_SECRET"),
     consumer_key: System.get_env("EX_OVH_CONSUMER_KEY")
   ],
-  httpoison: [
+  hackney: [
     connect_timeout: 20000,
     receive_timeout: 180000
   ]

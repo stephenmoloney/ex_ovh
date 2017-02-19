@@ -1,6 +1,6 @@
 defmodule ExOvh.Config do
   @moduledoc :false
-  @default_httpoison_opts [connect_timeout: 20000, receive_timeout: 180000]
+  @default_hackney_opts [connect_timeout: 8000, recv_timeout: 5000]
   alias ExOvh.Defaults
 
   @doc "Starts an agent for the storage of credentials in memory"
@@ -43,14 +43,14 @@ defmodule ExOvh.Config do
   end
 
   @doc "Gets the httpoison config.exs environment variables"
-  def get_httpoison_config_from_env(client, otp_app) do
+  def get_hackney_opts_from_env(client, otp_app) do
     try do
-      get_config_from_env(client, otp_app) |> Keyword.fetch!(:httpoison)
+      get_config_from_env(client, otp_app) |> Keyword.fetch!(:hackney)
     rescue
       _error ->
-        Og.log_return("No httpoison_config was found. " <>
-                      "Falling back to default httpoison settings #{inspect(@default_httpoison_opts)}", __ENV__, :warn)
-        @default_httpoison_opts
+        Og.log_return("No hackney_opts was found. " <>
+                      "Falling back to default httpoison settings #{inspect(@default_hackney_opts)}", __ENV__, :warn)
+        @default_hackney_opts
     end
   end
 
@@ -64,9 +64,9 @@ defmodule ExOvh.Config do
     Agent.get(agent_name(client), fn(config) -> config[:ovh] end)
   end
 
-  @doc "Gets the httpoison_config related config variables from a supervised Agent"
-  def httpoison_config(client) do
-    Agent.get(agent_name(client), fn(config) -> config[:httpoison] end)
+  @doc "Gets the hackney_opts related config variables from a supervised Agent"
+  def hackney_opts(client) do
+    Agent.get(agent_name(client), fn(config) -> config[:hackney] end)
   end
 
   @doc "Gets the diff"
@@ -79,16 +79,16 @@ defmodule ExOvh.Config do
     ovh_config = get_ovh_config_from_env(client, otp_app)
     |> Keyword.put(:diff, diff)
 
-    httpoison_config = get_httpoison_config_from_env(client, otp_app)
-    connect_timeout = httpoison_config[:connect_timeout] || 30000 # 30 seconds
-    receive_timeout = httpoison_config[:receive_timeout] || (60000 * 30) # 30 minutes
+    hackney_opts = get_hackney_opts_from_env(client, otp_app)
+    connect_timeout = hackney_opts[:connect_timeout] || 30000 # 30 seconds
+    recv_timeout = hackney_opts[:recv_timeout] || (60000 * 30) # 30 minutes
 
     [
     ovh: ovh_config,
     httpoison:
             [
             timeout: connect_timeout,
-            recv_timeout: receive_timeout,
+            recv_timeout: recv_timeout,
             ]
     ]
   end
@@ -109,8 +109,8 @@ defmodule ExOvh.Config do
     uri = ovh_config[:endpoint] <> ovh_config[:api_version] <> "/auth/time"
     body = ""
     headers = [{"Content-Type", "application/json; charset=utf-8"}]
-    options = get_httpoison_config_from_env(client, otp_app)
-    resp = HTTPoison.request!(method, uri, body, headers, options)
+    options = get_hackney_opts_from_env(client, otp_app)
+    {:ok, resp} = :hackney.request(method, uri, headers, body, options)
     Poison.decode!(resp.body)
   end
 

@@ -1,4 +1,4 @@
-defmodule ExOvh.Services.V1.Webstorage.Query do
+defmodule ExOvh.Query.V1.Webstorage do
   @moduledoc ~s"""
 
   ***NOTE:*** This is a deprecated service!!!
@@ -18,9 +18,10 @@ defmodule ExOvh.Services.V1.Webstorage.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Webstorage.Query.get_services() |> ExOvh.request()
+      ExOvh.Query.V1.Webstorage.get_services() |> ExOvh.request()
   """
-  alias ExOvh.Query
+  alias ExOvh.HttpQuery
+  alias ExOvh.Transformation.Uri
 
 
 
@@ -33,14 +34,13 @@ defmodule ExOvh.Services.V1.Webstorage.Query do
 
   ## Example
 
-      ExOvh.Services.V1.Webstorage.Query.get_services() |> ExOvh.request()
+      ExOvh.Query.V1.Webstorage.get_services() |> ExOvh.request()
   """
-  @spec get_services() :: Query.t
+  @spec get_services() :: HttpQuery.t
   def get_services() do
-    %Query{
+    %HttpQuery{
           method: :get,
-          uri: "/cdn/webstorage",
-          params: %{}
+          uri: "/cdn/webstorage"
           }
   end
 
@@ -59,7 +59,7 @@ defmodule ExOvh.Services.V1.Webstorage.Query do
 
   ## Example
 
-      alias ExOvh.Services.V1.Webstorage.Query
+      alias ExOvh.Query.V1.Webstorage
       service_name = "cdnwebstorage-????"
       query = Query.get_service(service_name)
       {:ok, resp} = ExOvh.Ovh.request(query)
@@ -69,12 +69,11 @@ defmodule ExOvh.Services.V1.Webstorage.Query do
         "server" => server
        } = resp.body
   """
-  @spec get_service(String.t) :: Query.t
+  @spec get_service(String.t) :: HttpQuery.t
   def get_service(service_name) do
-   %Query{
+   %HttpQuery{
           method: :get,
-          uri: "/cdn/webstorage/#{service_name}",
-          params: %{}
+          uri: "/cdn/webstorage/#{service_name}"
           }
   end
 
@@ -93,17 +92,16 @@ defmodule ExOvh.Services.V1.Webstorage.Query do
 
   ## Example
 
-      alias ExOvh.Services.V1.Webstorage.Query
+      alias ExOvh.Query.V1.Webstorage
       service_name = "cdnwebstorage-????"
       Query.get_service_info(service_name)
       {:ok, resp} = ExOvh.Ovh.request(query)
   """
-  @spec get_service_info(String.t) :: Query.t
+  @spec get_service_info(String.t) :: HttpQuery.t
   def get_service_info(service_name) do
-    %Query{
+    %HttpQuery{
       method: :get,
-      uri: "/cdn/webstorage/#{service_name}/serviceInfos",
-      params: %{}
+      uri: "/cdn/webstorage/#{service_name}/serviceInfos"
       }
   end
 
@@ -125,27 +123,21 @@ defmodule ExOvh.Services.V1.Webstorage.Query do
 
   ## Example
 
-      alias ExOvh.Services.V1.Webstorage.Query
+      alias ExOvh.Query.V1.Webstorage
       service_name = "cdnwebstorage-????"
       query = Query.get_service_stats(service_name, [period: "month", type: "backend"])
       {:ok, resp} = ExOvh.Ovh.request(query)
   """
-  @spec get_service_stats(String.t, Keyword.t) :: Query.t
+  @spec get_service_stats(String.t, Keyword.t) :: HttpQuery.t
   def get_service_stats(service_name, opts \\ []) do
     period = Keyword.get(opts, "period", "month")
     type = Keyword.get(opts, "type", "cdn")
-    %Query{
+    %HttpQuery{
           method: :get,
-          uri: "/cdn/webstorage/#{service_name}/statistics",
-          params: %{
-                    query_string: %{
-                                    "period" => period,
-                                    "type" => type
-                                  }
-                    }
+          uri: "/cdn/webstorage/#{service_name}/statistics"
           }
+    |> Uri.add_query_string(%{"period" => period,"type" => type})
   end
-
 
 
   @doc ~s"""
@@ -161,18 +153,18 @@ defmodule ExOvh.Services.V1.Webstorage.Query do
 
   ## Example
 
-      alias ExOvh.Services.V1.Webstorage.Query
+      alias ExOvh.Query.V1.Webstorage
       service_name = "cdnwebstorage-????"
       query = Query.get_webstorage_credentials(service_name)
       {:ok, resp} = ExOvh.Ovh.request(query)
   """
   @spec get_credentials(String.t) :: ExOvh.Query.Ovh.t
   def get_credentials(service_name) do
-    %Query{
+    %HttpQuery{
           method: :get,
-          uri: "/cdn/webstorage/#{service_name}/credentials",
-          params: %{}
+          uri: "/cdn/webstorage/#{service_name}/credentials"
           }
   end
+
 
 end

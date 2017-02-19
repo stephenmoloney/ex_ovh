@@ -20,7 +20,7 @@ defmodule ExOvh.Mixfile do
 
   def application() do
     [
-      applications: [:calendar, :crypto, :httpoison, :logger]
+      applications: [:calendar, :crypto, :hackney, :logger]
     ]
   end
 
@@ -28,13 +28,12 @@ defmodule ExOvh.Mixfile do
     [
       {:calendar, "~> 0.17"},
       {:og, "~> 0.1"},
-      {:morph, "~> 0.1"},
       {:poison, "~> 1.5 or ~> 2.0 or ~> 3.0"},
-      {:httpoison, "~> 0.8 or ~> 0.9 or ~> 0.10"},
-      {:floki, "~> 0.14"},
+      {:hackney, "~> 1.0"},
+      {:floki, ">= 0.7.0"},
 
       {:markdown, github: "devinus/markdown", only: :dev},
-      {:ex_doc,  "~> 0.11", only: :dev}
+      {:ex_doc,  "~> 0.14", only: :dev}
     ]
   end
 

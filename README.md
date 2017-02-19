@@ -70,7 +70,7 @@ using *Method 1* as above. Pull requests for helper functions for other parts of
 
 - `GET /cloud/project/{serviceName}/storage`
 ```
-alias ExOvh.Services.V1.Cloud.Cloudstorage
+alias ExOvh.Query.V1.Cloud.Cloudstorage
 Cloudstorage.Query.get_containers(service_name) |> ExOvh.request!()
 ```
 

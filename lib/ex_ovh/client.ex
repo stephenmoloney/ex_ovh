@@ -21,9 +21,10 @@ defmodule ExOvh.Client do
           endpoint: "ovh-eu",
           api_version: "1.0"
         ],
-         httpoison: [
+        # default hackney options to each request (optional)
+        hackney: [
            connect_timeout: 20000,
-           receive_timeout: 100000
+           recv_timeout: 100000
         ]
 
   ## Example using the `ExOvh` client
@@ -48,9 +49,10 @@ defmodule ExOvh.Client do
            application_secret: System.get_env("MY_APP_MY_CLIENT_APPLICATION_SECRET"),
            consumer_key: System.get_env("MY_APP_MY_CLIENT_CONSUMER_KEY")
         ],
-        httpoison: [ # optional
+        # default hackney options to each request (optional)
+        hackney: [
            connect_timeout: 20000,
-           receive_timeout: 100000
+           recv_timeout: 100000
         ]
 
   ## Example using the `MyApp.MyClient` client
@@ -58,7 +60,7 @@ defmodule ExOvh.Client do
       %ExOvh.Query{ method: :get, uri: "/me", params: %{}} |> MyApp.MyClient.request!()
       %ExOvh.Query{ method: :get, uri: "/cloud/project", params: %{}} |> MyApp.MyClient.request!()
   """
-  alias ExOvh.{HttpQuery, Query, Response, Transformation}
+  alias ExOvh.{HttpQuery, Response}
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
@@ -68,7 +70,7 @@ defmodule ExOvh.Client do
 
       `ExOvh` is the default client. Additional clients such as `MyApp.MyClient.Ovh` can be created - see `PAGES`.
       """
-      alias ExOvh.{Defaults, HttpQuery, Query, Request, Response, ResponseError}
+      alias ExOvh.{Defaults, HttpQuery, Request, Response, ResponseError}
       @behaviour ExOvh.Client
 
       # public callback functions
@@ -92,27 +94,20 @@ defmodule ExOvh.Client do
       @spec ovh_config() :: Keyword.t
       def ovh_config(), do: config() |> Keyword.fetch!(:ovh)
 
-      @doc "Gets all the `:httpoison` configuration settings"
-      @spec httpoison_config() :: Keyword.t
-      def httpoison_config(), do: config() |> Keyword.fetch!(:httpoison)
+      @doc "Gets all the default `:hackney` options to be sent with each request"
+      @spec hackney_opts() :: Keyword.t
+      def hackney_opts(), do: config() |> Keyword.fetch!(:hackney)
 
-      @doc "Prepares a request prior to sending by adding metadata such as authorization headers."
-      @spec prepare_request(Query.t, Keyword.t) :: {:ok, Response.t} | {:error, Response.t}
-      def prepare_request(query, httpoison_opts \\ []) do
+      @doc "Sends a request to the ovh api using [httpoison](https://hex.pm/packages/httpoison)."
+      @spec request(HttpQuery.t) :: {:ok, Response.t} | {:error, Response.t}
+      def request(query) do
         client = unquote(opts) |> Keyword.fetch!(:client)
-        Transformation.prepare_request(query, httpoison_opts, client)
+        Request.request(query, client)
       end
 
       @doc "Sends a request to the ovh api using [httpoison](https://hex.pm/packages/httpoison)."
-      @spec request(Query.t | HttpQuery.t, Keyword.t) :: {:ok, Response.t} | {:error, Response.t}
-      def request(query, httpoison_opts \\ []) do
-        client = unquote(opts) |> Keyword.fetch!(:client)
-        Request.request(query, httpoison_opts, client)
-      end
-
-      @doc "Sends a request to the ovh api using [httpoison](https://hex.pm/packages/httpoison)."
-      @spec request!(Query.t | HttpQuery.t, Keyword.t) :: Response.t | no_return
-      def request!(query, httpoison_opts \\ []) do
+      @spec request!(HttpQuery.t) :: Response.t | no_return
+      def request!(query) do
         case request(query) do
           {:ok, resp} -> resp
           {:error, resp} -> raise(ResponseError, response: resp, query: query)
@@ -133,9 +128,8 @@ defmodule ExOvh.Client do
   @callback start_link(sup_opts :: list) :: {:ok, pid} | {:error, atom}
   @callback config() :: Keyword.t
   @callback ovh_config() :: Keyword.t
-  @callback httpoison_config() :: Keyword.t
-  @callback prepare_request(query :: Query.t, httpoison_opts :: Keyword.t) :: Query.t | no_return
-  @callback request(query :: Query.t | HttpQuery.t, httpoison_opts :: Keyword.t) :: {:ok, Response.t} | {:error, Response.t}
-  @callback request!(query :: Query.t | HttpQuery.t, httpoison_opts :: Keyword.t) :: {:ok, Response.t} | no_return
+  @callback hackney_opts() :: Keyword.t
+  @callback request(query :: HttpQuery.t) :: {:ok, Response.t} | {:error, Response.t}
+  @callback request!(query :: HttpQuery.t) :: Response.t | no_return
 
 end

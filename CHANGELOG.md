@@ -1,12 +1,21 @@
 # Changelog
 
 
-## v0.2.1
+## v0.3.0
 
-[neutral changes]
+[changes]
 - Update some dependencies
 - Relax versioning of some dependencies
 - Include `mix.lock` in version control
+- Add new file `docs/usage.md` with examples on using the api
+- Remove dependency on `morph` - use `Macro.underscore` instead.
+- Reduce depency base - use `:hackney` only
+- remove `Cloud.Cloudstorage` module and place all functions in `Cloud` module ***(breaking change)***
+- change naming of various modules to reduce length ***(breaking change)***
+
+[enhancements]
+- Reduce the types of `Query` to simply one query type. Having two types makes for unecessary complexity. Removes
+`ExOvh.Query` and only have `ExOvh.HttpQuery`.
 
 
 ## v0.2
