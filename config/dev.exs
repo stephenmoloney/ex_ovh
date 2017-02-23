@@ -12,8 +12,8 @@ config :ex_ovh,
   ],
   hackney: [
     connect_timeout: 20000,
-    receive_timeout: 180000
+    recv_timeout: 180000
   ]
 
-  config :httpipe,
-    :adapter, HTTPipe.Adapters.Hackney
+#config :httpipe,
+#  :adapter, HTTPipe.Adapters.Hackney

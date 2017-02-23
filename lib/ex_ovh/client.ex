@@ -29,8 +29,8 @@ defmodule ExOvh.Client do
 
   ## Example using the `ExOvh` client
 
-      %ExOvh.Query{ method: :get, uri: "/me", params: %{}} |> ExOvh.request!()
-      %ExOvh.Query{ method: :get, uri: "/cloud/project", params: %{}} |> ExOvh.request!()
+      %HTTPipe.Request{ method: :get, url: "/me", params: %{}} |> ExOvh.request!()
+      %HTTPipe.Request{ method: :get, url: "/cloud/project", params: %{}} |> ExOvh.request!()
 
   ## Example (2): Setting up an additional `MyApp.MyClient` client.
 
@@ -57,10 +57,9 @@ defmodule ExOvh.Client do
 
   ## Example using the `MyApp.MyClient` client
 
-      %ExOvh.Query{ method: :get, uri: "/me", params: %{}} |> MyApp.MyClient.request!()
-      %ExOvh.Query{ method: :get, uri: "/cloud/project", params: %{}} |> MyApp.MyClient.request!()
+      %HTTPipe.Request{ method: :get, url: "/me", params: %{}} |> MyApp.MyClient.request!()
+      %ExOvh.Query{ method: :get, url: "/cloud/project", params: %{}} |> MyApp.MyClient.request!()
   """
-  alias ExOvh.{HttpQuery, Response}
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
@@ -70,7 +69,7 @@ defmodule ExOvh.Client do
 
       `ExOvh` is the default client. Additional clients such as `MyApp.MyClient.Ovh` can be created - see `PAGES`.
       """
-      alias ExOvh.{Defaults, HttpQuery, Request, Response, ResponseError}
+      alias ExOvh.{Defaults, ResponseError}
       @behaviour ExOvh.Client
 
       # public callback functions
@@ -98,19 +97,19 @@ defmodule ExOvh.Client do
       @spec hackney_opts() :: Keyword.t
       def hackney_opts(), do: config() |> Keyword.fetch!(:hackney)
 
-      @doc "Sends a request to the ovh api using [httpoison](https://hex.pm/packages/httpoison)."
-      @spec request(HttpQuery.t) :: {:ok, Response.t} | {:error, Response.t}
-      def request(query) do
+      @doc "Sends a request to the ovh api using [httpipe](https://hex.pm/packages/httpipe)."
+      @spec request(HTTPipe.Conn.t) :: {:ok, HTTPipe.Conn.t} | {:error, HTTPipe.Conn.t}
+      def request(conn) do
         client = unquote(opts) |> Keyword.fetch!(:client)
-        Request.request(query, client)
+        ExOvh.Request.request(conn, client)
       end
 
-      @doc "Sends a request to the ovh api using [httpoison](https://hex.pm/packages/httpoison)."
-      @spec request!(HttpQuery.t) :: Response.t | no_return
-      def request!(query) do
-        case request(query) do
-          {:ok, resp} -> resp
-          {:error, resp} -> raise(ResponseError, response: resp, query: query)
+      @doc "Sends a request to the ovh api using [httpipe](https://hex.pm/packages/httpipe)."
+      @spec request!(HTTPipe.Conn.t) :: HTTPipe.Conn.t | no_return
+      def request!(conn) do
+        case request(conn) do
+          {:ok, conn} -> conn
+          {:error, conn} -> raise(ResponseError, conn: conn)
         end
       end
 
@@ -129,7 +128,7 @@ defmodule ExOvh.Client do
   @callback config() :: Keyword.t
   @callback ovh_config() :: Keyword.t
   @callback hackney_opts() :: Keyword.t
-  @callback request(query :: HttpQuery.t) :: {:ok, Response.t} | {:error, Response.t}
-  @callback request!(query :: HttpQuery.t) :: Response.t | no_return
+  @callback request(conn :: HTTPipe.Conn.t) :: {:ok, HTTPipe.Conn.t} | {:error, HTTPipe.Conn.t}
+  @callback request!(conn :: HTTPipe.Conn.t) :: HTTPipe.Conn.t | no_return
 
 end

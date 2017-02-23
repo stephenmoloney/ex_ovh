@@ -7,7 +7,7 @@ defmodule ExOvh.Supervisor do
 
 
   def start_link(client, opts \\ []) do
-    Og.context(__ENV__, :debug)
+    Og.log("***logging context***", __ENV__, :debug)
     Supervisor.start_link(__MODULE__,  {client, opts})
   end
 
@@ -16,7 +16,7 @@ defmodule ExOvh.Supervisor do
 
 
   def init({client, opts}) do
-    Og.context(__ENV__, :debug)
+    Og.log("***logging context***", __ENV__, :debug)
     sup_tree =
     [
     {client, {ExOvh.Config, :start_agent, [client, opts]}, :permanent, 10_000, :worker, [ExOvh.Config]}

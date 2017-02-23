@@ -21,10 +21,7 @@ version control.
 **Shell input:**
 
 ```shell
-mix ovh \
---login=<username-ovh> \
---password=<password> \
---appname='ex_ovh'
+mix ovh --login=<username-ovh> --password=<password> --appname='my_app_name'
 ```
 
 - `login`: username/nic_handle for logging into OVH services. *Note*: must include `-ovh` at the end of the string.

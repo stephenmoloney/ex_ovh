@@ -12,10 +12,14 @@
 - Reduce depency base - use `:hackney` only
 - remove `Cloud.Cloudstorage` module and place all functions in `Cloud` module ***(breaking change)***
 - change naming of various modules to reduce length ***(breaking change)***
+- change the docs to reflect the move to [httpipe](https://hex.pm/packages/httpipe)
+- with the use of [httpipe](https://hex.pm/packages/httpipe), the abstraction changes from `Query` to `Request` -
+this is essentially a name change only.
 
 [enhancements]
-- Reduce the types of `Query` to simply one query type. Having two types makes for unecessary complexity. Removes
-`ExOvh.Query` and only have `ExOvh.HttpQuery`.
+- Use [httpipe](https://hex.pm/packages/httpipe) and the corresponding hackney adapter.
+- Remove the abstractions based on `Query` and `HTTPQuery` and in it's place use a similar abstraction
+in the third party library [httpipe](https://hex.pm/packages/httpipe)
 
 
 ## v0.2

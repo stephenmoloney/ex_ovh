@@ -72,9 +72,9 @@ export MY_APP_OVH_CLIENT_CONSUMER_KEY="<application_consumer_key>"
        endpoint: "ovh-eu",
        api_version: "1.0"
      ],
-     httpoison: [ # optional
+     hackney: [ # optional
        connect_timeout: 20000,
-       receive_timeout: 100000
+       recv_timeout: 100000
      ]
   ```
 
@@ -131,14 +131,20 @@ end
 - `GET /me`
 
 ```
-%ExOvh.Query{headers: [], method: :get, params: %{}, service: :ovh, uri: "/me"} \
+req = %HTTPipe.Request{
+  method: :get,
+  url: "/me"
+}
 |> MyApp.OvhClient.request!()
 ```
 
 - `GET /me/api/application`
 
 ```
-%ExOvh.Query{headers: [], method: :get, params: %{}, service: :ovh, uri: "/me/api/application"} \
+req = %HTTPipe.Request{
+  method: :get,
+  url: "/me/api/application"
+}
 |> MyApp.OvhClient.request!()
 ```
 
@@ -146,31 +152,40 @@ end
 
 ```
 app_id = "0"
-%ExOvh.Query{headers: [], method: :get, params: %{}, service: :ovh, uri: "/me/api/application/#{app_id}"} \
+req = %HTTPipe.Request{
+  method: :get,
+  url: "/me/api/application/#{app_id}"
+}
 |> MyApp.OvhClient.request!()
 ```
 
 - `GET /cloud/project/{serviceName}/storage`
 
 ```
-service_name = "service_name" \
-%ExOvh.Query{headers: [], method: :get, params: %{}, service: :ovh, uri: "/cloud/project/#{service_name}/storage"} \
-MyApp.OvhClient.request!()
+service_name = "service_name"
+req = %HTTPipe.Request{
+  method: :get,
+  url: "/cloud/project/#{service_name}/storage"
+}
+|> MyApp.OvhClient.request!()
 ```
 
 
-#### Examples - Method 2 - Build the query using provided helper functions and sending the request
+#### Examples - Method 2 - Build the request using provided helper functions and sending the request
 
-***Note:*** The Helper functions are listed under `Services`. Helper functions are only available currently for the
-`/Cloud` portion of the OVH API. Where other parts of the api need to be queried, just build the query manually
-using *Method 1* as above. Pull requests for helper functions for other parts of the OVH API are welcome.
+***Note:*** Helper functions are only available currently for the `/Cloud` portion of the OVH API.
 *Eventually, I would like to write a macro to create the queries.*
+
+- `GET /cloud/project`
+
+```
+ExOvh.V1.Cloud.list_services() |> ExOvh.request!()
+```
 
 - `GET /cloud/project/{serviceName}/storage`
 
 ```
-ExOvh.Query.V1.Cloud.Cloudstorage.Query.get_containers(service_name) \
-|> ExOvh.request!()
+ExOvh.V1.Cloud.get_containers(service_name) |> ExOvh.request!()
 ```
 
 

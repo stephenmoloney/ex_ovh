@@ -1,27 +1,27 @@
 defmodule ExOvh.Request do
   @moduledoc :false
-  alias ExOvh.{Transformation, HttpQuery, Response}
 
 
   # Public
-  @spec request(HttpQuery.t, atom) :: {:ok, Response.t} | {:error, Response.t}
-  def request(%HttpQuery{} = query, client) do
-    Og.context(__ENV__, :debug)
+  @spec request(HTTPipe.Conn.t | HTTPipe.Request.t, atom) :: {:ok, HTTPipe.Conn.t} | {:error, HTTPipe.Conn.t}
+  def request(%HTTPipe.Request{} = request, client) do
+    Map.put(HTTPipe.Conn.new(), :request, request)
+    |> request(client)
+  end
+  def request(%HTTPipe.Conn{} = conn, client) do
+    conn = apply_transformations(conn, client)
 
-    q = apply_transformations(query, client)
-
-    case :hackney.request(q.method, q.uri, q.headers, q.body, q.hackney_options) do
-      {:ok, resp} ->
-        Og.log_return(resp, __ENV__, :debug)
-        
-        body = parse_body(resp)
-        resp = %Response{ body: body, headers: resp.headers |> Enum.into(%{}), status_code: resp.status_code }
+    case HTTPipe.Conn.execute(conn) do
+      {:ok, conn} ->
+        body = parse_body(conn.response)
+        resp = Map.put(conn.response, :body, body)
+        conn = Map.put(conn, :response, resp)
         if resp.status_code >= 100 and resp.status_code < 400 do
-          {:ok, resp}
+          {:ok, conn}
         else
-          {:error, resp}
+          {:error, conn}
         end
-      {:error, resp} -> {:error, resp}
+      {:error, conn} -> {:error, conn}
     end
   end
 
@@ -39,29 +39,29 @@ defmodule ExOvh.Request do
   end
 
 
-  defp apply_transformations(%HttpQuery{} = query, client) do
-    query =
-    unless (:auth in query.completed_transformations) do
-      Transformation.Auth.apply(query, client)
+  defp apply_transformations(conn, client) do
+    conn =
+    unless (:url in Map.get(conn, :completed_transformations, [])) do
+     ExOvh.Transformation.Url.apply(conn, client)
     else
-      query
+      conn
     end
-    query =
-    unless (:uri in query.completed_transformations) do
-     Transformation.Uri.apply(query, client)
+    conn =
+    unless (:body in Map.get(conn, :completed_transformations, [])) do
+      ExOvh.Transformation.Body.apply(conn, "")
     else
-      query
+      conn
     end
-    query =
-    unless (:body in query.completed_transformations) do
-      Transformation.Body.apply(client, "")
+    conn =
+    unless (:hackney_options in Map.get(conn, :completed_transformations, [])) do
+      ExOvh.Transformation.HackneyOptions.apply(conn, client)
     else
-      query
+      conn
     end
-    unless (:hackney_options in query.completed_transformations) do
-      Transformation.HackneyOptions.apply(query, client)
+    unless (:auth in Map.get(conn, :completed_transformations, [])) do
+      ExOvh.Transformation.Auth.apply(conn, client)
     else
-      query
+      conn
     end
   end
 

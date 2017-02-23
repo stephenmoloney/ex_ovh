@@ -34,7 +34,8 @@ defmodule Mix.Tasks.Ovh do
   use Mix.Task
   alias ExOvh.Defaults
   @default_headers [{"Content-Type", "application/json; charset=utf-8"}]
-  @default_options [ timeout: 30000, recv_timeout: (60000 * 1) ]
+  @default_adapter :hackney
+  @default_hackney_options [ timeout: 30000, recv_timeout: (60000 * 1) ]
   @default_name "ex_ovh"
   @default_description "ex_ovh application"
   @default_redirect_uri ""
@@ -191,21 +192,31 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_app_create_page(opts_map) do
-#    Og.context(__ENV__, :debug)
+#    Og.log("***logging context***", __ENV__, :debug)
 
     method = :get
-    uri = Defaults.endpoints()[opts_map[:endpoint]] <> Defaults.create_app_uri_suffix()
+    url = Defaults.endpoints()[opts_map[:endpoint]] <> Defaults.create_app_uri_suffix()
     body = ""
     headers = []
-    options = @default_options
-    {:ok, resp} = :hackney.request(method, uri, headers, body, options)
-    |> Og.log_return()
-    Map.get(resp, :body)
+    options = @default_hackney_options
+
+    conn = %HTTPipe.Conn{
+      request: %HTTPipe.Request{
+        method: method,
+        url: url,
+        body: body,
+        headers: headers
+      },
+      adapter_options: options
+    }
+    {:ok, conn} = HTTPipe.Conn.execute(conn)
+
+    conn.response.body
   end
 
 
   defp get_create_app_inputs(resp_body) do
-#    Og.context(__ENV__, :debug)
+#    Og.log("***logging context***", __ENV__, :debug)
 
     inputs = Floki.find(resp_body, "form input")
     |> List.flatten()
@@ -215,7 +226,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp build_app_request(inputs, %{login: login, password: password} = opts_map) do
-#    Og.context(__ENV__, :debug)
+#    Og.log("***logging context***", __ENV__, :debug)
 
     {acc, _index, _max} =
     Enum.reduce(inputs, {"", 1, Enum.count(inputs)}, fn({"input", input, _}, acc) ->
@@ -243,26 +254,34 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp send_app_request(req_body, opts_map) do
-#    Og.context(__ENV__, :debug)
+#    Og.log("***logging context***", __ENV__, :debug)
 
     method = :post
-    uri = Defaults.endpoints()[opts_map[:endpoint]] <> Defaults.create_app_uri_suffix()
+    url = Defaults.endpoints()[opts_map[:endpoint]] <> Defaults.create_app_uri_suffix()
     body = req_body
     headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
-    options = @default_options
-    {:ok, resp} = :hackney.request(method, uri, headers, body, options)
-    |> Og.log_return()
+    options = @default_hackney_options
+
+    conn = %HTTPipe.Conn{
+      request: %HTTPipe.Request{
+        method: method,
+        url: url,
+        body: body,
+        headers: headers
+      },
+      adapter_options: options
+    }
+    {:ok, conn} = HTTPipe.Conn.execute(conn)
+    body = conn.response.body
 
     # Error checking
     cond do
-     String.contains?(resp.body, msg = "There is already an application with that name for that Account ID") ->
+     String.contains?(body, msg = "There is already an application with that name for that Account ID") ->
       raise(msg <> ", try removing the old application first using the ovh api console or just create a new one.")
-     String.contains?(resp.body, msg = "Invalid account/password") ->
+     String.contains?(body, msg = "Invalid account/password") ->
       raise(msg <> ", try adding '-ovh' to the end of the login")
-     String.contains?(resp.body, "Application created") ->
-      resp.body
-     true ->
-      raise "unknown error"
+     String.contains?(body, "Application created") -> body
+     true -> raise "unknown error"
     end
 
   end
@@ -292,33 +311,51 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_consumer_key(%{access_rules: access_rules, redirect_uri: redirect_uri} = opts_map) do
-#    Og.context(__ENV__, :debug)
+#    Og.log("***logging context***", __ENV__, :debug)
 
     method = :post
-    uri = Defaults.endpoints()[opts_map[:endpoint]] <> opts_map[:api_version] <> Defaults.consumer_key_suffix()
+    url = Defaults.endpoints()[opts_map[:endpoint]] <> opts_map[:api_version] <> Defaults.consumer_key_suffix()
     body = %{ accessRules: access_rules, redirection: redirect_uri } |> Poison.encode!()
     headers = Map.merge(Enum.into(@default_headers, %{}), Enum.into([{"X-Ovh-Application", opts_map[:application_key]}], %{})) |> Enum.into([])
-    options = @default_options
-    {:ok, resp} = :hackney.request(method, uri, headers, body, options)
-    |> Og.log_return()
+    options = @default_hackney_options
 
-    body = Poison.decode!(Map.get(resp, :body))
+    conn = %HTTPipe.Conn{
+      request: %HTTPipe.Request{
+        method: method,
+        url: url,
+        body: body,
+        headers: headers
+      },
+      adapter_options: options
+    }
+    {:ok, conn} = HTTPipe.Conn.execute(conn)
+
+    body = Poison.decode!(conn.response.body)
     {Map.get(body, "consumerKey"), Map.get(body, "validationUrl")}
   end
 
 
   defp bind_consumer_key_to_app({ck, validation_url}, opts_map) do
-#    Og.context(__ENV__, :debug)
+#    Og.log("***logging context***", __ENV__, :debug)
 
     method = :get
-    uri = validation_url
+    url = validation_url
     body = ""
     headers = []
-    options = @default_options
-    {:ok, resp} = :hackney.request(method, uri, headers, body, options)
-    |> Og.log_return()
+    options = @default_hackney_options
 
-    Map.get(resp, :body)
+    conn = %HTTPipe.Conn{
+      request: %HTTPipe.Request{
+        method: method,
+        url: url,
+        body: body,
+        headers: headers
+      },
+      adapter_options: options
+    }
+    {:ok, conn} = HTTPipe.Conn.execute(conn)
+
+    conn.response.body
     |> get_bind_ck_to_app_inputs()
     |> build_ck_binding_request(opts_map)
     |> send_ck_binding_request(validation_url, ck)
@@ -326,7 +363,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_bind_ck_to_app_inputs(resp_body) do
-#    Og.context(__ENV__, :debug)
+#    Og.log("***logging context***", __ENV__, :debug)
 
     inputs = Floki.find(resp_body, "form input") ++
     Floki.find(resp_body, "form select")
@@ -340,7 +377,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp build_ck_binding_request(inputs, %{login: login, password: password} = _opts_map) do
-#    Og.context(__ENV__, :debug)
+#    Og.log("***logging context***", __ENV__, :debug)
 
     Enum.reduce(inputs, "", fn({type, input, _options}, acc) ->
       {name_val, value} =
@@ -376,25 +413,34 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp send_ck_binding_request(req_body, validation_url, ck) do
-#    Og.context(__ENV__, :debug)
+#    Og.log("***logging context***", __ENV__, :debug)
 
     method = :post
-    uri = validation_url
+    url = validation_url
     body = req_body
     headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
-    options = @default_options
-    {:ok, resp} = :hackney.request(method, uri, headers, body, options)
-    |> Og.log_return()
+    options = @default_hackney_options
 
-    case check_for_successful_binding(resp, validation_url, ck) do
-      {:ok, :handle_2fa} -> handle_2fa(resp.body, validation_url, ck)
+    conn = %HTTPipe.Conn{
+      request: %HTTPipe.Request{
+        method: method,
+        url: url,
+        body: body,
+        headers: headers
+      },
+      adapter_options: options
+    }
+    {:ok, conn} = HTTPipe.Conn.execute(conn)
+
+    case check_for_successful_binding(conn.response, validation_url, ck) do
+      {:ok, :handle_2fa} -> handle_2fa(conn.response.body, validation_url, ck)
       {:ok, ck} -> ck
       {:error, msg} -> raise msg
     end
   end
 
   defp check_for_successful_binding(resp, validation_url, ck) do
-#    Og.context(__ENV__, :debug)
+#    Og.log("***logging context***", __ENV__, :debug)
 
     error_msg1 = "Failed to bind the consumer token to the application. Please try to validate the consumer token manually at #{validation_url}"
     error_msg2 = "Invalid validity period entered for the consumer token. Please try to validate the consumer token manually at #{validation_url}"
@@ -404,7 +450,7 @@ defmodule Mix.Tasks.Ovh do
       String.contains?(resp.body, "Your token is now valid, you can use it in your application") -> {:ok, ck}
       String.contains?(resp.body, "token is now valid") -> {:ok, ck}
       String.contains?(resp.body, "You have activated the double factor authentication") -> {:ok, :handle_2fa}
-      # presume the validation was successful if redirected to redirect uri
+      # presume the validation was successful if redirected to redirect url
       resp.status_code == 302 && (resp.headers |> Enum.into(%{}) |> Map.has_key?("Location")) -> {:ok, ck}
       true -> {:error, "Unexpected error " <> error_msg1}
     end
@@ -412,7 +458,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp build_2fa_request(resp_body) do
-#    Og.context(__ENV__, :debug)
+#    Og.log("***logging context***", __ENV__, :debug)
 
     Mix.Shell.IO.info("You have activated 2FA on your OVH account, you need to verify your account via 2FA")
 
@@ -454,18 +500,27 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp handle_2fa(resp_body, validation_url, ck) do
-#    Og.context(__ENV__, :debug)
+#    Og.log("***logging context***", __ENV__, :debug)
 
     method = :post
-    uri = validation_url
+    url = validation_url
     body = build_2fa_request(resp_body)
     headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
-    options = @default_options
-    {:ok, resp} = :hackney.request(method, uri, headers, body, options)
-    |> Og.log_return()
+    options = @default_hackney_options
+
+    conn = %HTTPipe.Conn{
+      request: %HTTPipe.Request{
+        method: method,
+        url: url,
+        body: body,
+        headers: headers
+      },
+      adapter_options: options
+    }
+    {:ok, conn} = HTTPipe.Conn.execute(conn)
 
     error_msg = "function check_for_successful_binding seems to be entering an error loop"
-    case check_for_successful_binding(resp, validation_url, ck) do
+    case check_for_successful_binding(conn.response, validation_url, ck) do
       {:ok, :handle_2fa} -> raise error_msg
       {:ok, ck} -> ck
       {:error, msg} -> raise "#{error_msg} - #{msg}"
@@ -474,7 +529,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_credentials(opts_map) do
-#    Og.context(__ENV__, :debug)
+#    Og.log("***logging context***", __ENV__, :debug)
 
     create_app_body = get_app_create_page(opts_map) |> get_create_app_inputs() |> build_app_request(opts_map) |> send_app_request(opts_map)
     opts_map = Map.merge(opts_map, %{
@@ -498,7 +553,7 @@ defmodule Mix.Tasks.Ovh do
     config_names(Atom.to_string(app_name), client_name)
   end
   defp config_names(app_name, client_name) do
-#    Og.context(__ENV__, :debug)
+#    Og.log("***logging context***", __ENV__, :debug)
 
     {config_header, mod_client_name} =
     case app_name do
@@ -549,7 +604,7 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp print_config(options, elixir_app_name) do
-#    Og.context(__ENV__, :debug)
+#    Og.log("***logging context***", __ENV__, :debug)
 
     app_name = elixir_app_name || options.application_name
     {config_header, mod_client_name} = config_names(app_name, options.client_name)

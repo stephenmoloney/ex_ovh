@@ -1,4 +1,4 @@
-defmodule ExOvh.Query.V1.Webstorage do
+defmodule ExOvh.V1.Webstorage do
   @moduledoc ~s"""
 
   ***NOTE:*** This is a deprecated service!!!
@@ -18,10 +18,9 @@ defmodule ExOvh.Query.V1.Webstorage do
 
   ## Example
 
-      ExOvh.Query.V1.Webstorage.get_services() |> ExOvh.request()
+      ExOvh.V1.Webstorage.get_services() |> ExOvh.request()
   """
-  alias ExOvh.HttpQuery
-  alias ExOvh.Transformation.Uri
+  alias ExOvh.Transformation.Url
 
 
 
@@ -34,14 +33,15 @@ defmodule ExOvh.Query.V1.Webstorage do
 
   ## Example
 
-      ExOvh.Query.V1.Webstorage.get_services() |> ExOvh.request()
+      ExOvh.V1.Webstorage.get_services() |> ExOvh.request()
   """
-  @spec get_services() :: HttpQuery.t
+  @spec get_services() :: HTTPipe.Conn.t
   def get_services() do
-    %HttpQuery{
-          method: :get,
-          uri: "/cdn/webstorage"
-          }
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cdn/webstorage"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -59,22 +59,23 @@ defmodule ExOvh.Query.V1.Webstorage do
 
   ## Example
 
-      alias ExOvh.Query.V1.Webstorage
+      alias ExOvh.V1.Webstorage
       service_name = "cdnwebstorage-????"
-      query = Query.get_service(service_name)
-      {:ok, resp} = ExOvh.Ovh.request(query)
+      conn = Webstorage.get_service(service_name)
+      {:ok, conn} = ExOvh.Ovh.request(conn)
       %{
         "domain" => domain,
         "storageLimit => storage_limit,
         "server" => server
-       } = resp.body
+       } = conn.response.body
   """
-  @spec get_service(String.t) :: HttpQuery.t
+  @spec get_service(String.t) :: HTTPipe.Conn.t
   def get_service(service_name) do
-   %HttpQuery{
-          method: :get,
-          uri: "/cdn/webstorage/#{service_name}"
-          }
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cdn/webstorage/#{service_name}"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -92,17 +93,18 @@ defmodule ExOvh.Query.V1.Webstorage do
 
   ## Example
 
-      alias ExOvh.Query.V1.Webstorage
+      alias ExOvh.V1.Webstorage
       service_name = "cdnwebstorage-????"
-      Query.get_service_info(service_name)
-      {:ok, resp} = ExOvh.Ovh.request(query)
+      Webstorage.get_service_info(service_name)
+      {:ok, conn} = ExOvh.Ovh.request(conn)
   """
-  @spec get_service_info(String.t) :: HttpQuery.t
+  @spec get_service_info(String.t) :: HTTPipe.Conn.t
   def get_service_info(service_name) do
-    %HttpQuery{
+    req = %HTTPipe.Request{
       method: :get,
-      uri: "/cdn/webstorage/#{service_name}/serviceInfos"
-      }
+      url: "/cdn/webstorage/#{service_name}/serviceInfos"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -123,20 +125,21 @@ defmodule ExOvh.Query.V1.Webstorage do
 
   ## Example
 
-      alias ExOvh.Query.V1.Webstorage
+      alias ExOvh.V1.Webstorage
       service_name = "cdnwebstorage-????"
-      query = Query.get_service_stats(service_name, [period: "month", type: "backend"])
-      {:ok, resp} = ExOvh.Ovh.request(query)
+      conn = Webstorage.get_service_stats(service_name, [period: "month", type: "backend"])
+      {:ok, conn} = ExOvh.Ovh.request(conn)
   """
-  @spec get_service_stats(String.t, Keyword.t) :: HttpQuery.t
+  @spec get_service_stats(String.t, Keyword.t) :: HTTPipe.Conn.t
   def get_service_stats(service_name, opts \\ []) do
     period = Keyword.get(opts, "period", "month")
     type = Keyword.get(opts, "type", "cdn")
-    %HttpQuery{
-          method: :get,
-          uri: "/cdn/webstorage/#{service_name}/statistics"
-          }
-    |> Uri.add_query_string(%{"period" => period,"type" => type})
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cdn/webstorage/#{service_name}/statistics"
+    }
+    |> Url.add_query_string(%{"period" => period,"type" => type})
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -153,17 +156,18 @@ defmodule ExOvh.Query.V1.Webstorage do
 
   ## Example
 
-      alias ExOvh.Query.V1.Webstorage
+      alias ExOvh.V1.Webstorage
       service_name = "cdnwebstorage-????"
-      query = Query.get_webstorage_credentials(service_name)
-      {:ok, resp} = ExOvh.Ovh.request(query)
+      conn = Webstorage.get_webstorage_credentials(service_name)
+      {:ok, conn} = ExOvh.Ovh.request(conn)
   """
-  @spec get_credentials(String.t) :: ExOvh.Query.Ovh.t
+  @spec get_credentials(String.t) :: HTTPipe.Conn.t
   def get_credentials(service_name) do
-    %HttpQuery{
-          method: :get,
-          uri: "/cdn/webstorage/#{service_name}/credentials"
-          }
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cdn/webstorage/#{service_name}/credentials"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 

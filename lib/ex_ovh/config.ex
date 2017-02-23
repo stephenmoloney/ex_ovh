@@ -5,8 +5,8 @@ defmodule ExOvh.Config do
 
   @doc "Starts an agent for the storage of credentials in memory"
   def start_agent(client, opts) do
-    Og.context(__ENV__, :debug)
-    otp_app = Keyword.get(opts, :otp_app, :false) || Og.log_return(__ENV__, :error) |> raise()
+    Og.log("***logging context***", __ENV__, :debug)
+    otp_app = Keyword.get(opts, :otp_app, :false) || Og.log_r(__ENV__, :error) |> raise()
     Agent.start_link(fn -> config(client, otp_app) end, name: agent_name(client))
   end
 
@@ -26,7 +26,7 @@ defmodule ExOvh.Config do
     end
   end
 
-  @doc "Gets the httpoison config.exs environment variables"
+  @doc "Gets the hackney config.exs environment variables"
   def get_ovh_config_from_env(client, otp_app) do
     try do
       get_config_from_env(client, otp_app) |> Keyword.fetch!(:ovh)
@@ -38,18 +38,18 @@ defmodule ExOvh.Config do
         end
       end)
     rescue
-      _error -> Og.log_return("No ovh_config was found. ",  __ENV__, :warn) |> raise()
+      _error -> Og.log_r("No ovh_config was found. ",  __ENV__, :warn) |> raise()
     end
   end
 
-  @doc "Gets the httpoison config.exs environment variables"
+  @doc "Gets the hackney config.exs environment variables"
   def get_hackney_opts_from_env(client, otp_app) do
     try do
       get_config_from_env(client, otp_app) |> Keyword.fetch!(:hackney)
     rescue
       _error ->
-        Og.log_return("No hackney_opts was found. " <>
-                      "Falling back to default httpoison settings #{inspect(@default_hackney_opts)}", __ENV__, :warn)
+        Og.log_r("No hackney_opts was found. " <>
+                      "Falling back to default hackney settings #{inspect(@default_hackney_opts)}", __ENV__, :warn)
         @default_hackney_opts
     end
   end
@@ -85,7 +85,7 @@ defmodule ExOvh.Config do
 
     [
     ovh: ovh_config,
-    httpoison:
+    hackney:
             [
             timeout: connect_timeout,
             recv_timeout: recv_timeout,
@@ -106,12 +106,21 @@ defmodule ExOvh.Config do
   defp api_time_request(client, otp_app) do
     ovh_config = get_ovh_config_from_env(client, otp_app)
     method = :get
-    uri = ovh_config[:endpoint] <> ovh_config[:api_version] <> "/auth/time"
+    url = ovh_config[:endpoint] <> ovh_config[:api_version] <> "/auth/time"
     body = ""
     headers = [{"Content-Type", "application/json; charset=utf-8"}]
     options = get_hackney_opts_from_env(client, otp_app)
-    {:ok, resp} = :hackney.request(method, uri, headers, body, options)
-    Poison.decode!(resp.body)
+    conn = %HTTPipe.Conn{
+      request: %HTTPipe.Request{
+        method: method,
+        url: url,
+        body: body,
+        headers: headers,
+      },
+      adapter_options: options
+    }
+    {:ok, conn} = HTTPipe.Conn.execute(conn)
+    Poison.decode!(conn.response.body)
   end
 
 end

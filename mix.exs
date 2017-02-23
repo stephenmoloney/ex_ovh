@@ -1,6 +1,7 @@
 defmodule ExOvh.Mixfile do
   use Mix.Project
-  @version "0.2.0"
+  @version "0.3.0"
+  @elixir ">= 1.2.0"
 
   def project do
     [
@@ -8,7 +9,7 @@ defmodule ExOvh.Mixfile do
       name: "ExOvh",
       version: @version,
       source_url: "https://github.com/stephenmoloney/ex_ovh",
-      elixir: "~> 1.2",
+      elixir:  @elixir,
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       description: description(),
@@ -27,10 +28,8 @@ defmodule ExOvh.Mixfile do
   defp deps() do
     [
       {:calendar, "~> 0.17"},
-      {:og, "~> 0.1"},
+      {:og, ">= 0.2.4"},
       {:poison, "~> 1.5 or ~> 2.0 or ~> 3.0"},
-      {:hackney, "~> 1.0"},
-      {:httpipe, "~> 0.9"},
       {:httpipe_adapters_hackney, "~> 0.9"},
       {:floki, ">= 0.7.0"},
 

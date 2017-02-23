@@ -1,8 +1,8 @@
-defmodule ExOvh.Query.V1.Cloud do
+defmodule ExOvh.V1.Cloud do
   @moduledoc ~s"""
   Helper functions for building queries directed at the cloudstorage related parts of the `/cloud` part of the [OVH API](https://api.ovh.com/console/).
 
-  See `ExOvh.Query.V1.Cloud` for generic cloud requests.
+  See `ExOvh.V1.Cloud` for generic cloud requests.
 
   ## Functions Summary
 
@@ -45,10 +45,9 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.get_containers(service_name) |> ExOvh.request!()
+      ExOvh.V1.Cloud.get_containers(service_name) |> ExOvh.request!()
   """
-  alias ExOvh.HttpQuery
-  alias ExOvh.Transformation.{Body, Uri}
+  alias ExOvh.Transformation.{Body, Url}
 
 
   @doc ~s"""
@@ -64,14 +63,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.get_containers(service_name) |> ExOvh.request!()
+      ExOvh.V1.Cloud.get_containers(service_name) |> ExOvh.request!()
   """
-  @spec get_containers(String.t) :: HttpQuery.t
+  @spec get_containers(String.t) :: HTTPipe.Conn.t
   def get_containers(service_name) do
-    %HttpQuery{
-          method: :get,
-          uri: "/cloud/project/#{service_name}/storage",
-          }
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cloud/project/#{service_name}/storage",
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -92,9 +92,9 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.create_container(service_name, "test_container") |> ExOvh.request!()
+      ExOvh.V1.Cloud.create_container(service_name, "test_container") |> ExOvh.request!()
   """
-  @spec create_container(String.t, String.t, String.t) :: HttpQuery.t
+  @spec create_container(String.t, String.t, String.t) :: HTTPipe.Conn.t
   def create_container(service_name, container_name, region \\ "SBG1") do
     # POST /cloud/project/{serviceName}/storage Create container
     body =
@@ -103,11 +103,12 @@ defmodule ExOvh.Query.V1.Cloud do
       "region" => region
      }
     |> Poison.encode!()
-    %HttpQuery{
-          method: :post,
-          uri: "/cloud/project/#{service_name}/storage"
+    req = %HTTPipe.Request{
+      method: :post,
+      url: "/cloud/project/#{service_name}/storage"
     }
     |> Body.apply(body)
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -126,14 +127,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.get_access(service_name) |> ExOvh.request!()
+      ExOvh.V1.Cloud.get_access(service_name) |> ExOvh.request!()
   """
-  @spec get_access(String.t) :: HttpQuery.t
+  @spec get_access(String.t) :: HTTPipe.Conn.t
   def get_access(service_name) do
-    %HttpQuery{
-          method: :get,
-          uri: "/cloud/project/#{service_name}/storage/access"
-          }
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cloud/project/#{service_name}/storage/access"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -156,14 +158,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.container_info(service_name, container_id) |> ExOvh.request!()
+      ExOvh.V1.Cloud.container_info(service_name, container_id) |> ExOvh.request!()
   """
-  @spec container_info(String.t, String.t) :: HttpQuery.t
+  @spec container_info(String.t, String.t) :: HTTPipe.Conn.t
   def container_info(service_name, container_id) do
-    %HttpQuery{
-          method: :get,
-          uri: "/cloud/project/#{service_name}/storage/#{container_id}"
-          }
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cloud/project/#{service_name}/storage/#{container_id}"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -183,14 +186,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.delete_container(service_name, container_id) |> ExOvh.request!()
+      ExOvh.V1.Cloud.delete_container(service_name, container_id) |> ExOvh.request!()
   """
-  @spec delete_container(String.t, String.t) :: HttpQuery.t
+  @spec delete_container(String.t, String.t) :: HTTPipe.Conn.t
   def delete_container(service_name, container_id) do
-    %HttpQuery{
-          method: :delete,
-          uri: "/cloud/project/#{service_name}/storage/#{container_id}"
-          }
+    req = %HTTPipe.Request{
+      method: :delete,
+      url: "/cloud/project/#{service_name}/storage/#{container_id}"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -220,7 +224,7 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.modify_container_cors(service_name, container_id, "http://localhost:4001/") |> ExOvh.request!()
+      ExOvh.V1.Cloud.modify_container_cors(service_name, container_id, "http://localhost:4001/") |> ExOvh.request!()
 
   ## Notes
 
@@ -230,20 +234,21 @@ defmodule ExOvh.Query.V1.Cloud do
 
       account = ExOvh.Swift.Cloudstorage.account()
       container = "test_container"
-      Openstex.Swift.V1.Query.container_info(container, account) |> ExOvh.Swift.Cloudstorage.request!() |> Map.get(:headers) |> Map.get("X-Container-Meta-Access-Control-Allow-Origin")
+      Openstex.Swift.V1.container_info(container, account) |> ExOvh.Swift.Cloudstorage.request!() |> Map.get(:headers) |> Map.get("X-Container-Meta-Access-Control-Allow-Origin")
   """
-  @spec modify_container_cors(String.t, String.t, String.t) :: HttpQuery.t
+  @spec modify_container_cors(String.t, String.t, String.t) :: HTTPipe.Conn.t
   def modify_container_cors(service_name, container_id, origin \\ {}) do
     body =
     %{
       "origin" => origin
      }
     |> Poison.encode!()
-    %HttpQuery{
-          method: :post,
-          uri: "/cloud/project/#{service_name}/storage/#{container_id}/cors"
+    req = %HTTPipe.Request{
+      method: :post,
+      url: "/cloud/project/#{service_name}/storage/#{container_id}/cors"
     }
     |> Body.apply(body)
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -268,7 +273,7 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.modify_container_cors(service_name, container_id, "http://localhost:4001/") |> ExOvh.request!()
+      ExOvh.V1.Cloud.modify_container_cors(service_name, container_id, "http://localhost:4001/") |> ExOvh.request!()
 
   ## Notes
 
@@ -278,14 +283,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
       account = ExOvh.Swift.Cloudstorage.account()
       container = "test_container"
-      Openstex.Swift.V1.Query.container_info(container, account) |> ExOvh.Swift.Cloudstorage.request!() |> Map.get(:headers)
+      Openstex.Swift.V1.container_info(container, account) |> ExOvh.Swift.Cloudstorage.request!() |> Map.get(:headers)
   """
-  @spec deploy_container_as_static_website(String.t, String.t) :: HttpQuery.t
+  @spec deploy_container_as_static_website(String.t, String.t) :: HTTPipe.Conn.t
   def deploy_container_as_static_website(service_name, container_id) do
-    %HttpQuery{
-          method: :post,
-          uri: "/cloud/project/#{service_name}/storage/#{container_id}/static"
-          }
+    req = %HTTPipe.Request{
+      method: :post,
+      url: "/cloud/project/#{service_name}/storage/#{container_id}/static"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -299,14 +305,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.list_services() |> ExOvh.request!()
+      ExOvh.V1.Cloud.list_services() |> ExOvh.request!()
   """
-  @spec list_services() :: HttpQuery.t
+  @spec list_services() :: HTTPipe.Conn.t
   def list_services() do
-    %HttpQuery{
-          method: :get,
-          uri: "/cloud/project"
-          }
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cloud/project"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -323,14 +330,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.get_users(service_name) |> ExOvh.request!()
+      ExOvh.V1.Cloud.get_users(service_name) |> ExOvh.request!()
   """
-  @spec get_users(String.t) :: HttpQuery.t
+  @spec get_users(String.t) :: HTTPipe.Conn.t
   def get_users(service_name) do
-    %HttpQuery{
-          method: :get,
-          uri: "/cloud/project/#{service_name}/user"
-          }
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cloud/project/#{service_name}/user"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -348,19 +356,20 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.create_user(service_name, "ex_ovh") |> ExOvh.request!()
+      ExOvh.V1.Cloud.create_user(service_name, "ex_ovh") |> ExOvh.request!()
   """
-  @spec create_user(String.t, String.t) :: HttpQuery.t
+  @spec create_user(String.t, String.t) :: HTTPipe.Conn.t
   def create_user(service_name, description) do
     body =
     %{
       "description" => description
     } |> Poison.encode!()
-    %HttpQuery{
-          method: :get,
-          uri: "/cloud/project/#{service_name}/user"
-          }
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cloud/project/#{service_name}/user"
+    }
     |> Body.apply(body)
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -378,14 +387,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.get_user_details(service_name, user_id) |> ExOvh.request!()
+      ExOvh.V1.Cloud.get_user_details(service_name, user_id) |> ExOvh.request!()
   """
-  @spec get_user_details(String.t, String.t) :: HttpQuery.t
+  @spec get_user_details(String.t, String.t) :: HTTPipe.Conn.t
   def get_user_details(service_name, user_id) do
-    %HttpQuery{
-          method: :get,
-          uri: "/cloud/project/#{service_name}/user/#{user_id}"
-          }
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cloud/project/#{service_name}/user/#{user_id}"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -403,14 +413,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.delete_user(service_name, user_id) |> ExOvh.request!()
+      ExOvh.V1.Cloud.delete_user(service_name, user_id) |> ExOvh.request!()
   """
-  @spec delete_user(String.t, String.t) :: HttpQuery.t
+  @spec delete_user(String.t, String.t) :: HTTPipe.Conn.t
   def delete_user(service_name, user_id) do
-    %HttpQuery{
-          method: :delete,
-          uri: "/cloud/project/#{service_name}/user/#{user_id}"
-          }
+    req = %HTTPipe.Request{
+      method: :delete,
+      url: "/cloud/project/#{service_name}/user/#{user_id}"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -430,15 +441,16 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.download_openrc_script(service_name, user_id, "SBG1") |> ExOvh.request!()
+      ExOvh.V1.Cloud.download_openrc_script(service_name, user_id, "SBG1") |> ExOvh.request!()
   """
-  @spec download_openrc_script(String.t, String.t, String.t) :: HttpQuery.t
+  @spec download_openrc_script(String.t, String.t, String.t) :: HTTPipe.Conn.t
   def download_openrc_script(service_name, user_id, region \\ "SBG1") do
-    %HttpQuery{
-          method: :get,
-          uri: "/cloud/project/#{service_name}/user/#{user_id}/openrc",
-          }
-    |> Uri.add_query_string(%{region: region})
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cloud/project/#{service_name}/user/#{user_id}/openrc",
+    }
+    |> Url.add_query_string(%{region: region})
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -456,14 +468,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.regenerate_credentials(service_name, user_id) |> ExOvh.request!()
+      ExOvh.V1.Cloud.regenerate_credentials(service_name, user_id) |> ExOvh.request!()
   """
-  @spec regenerate_credentials(String.t, String.t) :: HttpQuery.t
+  @spec regenerate_credentials(String.t, String.t) :: HTTPipe.Conn.t
   def regenerate_credentials(service_name, user_id) do
-    %HttpQuery{
-          method: :post,
-          uri: "/cloud/project/#{service_name}/user/#{user_id}/regeneratePassword"
-          }
+    req = %HTTPipe.Request{
+      method: :post,
+      url: "/cloud/project/#{service_name}/user/#{user_id}/regeneratePassword"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -482,19 +495,20 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.swift_identity(service_name, user_id) |> ExOvh.request!()
+      ExOvh.V1.Cloud.swift_identity(service_name, user_id) |> ExOvh.request!()
   """
-  @spec swift_identity(String.t, String.t, String.t) :: HttpQuery.t
+  @spec swift_identity(String.t, String.t, String.t) :: HTTPipe.Conn.t
   def swift_identity(service_name, user_id, password) do
     body =
     %{
       "password" => password
     } |> Poison.encode!()
-    %HttpQuery{
-          method: :post,
-          uri: "/cloud/project/#{service_name}/user/#{user_id}/token"
-          }
+    req = %HTTPipe.Request{
+      method: :post,
+      url: "/cloud/project/#{service_name}/user/#{user_id}/token"
+    }
     |> Body.apply(body)
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -512,20 +526,21 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.create_project(description, voucher) |> ExOvh.request!()
+      ExOvh.V1.Cloud.create_project(description, voucher) |> ExOvh.request!()
   """
-  @spec create_project(String.t, String.t) :: HttpQuery.t
+  @spec create_project(String.t, String.t) :: HTTPipe.Conn.t
   def create_project(description, voucher) do
     body =
     %{
       "description" => description,
       "voucher" => voucher
     } |> Poison.encode!()
-    %HttpQuery{
-          method: :post,
-          uri: "/cloud/createProject"
-          }
+    req = %HTTPipe.Request{
+      method: :post,
+      url: "/cloud/createProject"
+    }
     |> Body.apply(body)
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -543,9 +558,9 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.get_prices() |> ExOvh.request!()
+      ExOvh.V1.Cloud.get_prices() |> ExOvh.request!()
   """
-  @spec get_prices(String.t | :nil, String.t | :nil) :: HttpQuery.t
+  @spec get_prices(String.t | :nil, String.t | :nil) :: HTTPipe.Conn.t
   def get_prices(region \\ :nil, flavor_id \\ :nil) do
     params =
     cond do
@@ -555,11 +570,12 @@ defmodule ExOvh.Query.V1.Cloud do
       region != :nil and flavor_id != :nil -> %{ "region" => region, "flavorId" => flavor_id }
     end
     body = if params == %{}, do: "", else: Poison.encode!(params)
-    %HttpQuery{
-          method: :get,
-          uri: "/cloud/createProject"
-          }
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cloud/createProject"
+    }
     |> Body.apply(body)
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -576,14 +592,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.project_info(service_name) |> ExOvh.request!()
+      ExOvh.V1.Cloud.project_info(service_name) |> ExOvh.request!()
   """
-  @spec project_info(String.t) :: HttpQuery.t
+  @spec project_info(String.t) :: HTTPipe.Conn.t
   def project_info(service_name) do
-    %HttpQuery{
-          method: :get,
-          uri: "/cloud/project/#{service_name}"
-          }
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cloud/project/#{service_name}"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -600,19 +617,20 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.modify_project(service_name, new_description) |> ExOvh.request!()
+      ExOvh.V1.Cloud.modify_project(service_name, new_description) |> ExOvh.request!()
   """
-  @spec modify_project(String.t, String.t) :: HttpQuery.t
+  @spec modify_project(String.t, String.t) :: HTTPipe.Conn.t
   def modify_project(service_name, new_description) do
   body =
   %{
     "description" => new_description
    } |> Poison.encode!()
-    %HttpQuery{
-          method: :put,
-          uri: "/cloud/project/#{service_name}"
-          }
+    req = %HTTPipe.Request{
+      method: :put,
+      url: "/cloud/project/#{service_name}"
+    }
     |> Body.apply(body)
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -629,14 +647,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.project_administrative_info(service_name) |> ExOvh.request!()
+      ExOvh.V1.Cloud.project_administrative_info(service_name) |> ExOvh.request!()
   """
-  @spec project_administrative_info(String.t) :: HttpQuery.t
+  @spec project_administrative_info(String.t) :: HTTPipe.Conn.t
   def project_administrative_info(service_name) do
-    %HttpQuery{
-          method: :get,
-          uri: "/cloud/project/#{service_name}/serviceInfos"
-          }
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cloud/project/#{service_name}/serviceInfos"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -653,14 +672,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.project_quotas(service_name) |> ExOvh.request!()
+      ExOvh.V1.Cloud.project_quotas(service_name) |> ExOvh.request!()
   """
-  @spec project_quotas(String.t) :: HttpQuery.t
+  @spec project_quotas(String.t) :: HTTPipe.Conn.t
   def project_quotas(service_name) do
-    %HttpQuery{
-          method: :get,
-          uri: "/cloud/project/#{service_name}/quota"
-          }
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cloud/project/#{service_name}/quota"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -677,14 +697,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.project_regions(service_name) |> ExOvh.request!()
+      ExOvh.V1.Cloud.project_regions(service_name) |> ExOvh.request!()
   """
-  @spec project_regions(String.t) :: HttpQuery.t
+  @spec project_regions(String.t) :: HTTPipe.Conn.t
   def project_regions(service_name) do
-    %HttpQuery{
-          method: :get,
-          uri: "/cloud/project/#{service_name}/region"
-          }
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cloud/project/#{service_name}/region"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -701,14 +722,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.project_region_info(service_name) |> ExOvh.request!()
+      ExOvh.V1.Cloud.project_region_info(service_name) |> ExOvh.request!()
   """
-  @spec project_region_info(String.t, String.t) :: HttpQuery.t
+  @spec project_region_info(String.t, String.t) :: HTTPipe.Conn.t
   def project_region_info(service_name, region_name) do
-    %HttpQuery{
-          method: :get,
-          uri: "/cloud/project/#{service_name}/region/#{region_name}"
-          }
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cloud/project/#{service_name}/region/#{region_name}"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -729,17 +751,18 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.project_consumption(service_name) |> ExOvh.request!()
+      ExOvh.V1.Cloud.project_consumption(service_name) |> ExOvh.request!()
   """
-  @spec project_consumption(String.t, String.t, String.t) :: HttpQuery.t
+  @spec project_consumption(String.t, String.t, String.t) :: HTTPipe.Conn.t
   def project_consumption(service_name, date_from \\ :nil, date_to \\ :nil) do
     date_from = if date_from == :nil, do: Calendar.DateTime.now!("Etc/UTC") |> Calendar.DateTime.add!(-(60*60*24*28)) |> Calendar.DateTime.Format.rfc3339(), else: date_from
     date_to = if date_to == :nil, do: Calendar.DateTime.now!("Etc/UTC") |> Calendar.DateTime.Format.rfc3339(), else: date_to
-    %HttpQuery{
-          method: :get,
-          uri: "/cloud/project/#{service_name}/consumption"
-          }
-    |> Uri.add_query_string(%{from: date_from, to: date_to})
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cloud/project/#{service_name}/consumption"
+    }
+    |> Url.add_query_string(%{from: date_from, to: date_to})
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -758,22 +781,23 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.project_bills(service_name) |> ExOvh.request!()
+      ExOvh.V1.Cloud.project_bills(service_name) |> ExOvh.request!()
   """
-  @spec project_bills(String.t, String.t, String.t) :: HttpQuery.t
+  @spec project_bills(String.t, String.t, String.t) :: HTTPipe.Conn.t
   def project_bills(service_name, date_from \\ :nil, date_to \\ :nil) do
     date_from = if date_from == :nil, do: Calendar.DateTime.now!("Etc/UTC") |> Calendar.DateTime.add!(-(60*60*24*28)) |> Calendar.DateTime.Format.rfc3339(), else: date_from
     date_to = if date_to == :nil, do: Calendar.DateTime.now!("Etc/UTC") |> Calendar.DateTime.Format.rfc3339(), else: date_to
-    %HttpQuery{
-          method: :get,
-          uri: "/cloud/project/#{service_name}/bill"
-          }
-    |> Uri.add_query_string(%{from: date_from,to: date_to})
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cloud/project/#{service_name}/bill"
+    }
+    |> Url.add_query_string(%{from: date_from,to: date_to})
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
   @doc ~s"""
-  Get a list of project alert ids. These project alert ids can then be looked up in a separate query for more information.
+  Get a list of project alert ids. These project alert ids can then be looked up in a separate request for more information.
 
   ## Api Call
 
@@ -785,14 +809,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.get_project_alerts(service_name) |> ExOvh.request!()
+      ExOvh.V1.Cloud.get_project_alerts(service_name) |> ExOvh.request!()
   """
-  @spec get_project_alerts(String.t) :: HttpQuery.t
+  @spec get_project_alerts(String.t) :: HTTPipe.Conn.t
   def get_project_alerts(service_name) do
-    %HttpQuery{
-          method: :get,
-          uri: "/cloud/project/#{service_name}/alerting"
-          }
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cloud/project/#{service_name}/alerting"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -816,22 +841,23 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.create_project_alert(service_name, "email_address@email.email", 5) |> ExOvh.request!()
+      ExOvh.V1.Cloud.create_project_alert(service_name, "email_address@email.email", 5) |> ExOvh.request!()
   """
-  @spec create_project_alert(String.t, String.t, integer, String.t) :: HttpQuery.t | no_return
+  @spec create_project_alert(String.t, String.t, integer, String.t) :: HTTPipe.Conn.t | no_return
   def create_project_alert(service_name, email, monthly_threshold, delay \\ "3600") do
-    unless is_integer(monthly_threshold), do: Og.log_return("monthly_threshold should be an integer!", __ENV__, :error) |> raise()
+    unless is_integer(monthly_threshold), do: Og.log_r("monthly_threshold should be an integer!", __ENV__, :error) |> raise()
     body =
     %{
       "delay" => delay,
       "email" => email,
       "monthlyThreshold" => monthly_threshold
     } |> Poison.encode!()
-    %HttpQuery{
-          method: :post,
-          uri: "/cloud/project/#{service_name}/alerting"
-          }
+    req = %HTTPipe.Request{
+      method: :post,
+      url: "/cloud/project/#{service_name}/alerting"
+    }
     |> Body.apply(body)
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -849,14 +875,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.get_project_alert_info(service_name, alert_id) |> ExOvh.request!()
+      ExOvh.V1.Cloud.get_project_alert_info(service_name, alert_id) |> ExOvh.request!()
   """
-  @spec get_project_alert_info(String.t, String.t) :: HttpQuery.t
+  @spec get_project_alert_info(String.t, String.t) :: HTTPipe.Conn.t
   def get_project_alert_info(service_name, alert_id) do
-    %HttpQuery{
-          method: :get,
-          uri: "/cloud/project/#{service_name}/alerting/#{alert_id}"
-          }
+    req = %HTTPipe.Request{
+      method: :get,
+      url: "/cloud/project/#{service_name}/alerting/#{alert_id}"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -877,21 +904,22 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.modify_project_alert(service_name, alert_id, "email_address@email.email", 5) |> ExOvh.request!()
+      ExOvh.V1.Cloud.modify_project_alert(service_name, alert_id, "email_address@email.email", 5) |> ExOvh.request!()
   """
-  @spec modify_project_alert(String.t, String.t, String.t, integer, String.t) :: HttpQuery.t
+  @spec modify_project_alert(String.t, String.t, String.t, integer, String.t) :: HTTPipe.Conn.t
   def modify_project_alert(service_name, alert_id, email, monthly_threshold, delay \\ "3600") do
-    unless is_integer(monthly_threshold), do: Og.log_return("monthly_threshold should be an integer!", __ENV__, :error) |> raise()
+    unless is_integer(monthly_threshold), do: Og.log_r("monthly_threshold should be an integer!", __ENV__, :error) |> raise()
     body = %{
       "delay" => delay,
       "email" => email,
       "monthlyThreshold" => monthly_threshold
     } |> Poison.encode!()
-    %HttpQuery{
-          method: :put,
-          uri: "/cloud/project/#{service_name}/alerting/#{alert_id}"
-          }
+    req = %HTTPipe.Request{
+      method: :put,
+      url: "/cloud/project/#{service_name}/alerting/#{alert_id}"
+    }
     |> Body.apply(body)
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -909,14 +937,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.get_project_alert_info(service_name, alert_id) |> ExOvh.request!()
+      ExOvh.V1.Cloud.get_project_alert_info(service_name, alert_id) |> ExOvh.request!()
   """
-  @spec delete_project_alert(String.t, String.t) :: HttpQuery.t
+  @spec delete_project_alert(String.t, String.t) :: HTTPipe.Conn.t
   def delete_project_alert(service_name, alert_id) do
-    %HttpQuery{
-          method: :delete,
-          uri: "/cloud/project/#{service_name}/alerting/#{alert_id}"
-          }
+    req = %HTTPipe.Request{
+      method: :delete,
+      url: "/cloud/project/#{service_name}/alerting/#{alert_id}"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
 
 
@@ -933,16 +962,15 @@ defmodule ExOvh.Query.V1.Cloud do
 
   ## Example
 
-      ExOvh.Query.V1.Cloud.HttpQuery.terminate_project(service_name) |> ExOvh.request!()
+      ExOvh.V1.Cloud.HTTPipe.Conn.terminate_project(service_name) |> ExOvh.request!()
   """
-  @spec terminate_project(String.t) :: HttpQuery.t
+  @spec terminate_project(String.t) :: HTTPipe.Conn.t
   def terminate_project(service_name) do
-    %HttpQuery{
-          method: :post,
-          uri: "/cloud/project/#{service_name}/terminate"
-          }
+    req = %HTTPipe.Request{
+      method: :post,
+      url: "/cloud/project/#{service_name}/terminate"
+    }
+    Map.put(HTTPipe.Conn.new(), :request, req)
   end
-
-
 
 end

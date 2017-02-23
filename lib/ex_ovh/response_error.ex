@@ -1,27 +1,51 @@
 defmodule ExOvh.ResponseError do
   @moduledoc :false
-  defexception [:response, :query]
+  defexception [:conn]
 
-  def message(%{query: query, response: resp}) do
-    ~s"""
-    The following http query was unsuccessful, unexpected or erroneous in some way:
-
-    #{Kernel.inspect(query)} was unsuccessful.
-    """
-    <>
-    message(%{response: resp})
+  def exception([conn: %HTTPipe.Conn{} = conn]) do
+    %ExOvh.ResponseError{conn: conn}
   end
 
-  def message(%{response: resp}) do
+  def message(%ExOvh.ResponseError{conn: conn}) do
+    ~s"""
+    The following http connection execution was unsuccessful, unexpected or erroneous in some way:
+
+    Request Details:
+    """
+    <>
+    request_output(conn)
+    <>
+    "\nResponse Details:\n"
+    <>
+    response_output(conn)
+  end
+
+  def request_output(conn) do
+    ~s"""
+    ** Request Method **
+        #{Kernel.inspect(conn.request.method)}
+
+    ** Request Body **
+        #{Kernel.inspect conn.request.body}
+
+    ** Request Headers **
+        #{Kernel.inspect(conn.request.headers)}
+
+    ** Request Url **
+        #{Kernel.inspect(conn.request.url)}
+    """
+  end
+
+  def response_output(conn) do
     ~s"""
     ** Reponse Status Code **
-        #{inspect resp.status_code}
+        #{Kernel.inspect conn.response.status_code}
 
     ** Response Body **
-        #{Kernel.inspect(resp.body)}
+        #{Kernel.inspect(conn.response.body)}
 
     ** Response Headers **
-        #{Kernel.inspect(resp.headers)}
+        #{Kernel.inspect(conn.response.headers)}
     """
   end
 end

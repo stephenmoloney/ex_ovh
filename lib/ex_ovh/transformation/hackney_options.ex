@@ -1,14 +1,15 @@
 defmodule ExOvh.Transformation.HackneyOptions do
   @moduledoc :false
-  alias ExOvh.HttpQuery
 
 
   # Public
 
-  @spec apply(HttpQuery.t, atom) :: HttpQuery.t
-  def apply(%HttpQuery{hackney_options: hackney_options, completed_transformations: trans} = query, client) do
+  @spec apply(HTTPipe.Conn.t, atom) :: HTTPipe.Conn.t
+  def apply(%HTTPipe.Conn{request: %HTTPipe.Request{}} = conn, client) do
+    hackney_options = Map.get(conn, :adapter_options, [])
+    trans = Map.get(conn, :completed_transformations, [])
     options = merge_options(client.hackney_opts(), hackney_options)
-    Map.put(query, :hackney_options, options)
+    Map.put(conn, :adapter_options, options)
     |> Map.put(:completed_transformations, trans ++ [:hackney_options])
   end
 
