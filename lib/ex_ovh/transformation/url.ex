@@ -13,9 +13,10 @@ defmodule ExOvh.Transformation.Url do
     Map.put(conn, :request, request)
     |> Map.put(:completed_transformations, trans ++ [:url])
   end
+
   @spec apply(HTTPipe.Conn.t, map, atom) :: HTTPipe.Conn.t
-  def apply(%HTTPipe.Conn{request: %HTTPipe.Request{url: url}} = conn, query_string_map, client) when query_string_map == %{} do
-    apply(conn, client)
+  def apply(%HTTPipe.Conn{} = conn, query_string_map, client) when query_string_map == %{} do
+    __MODULE__.apply(conn, client)
   end
   def apply(%HTTPipe.Conn{request: %HTTPipe.Request{url: url}} = conn, query_string_map, client) do
     ovh_config = client.ovh_config()
