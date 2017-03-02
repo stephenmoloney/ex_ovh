@@ -1,6 +1,6 @@
 defmodule ExOvh.V1.Cloud do
   @moduledoc ~s"""
-  Helper functions for building queries directed at the cloudstorage related parts of the `/cloud` part of the [OVH API](https://api.ovh.com/console/).
+  Helper functions for building requests directed at the cloudstorage related parts of the `/cloud` part of the [OVH API](https://api.ovh.com/console/).
 
   See `ExOvh.V1.Cloud` for generic cloud requests.
 

@@ -1,6 +1,11 @@
 # Changelog
 
 
+## v0.3.2
+
+[bug fix]
+- Fix setting the query string bug (typo) - `url.encode_query(qs_map)` -> `URI.encode_query(qs_map)`
+
 ## v0.3.1
 
 [changes]
