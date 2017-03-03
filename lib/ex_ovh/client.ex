@@ -97,6 +97,13 @@ defmodule ExOvh.Client do
       @spec hackney_opts() :: Keyword.t
       def hackney_opts(), do: config() |> Keyword.fetch!(:hackney)
 
+      @doc "Prepares a request prior to sending by applying standard transformations to the request"
+      @spec prepare_request(HTTPipe.Conn.t | HTTPipe.Request.t) :: HTTPipe.Conn.t
+      def prepare_request(conn) do
+        client = unquote(opts) |> Keyword.fetch!(:client)
+        Request.apply_transformations(conn, client)
+      end
+
       @doc "Sends a request to the ovh api using [httpipe](https://hex.pm/packages/httpipe)."
       @spec request(HTTPipe.Conn.t) :: {:ok, HTTPipe.Conn.t} | {:error, HTTPipe.Conn.t}
       def request(conn) do
@@ -128,6 +135,7 @@ defmodule ExOvh.Client do
   @callback config() :: Keyword.t
   @callback ovh_config() :: Keyword.t
   @callback hackney_opts() :: Keyword.t
+  @callback prepare_request(HTTPipe.Conn.t | HTTPipe.Request.t) :: HTTPipe.Conn.t
   @callback request(conn :: HTTPipe.Conn.t) :: {:ok, HTTPipe.Conn.t} | {:error, HTTPipe.Conn.t}
   @callback request!(conn :: HTTPipe.Conn.t) :: HTTPipe.Conn.t | no_return
 

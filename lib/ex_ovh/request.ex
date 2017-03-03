@@ -25,21 +25,8 @@ defmodule ExOvh.Request do
     end
   end
 
-
-  # private
-
-
-  defp parse_body(resp) do
-    try do
-       resp.body |> Poison.decode!()
-    rescue
-      _ ->
-        resp.body
-    end
-  end
-
-
-  defp apply_transformations(conn, client) do
+  @doc :false
+  def apply_transformations(conn, client) do
     conn =
     unless (:url in Map.get(conn, :completed_transformations, [])) do
      ExOvh.Transformation.Url.apply(conn, client)
@@ -62,6 +49,18 @@ defmodule ExOvh.Request do
       ExOvh.Transformation.Auth.apply(conn, client)
     else
       conn
+    end
+  end
+
+
+  # private
+
+  defp parse_body(resp) do
+    try do
+       resp.body |> Poison.decode!()
+    rescue
+      _ ->
+        resp.body
     end
   end
 

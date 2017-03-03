@@ -6,6 +6,9 @@
 [bug fix]
 - Fix setting the query string bug (typo) - `url.encode_query(qs_map)` -> `URI.encode_query(qs_map)`
 
+[enhancements]
+- Add `prepare_request/2` function - prepares the request without sending it. Applies standard transformations.
+
 ## v0.3.1
 
 [changes]
