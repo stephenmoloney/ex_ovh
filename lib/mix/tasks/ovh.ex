@@ -207,6 +207,7 @@ defmodule Mix.Tasks.Ovh do
         body: body,
         headers: headers
       },
+      adapter: @default_adapter,
       adapter_options: options
     }
     {:ok, conn} = HTTPipe.Conn.execute(conn)
@@ -269,6 +270,7 @@ defmodule Mix.Tasks.Ovh do
         body: body,
         headers: headers
       },
+      adapter: @default_adapter,
       adapter_options: options
     }
     {:ok, conn} = HTTPipe.Conn.execute(conn)
@@ -326,6 +328,7 @@ defmodule Mix.Tasks.Ovh do
         body: body,
         headers: headers
       },
+      adapter: @default_adapter,
       adapter_options: options
     }
     {:ok, conn} = HTTPipe.Conn.execute(conn)
@@ -351,6 +354,7 @@ defmodule Mix.Tasks.Ovh do
         body: body,
         headers: headers
       },
+      adapter: @default_adapter,
       adapter_options: options
     }
     {:ok, conn} = HTTPipe.Conn.execute(conn)
@@ -428,6 +432,7 @@ defmodule Mix.Tasks.Ovh do
         body: body,
         headers: headers
       },
+      adapter: @default_adapter,
       adapter_options: options
     }
     {:ok, conn} = HTTPipe.Conn.execute(conn)
@@ -515,6 +520,7 @@ defmodule Mix.Tasks.Ovh do
         body: body,
         headers: headers
       },
+      adapter: @default_adapter,
       adapter_options: options
     }
     {:ok, conn} = HTTPipe.Conn.execute(conn)

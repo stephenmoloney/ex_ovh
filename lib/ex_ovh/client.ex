@@ -101,7 +101,7 @@ defmodule ExOvh.Client do
       @spec prepare_request(HTTPipe.Conn.t | HTTPipe.Request.t) :: HTTPipe.Conn.t
       def prepare_request(conn) do
         client = unquote(opts) |> Keyword.fetch!(:client)
-        Request.apply_transformations(conn, client)
+        ExOvh.Request.apply_transformations(conn, client)
       end
 
       @doc "Sends a request to the ovh api using [httpipe](https://hex.pm/packages/httpipe)."
