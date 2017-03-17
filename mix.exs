@@ -1,7 +1,7 @@
 defmodule ExOvh.Mixfile do
   use Mix.Project
   @version "0.3.2"
-  @elixir ">= 1.2.0"
+  @elixir "~> 1.3 or ~> 1.4 or ~> 1.5"
 
   def project do
     [

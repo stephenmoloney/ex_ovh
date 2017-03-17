@@ -5,6 +5,8 @@
 
 [bug fix]
 - Fix setting the query string bug (typo) - `url.encode_query(qs_map)` -> `URI.encode_query(qs_map)`
+- Problem with `Body.apply()` being called in the wrong place
+- Fix `get_prices` in the `Cloud` Request build functions
 
 [enhancements]
 - Add `prepare_request/2` function - prepares the request without sending it. Applies standard transformations.
