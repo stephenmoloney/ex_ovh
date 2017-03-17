@@ -28,7 +28,6 @@ defmodule ExOvh.Mixfile do
   defp deps() do
     [
       {:calendar, "~> 0.17"},
-      {:og, ">= 0.2.4"},
       {:poison, "~> 1.5 or ~> 2.0 or ~> 3.0"},
       {:httpipe_adapters_hackney, "~> 0.9"},
       {:floki, ">= 0.7.0"},

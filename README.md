@@ -86,6 +86,7 @@ ExOvh.V1.Cloud.get_containers(service_name) |> ExOvh.request!()
 - [x] Basic examples to be added to readme of usage of the api.
 - [ ] Add macro for building queries.
 - [ ] Write the usage guide - more examples of using the API.
+- [ ] Remove dependency on `:calendar` if tz info is not required.
 
 
 #### Note 
