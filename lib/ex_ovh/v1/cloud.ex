@@ -107,8 +107,8 @@ defmodule ExOvh.V1.Cloud do
       method: :post,
       url: "/cloud/project/#{service_name}/storage"
     }
-    |> Body.apply(body)
     Map.put(HTTPipe.Conn.new(), :request, req)
+    |> Body.apply(body)
   end
 
 
@@ -247,8 +247,8 @@ defmodule ExOvh.V1.Cloud do
       method: :post,
       url: "/cloud/project/#{service_name}/storage/#{container_id}/cors"
     }
-    |> Body.apply(body)
     Map.put(HTTPipe.Conn.new(), :request, req)
+    |> Body.apply(body)
   end
 
 
@@ -368,8 +368,8 @@ defmodule ExOvh.V1.Cloud do
       method: :get,
       url: "/cloud/project/#{service_name}/user"
     }
-    |> Body.apply(body)
     Map.put(HTTPipe.Conn.new(), :request, req)
+    |> Body.apply(body)
   end
 
 
@@ -507,8 +507,8 @@ defmodule ExOvh.V1.Cloud do
       method: :post,
       url: "/cloud/project/#{service_name}/user/#{user_id}/token"
     }
-    |> Body.apply(body)
     Map.put(HTTPipe.Conn.new(), :request, req)
+    |> Body.apply(body)
   end
 
 
@@ -539,8 +539,8 @@ defmodule ExOvh.V1.Cloud do
       method: :post,
       url: "/cloud/createProject"
     }
-    |> Body.apply(body)
     Map.put(HTTPipe.Conn.new(), :request, req)
+    |> Body.apply(body)
   end
 
 
@@ -572,10 +572,10 @@ defmodule ExOvh.V1.Cloud do
     body = if params == %{}, do: "", else: Poison.encode!(params)
     req = %HTTPipe.Request{
       method: :get,
-      url: "/cloud/createProject"
+      url: "/cloud/price"
     }
-    |> Body.apply(body)
     Map.put(HTTPipe.Conn.new(), :request, req)
+    |> Body.apply(body)
   end
 
 
@@ -629,8 +629,8 @@ defmodule ExOvh.V1.Cloud do
       method: :put,
       url: "/cloud/project/#{service_name}"
     }
-    |> Body.apply(body)
     Map.put(HTTPipe.Conn.new(), :request, req)
+    |> Body.apply(body)
   end
 
 
@@ -856,8 +856,8 @@ defmodule ExOvh.V1.Cloud do
       method: :post,
       url: "/cloud/project/#{service_name}/alerting"
     }
-    |> Body.apply(body)
     Map.put(HTTPipe.Conn.new(), :request, req)
+    |> Body.apply(body)
   end
 
 
@@ -918,8 +918,8 @@ defmodule ExOvh.V1.Cloud do
       method: :put,
       url: "/cloud/project/#{service_name}/alerting/#{alert_id}"
     }
-    |> Body.apply(body)
     Map.put(HTTPipe.Conn.new(), :request, req)
+    |> Body.apply(body)
   end
 
 
