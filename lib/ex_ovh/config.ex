@@ -5,8 +5,7 @@ defmodule ExOvh.Config do
 
   @doc "Starts an agent for the storage of credentials in memory"
   def start_agent(client, opts) do
-    Og.log("***logging context***", __ENV__, :debug)
-    otp_app = Keyword.get(opts, :otp_app, :false) || Og.log_r(__ENV__, :error) |> raise()
+    otp_app = Keyword.get(opts, :otp_app, :false) || raise("otp_app not specified")
     Agent.start_link(fn -> config(client, otp_app) end, name: agent_name(client))
   end
 
@@ -38,7 +37,7 @@ defmodule ExOvh.Config do
         end
       end)
     rescue
-      _error -> Og.log_r("No ovh_config was found. ",  __ENV__, :warn) |> raise()
+      _error -> raise("No ovh_config was found. ")
     end
   end
 
@@ -48,8 +47,7 @@ defmodule ExOvh.Config do
       get_config_from_env(client, otp_app) |> Keyword.fetch!(:hackney)
     rescue
       _error ->
-        Og.log_r("No hackney_opts was found. " <>
-                      "Falling back to default hackney settings #{inspect(@default_hackney_opts)}", __ENV__, :warn)
+        _msg = "No hackney_opts was found. Falling back to default hackney settings #{inspect(@default_hackney_opts)}"
         @default_hackney_opts
     end
   end

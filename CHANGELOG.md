@@ -3,6 +3,9 @@
 
 ## v0.3.2
 
+[changes]
+- Add default adapter `hackney` to the mix tasks.
+
 [bug fix]
 - Fix setting the query string bug (typo) - `url.encode_query(qs_map)` -> `URI.encode_query(qs_map)`
 - Problem with `Body.apply()` being called in the wrong place

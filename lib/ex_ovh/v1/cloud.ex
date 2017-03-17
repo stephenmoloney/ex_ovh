@@ -845,7 +845,7 @@ defmodule ExOvh.V1.Cloud do
   """
   @spec create_project_alert(String.t, String.t, integer, String.t) :: HTTPipe.Conn.t | no_return
   def create_project_alert(service_name, email, monthly_threshold, delay \\ "3600") do
-    unless is_integer(monthly_threshold), do: Og.log_r("monthly_threshold should be an integer!", __ENV__, :error) |> raise()
+    unless is_integer(monthly_threshold), do: raise("monthly_threshold should be an integer!")
     body =
     %{
       "delay" => delay,
@@ -908,7 +908,7 @@ defmodule ExOvh.V1.Cloud do
   """
   @spec modify_project_alert(String.t, String.t, String.t, integer, String.t) :: HTTPipe.Conn.t
   def modify_project_alert(service_name, alert_id, email, monthly_threshold, delay \\ "3600") do
-    unless is_integer(monthly_threshold), do: Og.log_r("monthly_threshold should be an integer!", __ENV__, :error) |> raise()
+    unless is_integer(monthly_threshold), do: raise("monthly_threshold should be an integer!")
     body = %{
       "delay" => delay,
       "email" => email,

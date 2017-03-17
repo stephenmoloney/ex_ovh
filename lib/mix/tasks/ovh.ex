@@ -192,8 +192,6 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_app_create_page(opts_map) do
-#    Og.log("***logging context***", __ENV__, :debug)
-
     method = :get
     url = Defaults.endpoints()[opts_map[:endpoint]] <> Defaults.create_app_uri_suffix()
     body = ""
@@ -217,8 +215,6 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_create_app_inputs(resp_body) do
-#    Og.log("***logging context***", __ENV__, :debug)
-
     inputs = Floki.find(resp_body, "form input")
     |> List.flatten()
     if Enum.any?(inputs, fn(input) -> input == [] end), do: raise "Empty input found"
@@ -227,8 +223,6 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp build_app_request(inputs, %{login: login, password: password} = opts_map) do
-#    Og.log("***logging context***", __ENV__, :debug)
-
     {acc, _index, _max} =
     Enum.reduce(inputs, {"", 1, Enum.count(inputs)}, fn({"input", input, _}, acc) ->
       name = :proplists.get_value("name", input)
@@ -255,8 +249,6 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp send_app_request(req_body, opts_map) do
-#    Og.log("***logging context***", __ENV__, :debug)
-
     method = :post
     url = Defaults.endpoints()[opts_map[:endpoint]] <> Defaults.create_app_uri_suffix()
     body = req_body
@@ -313,8 +305,6 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_consumer_key(%{access_rules: access_rules, redirect_uri: redirect_uri} = opts_map) do
-#    Og.log("***logging context***", __ENV__, :debug)
-
     method = :post
     url = Defaults.endpoints()[opts_map[:endpoint]] <> opts_map[:api_version] <> Defaults.consumer_key_suffix()
     body = %{ accessRules: access_rules, redirection: redirect_uri } |> Poison.encode!()
@@ -339,8 +329,6 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp bind_consumer_key_to_app({ck, validation_url}, opts_map) do
-#    Og.log("***logging context***", __ENV__, :debug)
-
     method = :get
     url = validation_url
     body = ""
@@ -367,8 +355,6 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_bind_ck_to_app_inputs(resp_body) do
-#    Og.log("***logging context***", __ENV__, :debug)
-
     inputs = Floki.find(resp_body, "form input") ++
     Floki.find(resp_body, "form select")
     |> List.flatten()
@@ -381,8 +367,6 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp build_ck_binding_request(inputs, %{login: login, password: password} = _opts_map) do
-#    Og.log("***logging context***", __ENV__, :debug)
-
     Enum.reduce(inputs, "", fn({type, input, _options}, acc) ->
       {name_val, value} =
      cond do
@@ -404,7 +388,6 @@ defmodule Mix.Tasks.Ovh do
           {name_val, value}
         true ->
           # raise "Unexpected input"
-#          Og.log("Ignoring unexpected input " <> inspect(input), __ENV__, :warn)
           {:no_name, :no_val}
       end
       case {name_val, value} do
@@ -417,8 +400,6 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp send_ck_binding_request(req_body, validation_url, ck) do
-#    Og.log("***logging context***", __ENV__, :debug)
-
     method = :post
     url = validation_url
     body = req_body
@@ -445,8 +426,6 @@ defmodule Mix.Tasks.Ovh do
   end
 
   defp check_for_successful_binding(resp, validation_url, ck) do
-#    Og.log("***logging context***", __ENV__, :debug)
-
     error_msg1 = "Failed to bind the consumer token to the application. Please try to validate the consumer token manually at #{validation_url}"
     error_msg2 = "Invalid validity period entered for the consumer token. Please try to validate the consumer token manually at #{validation_url}"
     cond do
@@ -463,8 +442,6 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp build_2fa_request(resp_body) do
-#    Og.log("***logging context***", __ENV__, :debug)
-
     Mix.Shell.IO.info("You have activated 2FA on your OVH account, you need to verify your account via 2FA")
 
     Floki.find(resp_body, "form input")
@@ -492,7 +469,6 @@ defmodule Mix.Tasks.Ovh do
           {name_val, value}
         true ->
           # raise "Unexpected input"
-#          Og.log("Ignoring unexpected input " <> inspect(input), __ENV__, :warn)
           {:no_name, :no_val}
       end
       case {name_val, value} do
@@ -505,8 +481,6 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp handle_2fa(resp_body, validation_url, ck) do
-#    Og.log("***logging context***", __ENV__, :debug)
-
     method = :post
     url = validation_url
     body = build_2fa_request(resp_body)
@@ -535,8 +509,6 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp get_credentials(opts_map) do
-#    Og.log("***logging context***", __ENV__, :debug)
-
     create_app_body = get_app_create_page(opts_map) |> get_create_app_inputs() |> build_app_request(opts_map) |> send_app_request(opts_map)
     opts_map = Map.merge(opts_map, %{
       application_key: get_application_key(create_app_body),
@@ -559,8 +531,6 @@ defmodule Mix.Tasks.Ovh do
     config_names(Atom.to_string(app_name), client_name)
   end
   defp config_names(app_name, client_name) do
-#    Og.log("***logging context***", __ENV__, :debug)
-
     {config_header, mod_client_name} =
     case app_name do
       "ex_ovh" ->
@@ -610,8 +580,6 @@ defmodule Mix.Tasks.Ovh do
 
 
   defp print_config(options, elixir_app_name) do
-#    Og.log("***logging context***", __ENV__, :debug)
-
     app_name = elixir_app_name || options.application_name
     {config_header, mod_client_name} = config_names(app_name, options.client_name)
 
