@@ -17,7 +17,7 @@
 ## v0.3.1
 
 ***Security Warning: Versions of `ex_ovh` less than `0.3.2` are deprecated and should not be used
-due to the inclusion of older releases of the dependency `Og` Use versions `0.3.2` only of `ex_ovh`***
+due to the inclusion of older releases of the dependency `Og` Use versions `0.3.2` or above of `ex_ovh` instead***
 
 [changes]
 - Update some dependencies
@@ -41,7 +41,7 @@ in the third party library [httpipe](https://hex.pm/packages/httpipe)
 ## v0.2
 
 ***Security Warning: Versions of `ex_ovh` less than `0.3.2` are deprecated and should not be used
-due to the inclusion of older releases of the dependency `Og` Use versions `0.3.2` only of `ex_ovh`***
+due to the inclusion of older releases of the dependency `Og` Use versions `0.3.2` or above of `ex_ovh` instead***
 
 [enhancements]
 - Update some dependencies
@@ -58,14 +58,14 @@ due to the inclusion of older releases of the dependency `Og` Use versions `0.3.
 ## v0.1.3
 
 ***Security Warning: Versions of `ex_ovh` less than `0.3.2` are deprecated and should not be used
-due to the inclusion of older releases of the dependency `Og` Use versions `0.3.2` only of `ex_ovh`***
+due to the inclusion of older releases of the dependency `Og` Use versions `0.3.2` or above of `ex_ovh` instead***
 
 - Improve the `mix ovh` docs to better illustrate how to create an application and setup access rules.
 
 ## v0.1.2
 
 ***Security Warning: Versions of `ex_ovh` less than `0.3.2` are deprecated and should not be used
-due to the inclusion of older releases of the dependency `Og` Use versions `0.3.2` only of `ex_ovh`***
+due to the inclusion of older releases of the dependency `Og` Use versions `0.3.2` or above of `ex_ovh` instead***
 
 - Fix `mix ovh` task.
 - Fix some of the `/cloud` queries (binary key was missing due to missed earlier change)
@@ -74,7 +74,7 @@ due to the inclusion of older releases of the dependency `Og` Use versions `0.3.
 ## v0.1.1
 
 ***Security Warning: Versions of `ex_ovh` less than `0.3.2` are deprecated and should not be used
-due to the inclusion of older releases of the dependency `Og` Use versions `0.3.2` only of `ex_ovh`***
+due to the inclusion of older releases of the dependency `Og` Use versions `0.3.2` or above of `ex_ovh` instead***
 
 - No changes to source code. Only documentation changes.
 
@@ -82,7 +82,7 @@ due to the inclusion of older releases of the dependency `Og` Use versions `0.3.
 ## v0.1.0
 
 ***Security Warning: Versions of `ex_ovh` less than `0.3.2` are deprecated and should not be used
-due to the inclusion of older releases of the dependency `Og` Use versions `0.3.2` only of `ex_ovh`***
+due to the inclusion of older releases of the dependency `Og` Use versions `0.3.2` or above of `ex_ovh` instead***
 
 - Decouple the `Openstack` component into the `Openstex` repository.
 Only requests to the `ExOvh` API can be made with `ExOvh`.
@@ -93,6 +93,6 @@ Only requests to the `ExOvh` API can be made with `ExOvh`.
 ## v0.0.1
 
 ***Security Warning: Versions of `ex_ovh` less than `0.3.2` are deprecated and should not be used
-due to the inclusion of older releases of the dependency `Og` Use versions `0.3.2` only of `ex_ovh`***
+due to the inclusion of older releases of the dependency `Og` Use versions `0.3.2` or above of `ex_ovh` instead***
 
 - Initial release.

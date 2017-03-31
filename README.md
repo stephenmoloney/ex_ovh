@@ -3,11 +3,6 @@
 ExOvh is an helper library for the [elixir language](http://elixir-lang.org/) for the [Ovh Api](https://api.ovh.com/).
 To use the Openstack components of the OVH API, see [Openstex](https://github.com/stephenmoloney/openstex)
 
-#### Warning
-
-- Only use versions `0.3.2` or greater of `ex_ovh`. Earlier versions have a security vulnerability
-due to the inclusion of older versions of the [og](https://hex.pm/packages/og). The issue is documented
-in the [og](https://github.com/stephenmoloney/og) library.
 
 #### Project Features
 
