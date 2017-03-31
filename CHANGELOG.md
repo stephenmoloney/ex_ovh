@@ -3,6 +3,11 @@
 
 ## v0.3.2
 
+[security fix]
+- Remove dependency on `Og`. A potential security issue existed for `og` versions below `1.0.0`. See
+[Code.eval_string/3](https://github.com/elixir-lang/elixir/commit/f1daca5be78e6a466745ba2cdc66d9787c3cf47f#diff-da151e1c1d9b535259a2385407272c9eR107).
+As `Og` was removed anyways as a dependency in `v0.3.2` of `ex_ovh`, this issue is resolved.
+
 [changes]
 - Add default adapter `hackney` to the mix tasks.
 
@@ -93,6 +98,6 @@ Only requests to the `ExOvh` API can be made with `ExOvh`.
 ## v0.0.1
 
 ***Security Warning: Versions of `ex_ovh` less than `0.3.2` are deprecated and should not be used
-due to the inclusion of older releases of the dependency `Og` Use versions `0.3.2` or above of `ex_ovh` instead***
+due to the inclusion of older releases of the dependency `Og` Use versions `0.3.2` only of `ex_ovh`***
 
 - Initial release.
