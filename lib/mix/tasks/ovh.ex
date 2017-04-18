@@ -34,7 +34,7 @@ defmodule Mix.Tasks.Ovh do
   use Mix.Task
   alias ExOvh.Defaults
   @default_headers [{"Content-Type", "application/json; charset=utf-8"}]
-  @default_adapter :hackney
+  @default_adapter HTTPipe.Adapters.Hackney
   @default_hackney_options [ timeout: 30000, recv_timeout: (60000 * 1) ]
   @default_name "ex_ovh"
   @default_description "ex_ovh application"

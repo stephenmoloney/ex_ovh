@@ -1,6 +1,13 @@
 # Changelog
 
 
+## v0.3.3
+
+[bug fix]
+- Fix error `function :hackney.execute_request/5 is undefined or private` when
+running `mix ovh` task by setting the adapter correctly
+
+
 ## v0.3.2
 
 [security fix]
