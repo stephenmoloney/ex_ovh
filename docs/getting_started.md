@@ -10,7 +10,7 @@ then substitute `Awesome` for `MyApp` and `AWESOME_OVH_CLIENT_` for `MY_APP_OVH_
 
 ```elixir
 defp deps() do
-  [{:ex_ovh, "~> 0.2"}]
+  [{:ex_ovh, ">= 0.3.3"}]
 end
 ```
 
