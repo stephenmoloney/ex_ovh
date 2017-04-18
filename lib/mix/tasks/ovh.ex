@@ -27,7 +27,7 @@ defmodule Mix.Tasks.Ovh do
           application_key: System.get_env("EX_OVH_APPLICATION_KEY"),
           application_secret: System.get_env("EX_OVH_APPLICATION_SECRET"),
           consumer_key: System.get_env("EX_OVH_CONSUMER_KEY")
-        ]
+       ]
 
   See the [mix task documentation]((https://github.com/stephenmoloney/ex_ovh/blob/master/docs/mix_task.md).
   """
@@ -35,7 +35,7 @@ defmodule Mix.Tasks.Ovh do
   alias ExOvh.Defaults
   @default_headers [{"Content-Type", "application/json; charset=utf-8"}]
   @default_adapter HTTPipe.Adapters.Hackney
-  @default_hackney_options [ timeout: 30000, recv_timeout: (60000 * 1) ]
+  @default_hackney_options [timeout: 30000, recv_timeout: (60000 * 1)]
   @default_name "ex_ovh"
   @default_description "ex_ovh application"
   @default_redirect_uri ""
@@ -112,9 +112,9 @@ defmodule Mix.Tasks.Ovh do
   end
 
 
-  defp parsers_login({opts, acc}), do: {opts, Map.merge(acc, %{login: Keyword.fetch!(opts, :login)}) }
-  defp parsers_password({opts, acc}), do: {opts, Map.merge(acc, %{ password: Keyword.fetch!(opts, :password)}) }
-  # defp parsers_app_name({opts, acc}), do: {opts, Map.merge(acc, %{ application_name: Keyword.fetch!(opts, :appname)}) }
+  defp parsers_login({opts, acc}), do: {opts, Map.merge(acc, %{login: Keyword.fetch!(opts, :login)})}
+  defp parsers_password({opts, acc}), do: {opts, Map.merge(acc, %{password: Keyword.fetch!(opts, :password)})}
+  # defp parsers_app_name({opts, acc}), do: {opts, Map.merge(acc, %{application_name: Keyword.fetch!(opts, :appname)})}
   defp parsers_endpoint({opts, acc}) do
     endpoint = Keyword.get(opts, :endpoint, :nil)
     endpoint =
@@ -122,7 +122,7 @@ defmodule Mix.Tasks.Ovh do
       :nil -> "ovh-eu"
       _ -> endpoint
     end
-    {opts, Map.merge(acc, %{ endpoint: endpoint }) }
+    {opts, Map.merge(acc, %{endpoint: endpoint})}
   end
   defp parsers_api_version({opts, acc}) do
     api_version = Keyword.get(opts, :apiversion, :nil)
@@ -131,33 +131,26 @@ defmodule Mix.Tasks.Ovh do
       :nil -> "1.0"
       _ -> api_version
     end
-    {opts, Map.merge(acc, %{ api_version: api_version }) }
+    {opts, Map.merge(acc, %{api_version: api_version})}
   end
   defp parsers_redirect_uri({opts, acc}) do
     redirect_uri = Keyword.get(opts, :redirecturi, @default_redirect_uri)
-    {opts, Map.merge(acc, %{ redirect_uri: redirect_uri }) }
+    {opts, Map.merge(acc, %{redirect_uri: redirect_uri})}
   end
   defp parsers_client_name({opts, acc}) do
     client_name = Keyword.get(opts, :clientname, :nil)
-    {opts, Map.merge(acc, %{ client_name: client_name }) }
+    {opts, Map.merge(acc, %{client_name: client_name})}
   end
   defp parsers_app_name({opts, acc}) do
     application_name = Keyword.get(opts, :appname, @default_name)
-    application_name =
-    case application_name do
-      :nil -> "ex_ovh"
-      _ -> application_name
-    end
-    {opts, Map.merge(acc, %{ application_name: application_name }) }
+    application_name = application_name && application_name || @default_name
+    {opts, Map.merge(acc, %{application_name: application_name})}
   end
   defp parsers_app_desc({opts, acc}) do
     application_description = Keyword.get(opts, :appdescription, :nil)
-    application_description =
-    case application_description do
-      :nil -> Keyword.get(opts, :appname, @default_description)
-      _ -> application_description
-    end
-    {opts, Map.merge(acc, %{ application_description: application_description }) }
+    application_description = application_description && application_description ||
+    Keyword.get(opts, :appname, @default_description)
+    {opts, Map.merge(acc, %{application_description: application_description})}
   end
   defp parsers_access_rules({opts, acc}) do
     access_rules = Keyword.get(opts, :accessrules, :nil)
@@ -181,13 +174,13 @@ defmodule Mix.Tasks.Ovh do
           %{
             method: String.upcase(method),
             path: path
-           }
+          }
         end)
         List.insert_at(acc, -1, new_rules)
       end)
       |> List.flatten()
     end
-    {opts, Map.merge(acc, %{access_rules: access_rules}) }
+    {opts, Map.merge(acc, %{access_rules: access_rules})}
   end
 
 
@@ -204,10 +197,10 @@ defmodule Mix.Tasks.Ovh do
         url: url,
         body: body,
         headers: headers
-      },
+     },
       adapter: @default_adapter,
       adapter_options: options
-    }
+   }
     {:ok, conn} = HTTPipe.Conn.execute(conn)
 
     conn.response.body
@@ -261,10 +254,10 @@ defmodule Mix.Tasks.Ovh do
         url: url,
         body: body,
         headers: headers
-      },
+     },
       adapter: @default_adapter,
       adapter_options: options
-    }
+   }
     {:ok, conn} = HTTPipe.Conn.execute(conn)
     body = conn.response.body
 
@@ -307,7 +300,7 @@ defmodule Mix.Tasks.Ovh do
   defp get_consumer_key(%{access_rules: access_rules, redirect_uri: redirect_uri} = opts_map) do
     method = :post
     url = Defaults.endpoints()[opts_map[:endpoint]] <> opts_map[:api_version] <> Defaults.consumer_key_suffix()
-    body = %{ accessRules: access_rules, redirection: redirect_uri } |> Poison.encode!()
+    body = %{accessRules: access_rules, redirection: redirect_uri} |> Poison.encode!()
     headers = Map.merge(Enum.into(@default_headers, %{}), Enum.into([{"X-Ovh-Application", opts_map[:application_key]}], %{})) |> Enum.into([])
     options = @default_hackney_options
 
@@ -317,10 +310,10 @@ defmodule Mix.Tasks.Ovh do
         url: url,
         body: body,
         headers: headers
-      },
+     },
       adapter: @default_adapter,
       adapter_options: options
-    }
+   }
     {:ok, conn} = HTTPipe.Conn.execute(conn)
 
     body = Poison.decode!(conn.response.body)
@@ -341,10 +334,10 @@ defmodule Mix.Tasks.Ovh do
         url: url,
         body: body,
         headers: headers
-      },
+     },
       adapter: @default_adapter,
       adapter_options: options
-    }
+   }
     {:ok, conn} = HTTPipe.Conn.execute(conn)
 
     conn.response.body
@@ -412,10 +405,10 @@ defmodule Mix.Tasks.Ovh do
         url: url,
         body: body,
         headers: headers
-      },
+     },
       adapter: @default_adapter,
       adapter_options: options
-    }
+   }
     {:ok, conn} = HTTPipe.Conn.execute(conn)
 
     case check_for_successful_binding(conn.response, validation_url, ck) do
@@ -493,10 +486,10 @@ defmodule Mix.Tasks.Ovh do
         url: url,
         body: body,
         headers: headers
-      },
+     },
       adapter: @default_adapter,
       adapter_options: options
-    }
+   }
     {:ok, conn} = HTTPipe.Conn.execute(conn)
 
     error_msg = "function check_for_successful_binding seems to be entering an error loop"
@@ -515,9 +508,9 @@ defmodule Mix.Tasks.Ovh do
       application_secret: get_application_secret(create_app_body),
       application_name: get_application_name(create_app_body),
       application_description: get_application_description(create_app_body)
-    })
+   })
     ck = get_consumer_key(opts_map) |> bind_consumer_key_to_app(opts_map)
-    Map.merge(opts_map, %{ consumer_key: ck })
+    Map.merge(opts_map, %{consumer_key: ck})
     |> Map.delete(:login) |> Map.delete(:password)
   end
 
@@ -537,17 +530,13 @@ defmodule Mix.Tasks.Ovh do
         {
           ":" <> app_name,
           "EX_OVH_"
-        }
+       }
       other ->
-        client_name =
-        case client_name do
-          :nil -> "OvhClient"
-          client_name -> client_name
-        end
+        client_name = client_name && client_name || "OvhClient"
         {
           ":" <> app_name <> ", " <> Macro.camelize(app_name) <> "." <> client_name,
           String.upcase(other) <> "_" <> String.upcase(Macro.underscore(client_name)) <>"_"
-        }
+       }
     end
     {config_header, mod_client_name}
   end
@@ -594,7 +583,7 @@ defmodule Mix.Tasks.Ovh do
           consumer_key: System.get_env(\"#{mod_client_name <> "CONSUMER_KEY"}\"),
           endpoint: \"#{options.endpoint}\",
           api_version: \"#{options.api_version}\"
-        ]
+       ]
     """
   end
 
