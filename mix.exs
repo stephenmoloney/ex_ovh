@@ -21,6 +21,7 @@ defmodule ExOvh.Mixfile do
 
   def application() do
     [
+      mod: [],
       applications: [:calendar, :crypto, :hackney, :floki, :logger, :poison]
     ]
   end
