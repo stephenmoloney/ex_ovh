@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.3.6
+
+[changes]
+- Remove `mod: []` as this caused some release warnings. No Module Supervisor
+is started by default.
+- bump version of `:httpipe_adapters_hackney`
+
 ## v0.3.5
 
 [changes]

@@ -1,6 +1,6 @@
 defmodule ExOvh.Mixfile do
   use Mix.Project
-  @version "0.3.5"
+  @version "0.3.6"
   @elixir "~> 1.3 or ~> 1.4 or ~> 1.5"
 
   def project do
@@ -21,7 +21,6 @@ defmodule ExOvh.Mixfile do
 
   def application() do
     [
-      mod: [],
       applications: [:calendar, :crypto, :hackney, :floki, :logger, :poison]
     ]
   end
@@ -30,9 +29,10 @@ defmodule ExOvh.Mixfile do
     [
       {:calendar, "~> 0.17"},
       {:poison, "~> 1.5 or ~> 2.0 or ~> 3.0"},
-      {:httpipe_adapters_hackney, "~> 0.9"},
-      {:floki, ">= 0.7.0"},
+      {:httpipe_adapters_hackney, "~> 0.10"},
+      {:floki, "~> 0.17.0"},
 
+      # dev deps
       {:markdown, github: "devinus/markdown", only: :dev},
       {:ex_doc,  "~> 0.14", only: :dev}
     ]
