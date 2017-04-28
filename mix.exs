@@ -1,6 +1,6 @@
 defmodule ExOvh.Mixfile do
   use Mix.Project
-  @version "0.3.3"
+  @version "0.3.4"
   @elixir "~> 1.3 or ~> 1.4 or ~> 1.5"
 
   def project do
@@ -21,7 +21,7 @@ defmodule ExOvh.Mixfile do
 
   def application() do
     [
-      applications: [:calendar, :crypto, :hackney, :logger]
+      applications: [:calendar, :crypto, :hackney, :logger, :poison]
     ]
   end
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.4
+
+[bug fix]
+- Added `:poison` to list of applications to remove
+warnings when making a release.
 
 ## v0.3.3
 
