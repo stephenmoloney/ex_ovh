@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.5
+
+[changes]
+- Added `:floki` to list of applications to remove
+warnings when making a release.
+
 ## v0.3.4
 
 [bug fix]
