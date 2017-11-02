@@ -50,7 +50,7 @@ service_name = "service_name"
 req = %HTTPipe.Request{
   method: :get,
   url: "/cloud/project/#{service_name}/storage"
-}s
+}
 |> MyApp.OvhClient.request!()
 ```
 
