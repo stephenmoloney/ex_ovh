@@ -1,5 +1,10 @@
 # Changelog
 
+
+## v0.4.0
+
+- Bump dependencies and remove many deprecations for elixir 1.5+
+
 ## v0.3.6
 
 [changes]

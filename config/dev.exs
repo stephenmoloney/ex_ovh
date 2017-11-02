@@ -15,5 +15,5 @@ config :ex_ovh,
     recv_timeout: 180000
   ]
 
-#config :httpipe,
-#  :adapter, HTTPipe.Adapters.Hackney
+config :httpipe,
+  :adapter, HTTPipe.Adapters.Hackney

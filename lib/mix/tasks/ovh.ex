@@ -52,8 +52,10 @@ defmodule Mix.Tasks.Ovh do
     Mix.Shell.IO.info("")
     Mix.Shell.IO.info("The details in the map above will be used to create the ovh application.")
     Mix.Shell.IO.info("")
+
     if Mix.Shell.IO.yes?("Proceed?") do
-      :hackney.start()
+      Application.ensure_all_started(:hackney)
+
       opts_map = parse_args(args)
 
       message = get_credentials(opts_map)
@@ -165,17 +167,11 @@ defmodule Mix.Tasks.Ovh do
       end)
       |> Enum.reduce([], fn({method, concat_paths}, acc) ->
         paths = concat_paths
-        |> String.lstrip(?[)
-        |> String.strip(?]) #rstrip has a bug but fixed in master (01/02/2016)
+        |> String.trim_leading(?[)
+        |> String.trim(?]) #rstrip has a bug but fixed in master (01/02/2016)
         |> String.split(",")
-        new_rules = Enum.filter_map(paths,
-          fn(path) -> path !== "" end,
-          fn(path) ->
-          %{
-            method: String.upcase(method),
-            path: path
-          }
-        end)
+        new_rules = Enum.filter(paths, fn(path) -> path != "" end)
+        |> Enum.map(fn(path) -> %{method: String.upcase(method), path: path} end)
         List.insert_at(acc, -1, new_rules)
       end)
       |> List.flatten()
@@ -352,7 +348,7 @@ defmodule Mix.Tasks.Ovh do
     Floki.find(resp_body, "form select")
     |> List.flatten()
     |> Enum.filter(fn({_type, input, _options}) ->
-      :proplists.get_value("name", input) !== "identifiant"
+      :proplists.get_value("name", input) != "identifiant"
     end)
     if Enum.any?(inputs, fn(input) -> input == [] end), do: raise "Inputs should not be empty"
     inputs

@@ -10,7 +10,7 @@ then substitute `Awesome` for `MyApp` and `AWESOME_OVH_CLIENT_` for `MY_APP_OVH_
 
 ```elixir
 defp deps() do
-  [{:ex_ovh, ">= 0.3.3"}]
+  [{:ex_ovh, "~> 0.4"}]
 end
 ```
 
@@ -185,7 +185,10 @@ ExOvh.V1.Cloud.list_services() |> ExOvh.request!()
 - `GET /cloud/project/{serviceName}/storage`
 
 ```
-ExOvh.V1.Cloud.get_containers(service_name) |> ExOvh.request!()
+resp1 = ExOvh.V1.Cloud.list_services() |> ExOvh.request!() |> Map.get(:response) 
+service = Map.get(resp1, :body) |> List.last()
+resp2 = ExOvh.V1.Cloud.get_containers(service) |> ExOvh.request!() |> Map.get(:response)
+containers =  Map.get(resp2, :body)
 ```
 
 

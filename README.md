@@ -41,7 +41,7 @@ req = %HTTPipe.Request{
   method: :get,
   url: "/me/api/application/#{app_id}"
 }
-|> MyApp.OvhClient.request!()
+MyApp.OvhClient.request!(req)
 ```
 
 - `GET /cloud/project/{serviceName}/storage`
@@ -82,7 +82,6 @@ ExOvh.V1.Cloud.get_containers(service_name) |> ExOvh.request!()
 
 - [ ] Tests for OVH portion of library
 - [ ] Option to set the application ttl when running ovh mix task.
-- [ ] Add queries for the remainder of the OVH API. (~~Webstorage CDN~~ (now a deprecated service) and Cloud are the only ones covered so far)
 - [x] Basic examples to be added to readme of usage of the api.
 - [ ] Add macro for building queries.
 - [ ] Write the usage guide - more examples of using the API.
